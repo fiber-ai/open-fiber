@@ -1,0 +1,188 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775224041284,
+  "projectRoot": "/Users/neel/Git/open-fiber/nextjs",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "14.2.0",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "18.3.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.0",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": "npm run lint",
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "typecheck": "tsc --noEmit"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 0,
+      "lastAccessed": 1775224041275,
+      "keyFiles": []
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1775224041280,
+      "keyFiles": []
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 4,
+      "lastAccessed": 1775224041280,
+      "keyFiles": [
+        "api-key.ts",
+        "fiber-client.ts",
+        "trpc.ts"
+      ]
+    },
+    "src/pages": {
+      "path": "src/pages",
+      "purpose": "Page components",
+      "fileCount": 4,
+      "lastAccessed": 1775224041280,
+      "keyFiles": [
+        "_app.tsx",
+        "_document.tsx",
+        "index.tsx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/components/layout/sidebar.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1775224517449,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/audiences/[id].tsx",
+      "accessCount": 6,
+      "lastAccessed": 1775224547232,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 6,
+      "lastAccessed": 1775224550943,
+      "type": "directory"
+    },
+    {
+      "path": "",
+      "accessCount": 5,
+      "lastAccessed": 1775224290187,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/index.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775224546746,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/audiences/index.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775224546983,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/exclusion-lists/[id].tsx",
+      "accessCount": 4,
+      "lastAccessed": 1775224547484,
+      "type": "file"
+    },
+    {
+      "path": "src/styles/globals.css",
+      "accessCount": 4,
+      "lastAccessed": 1775224580363,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/setup.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1775224546867,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 2,
+      "lastAccessed": 1775224304008,
+      "type": "directory"
+    },
+    {
+      "path": "next.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1775224066054,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/_document.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775224290131,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

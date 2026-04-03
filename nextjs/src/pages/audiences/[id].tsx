@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Trash2, RefreshCw, Loader2, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
@@ -20,7 +20,8 @@ import Link from "next/link";
 
 export default function AudienceDetailPage() {
   const router = useRouter();
-  const id = router.query.id as string;
+  const params = useParams();
+  const id = params?.id as string;
   const utils = trpc.useUtils();
 
   const status = trpc.audiences.getStatus.useQuery(

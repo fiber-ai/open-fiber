@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Plus, Trash2, Loader2, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
@@ -21,9 +21,10 @@ interface ExcludedItem {
 }
 
 export default function ExclusionListDetailPage() {
-  const router = useRouter();
-  const id = router.query.id as string;
-  const listType = (router.query.type as string) === "prospect" ? "prospect" : "company";
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const id = params?.id as string;
+  const listType = searchParams?.get("type") === "prospect" ? "prospect" : "company";
   const utils = trpc.useUtils();
   const [pageSize] = useState(25);
   const [input, setInput] = useState("");

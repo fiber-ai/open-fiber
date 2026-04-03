@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 import {
   Search,
   Users,
@@ -92,7 +92,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const router = useRouter();
+  const pathname = usePathname();
 
   return (
     <aside
@@ -128,7 +128,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
               </p>
             )}
             {group.items.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = pathname === item.href;
               const Icon = item.icon;
               return (
                 <Link

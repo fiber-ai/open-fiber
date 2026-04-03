@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiKeyInput } from "@/components/shared/api-key-input";
 import type { NextPageWithLayout } from "./_app";
