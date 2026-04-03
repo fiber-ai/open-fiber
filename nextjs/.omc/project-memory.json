@@ -136,6 +136,12 @@
       "type": "directory"
     },
     {
+      "path": "package.json",
+      "accessCount": 5,
+      "lastAccessed": 1775225006920,
+      "type": "directory"
+    },
+    {
       "path": "src/pages/index.tsx",
       "accessCount": 4,
       "lastAccessed": 1775224546746,
@@ -164,12 +170,6 @@
       "accessCount": 3,
       "lastAccessed": 1775224546867,
       "type": "file"
-    },
-    {
-      "path": "package.json",
-      "accessCount": 2,
-      "lastAccessed": 1775224304008,
-      "type": "directory"
     },
     {
       "path": "next.config.mjs",

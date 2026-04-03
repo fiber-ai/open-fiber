@@ -5,7 +5,8 @@
       "Bash(git checkout:*)",
       "Bash(npm install:*)",
       "Read(//tmp/**)",
-      "Bash(grep -n \"Html\" .next/server/chunks/ssr/[root-of-the-server]__0yy9l~_._.js)"
+      "Bash(grep -n \"Html\" .next/server/chunks/ssr/[root-of-the-server]__0yy9l~_._.js)",
+      "Bash(npm run:*)"
     ]
   }
 }
