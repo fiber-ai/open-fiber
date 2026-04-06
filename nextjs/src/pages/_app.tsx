@@ -1,4 +1,4 @@
-import type { AppProps } from "next/app";
+import App, { type AppProps, type AppContext } from "next/app";
 import type { NextPage } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect } from "react";
@@ -40,7 +40,7 @@ function GlobalToastListener() {
   return null;
 }
 
-function App({ Component, pageProps }: AppPropsWithLayout) {
+function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout =
     Component.getLayout ?? ((page) => <AppLayout>{page}</AppLayout>);
 
@@ -53,4 +53,11 @@ function App({ Component, pageProps }: AppPropsWithLayout) {
   );
 }
 
-export default trpc.withTRPC(App);
+// Disable Automatic Static Optimization — this is a client-side dashboard
+// and useRouter from next/router requires the Pages Router context at render time.
+MyApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext);
+  return { ...appProps };
+};
+
+export default trpc.withTRPC(MyApp);
