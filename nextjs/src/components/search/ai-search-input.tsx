@@ -27,7 +27,7 @@ export function AISearchInput({
         </Label>
         <Textarea
           className="min-h-[120px]"
-          placeholder={"e.g. Series A SaaS companies in the US with 50-200 employees that use React\n\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
+          placeholder={"e.g. Series A SaaS companies in the US with 50-200 employees that use React\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />

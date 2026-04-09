@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Github, Loader2, ArrowRight } from "lucide-react";
+import { Github, Linkedin, Loader2, ArrowRight } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PollingIndicator } from "@/components/shared/polling-indicator";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { CopyButton } from "@/components/shared/copy-button";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "linkedin-to-github" | "github-to-linkedin";
 
@@ -89,18 +89,18 @@ export default function GithubLookupsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="GitHub Lookups" description="Map between GitHub usernames and LinkedIn profiles" />
+      <Header icon={Github} title="GitHub Lookups" description="Map between GitHub usernames and LinkedIn profiles" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-6">
-          <div className="flex gap-2">
-            <Button variant={mode === "github-to-linkedin" ? "default" : "outline"} size="sm" onClick={() => setMode("github-to-linkedin")}>
-              GitHub → LinkedIn
-            </Button>
-            <Button variant={mode === "linkedin-to-github" ? "default" : "outline"} size="sm" onClick={() => setMode("linkedin-to-github")}>
-              LinkedIn → GitHub
-            </Button>
-          </div>
+          <ToggleButtonGroup
+            options={[
+              { value: "github-to-linkedin" as Mode, label: "GitHub \u2192 LinkedIn", icon: Github },
+              { value: "linkedin-to-github" as Mode, label: "LinkedIn \u2192 GitHub", icon: Linkedin },
+            ]}
+            value={mode}
+            onChange={(v) => setMode(v as Mode)}
+          />
 
           <Card>
             <CardContent className="pt-6 space-y-4">
@@ -165,9 +165,6 @@ export default function GithubLookupsPage() {
             </Card>
           )}
 
-          {!isTriggering && !isPolling && !isDone && (
-            <EmptyState icon={Github} title="GitHub Lookups" description="Map GitHub usernames to LinkedIn profiles or vice versa." />
-          )}
         </div>
       </div>
     </div>

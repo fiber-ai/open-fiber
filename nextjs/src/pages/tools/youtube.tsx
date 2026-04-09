@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "search" | "video" | "channel";
 
@@ -49,20 +50,18 @@ export default function YouTubePage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="YouTube" description="Search videos, fetch details, transcripts, and channel info" />
+      <Header icon={Youtube} title="YouTube" description="Search videos, fetch details, transcripts, and channel info" />
 
       <div className="border-b p-4 space-y-3">
-        <div className="flex gap-2">
-          <Button variant={mode === "search" ? "default" : "outline"} size="sm" onClick={() => setMode("search")}>
-            <Search className="mr-1.5 h-4 w-4" /> Search
-          </Button>
-          <Button variant={mode === "video" ? "default" : "outline"} size="sm" onClick={() => setMode("video")}>
-            <Film className="mr-1.5 h-4 w-4" /> Video Details
-          </Button>
-          <Button variant={mode === "channel" ? "default" : "outline"} size="sm" onClick={() => setMode("channel")}>
-            <User className="mr-1.5 h-4 w-4" /> Channel
-          </Button>
-        </div>
+        <ToggleButtonGroup
+          options={[
+            { value: "search" as Mode, label: "Search", icon: Search },
+            { value: "video" as Mode, label: "Video Details", icon: Film },
+            { value: "channel" as Mode, label: "Channel", icon: User },
+          ]}
+          value={mode}
+          onChange={(v) => setMode(v as Mode)}
+        />
 
         <div className="flex gap-3 items-end">
           {mode === "search" && (
@@ -204,9 +203,6 @@ export default function YouTubePage() {
           </div>
         )}
 
-        {!activeMutation.isSuccess && !isLoading && !activeMutation.isError && (
-          <EmptyState icon={Youtube} title="YouTube" description="Search videos, view details with transcripts, or explore channels." />
-        )}
       </div>
     </div>
   );

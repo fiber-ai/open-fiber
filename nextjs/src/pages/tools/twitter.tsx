@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "profile" | "search" | "tweets" | "tweet-details";
 
@@ -49,23 +50,19 @@ export default function TwitterPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="Twitter / X" description="Fetch profiles, search tweets, and explore user activity" />
+      <Header icon={Twitter} title="Twitter / X" description="Fetch profiles, search tweets, and explore user activity" />
 
       <div className="border-b p-4 space-y-3">
-        <div className="flex flex-wrap gap-2">
-          <Button variant={mode === "profile" ? "default" : "outline"} size="sm" onClick={() => setMode("profile")}>
-            <User className="mr-1.5 h-4 w-4" /> Profile
-          </Button>
-          <Button variant={mode === "search" ? "default" : "outline"} size="sm" onClick={() => setMode("search")}>
-            <Search className="mr-1.5 h-4 w-4" /> Search
-          </Button>
-          <Button variant={mode === "tweets" ? "default" : "outline"} size="sm" onClick={() => setMode("tweets")}>
-            <MessageSquare className="mr-1.5 h-4 w-4" /> User Tweets
-          </Button>
-          <Button variant={mode === "tweet-details" ? "default" : "outline"} size="sm" onClick={() => setMode("tweet-details")}>
-            <Reply className="mr-1.5 h-4 w-4" /> Tweet Details
-          </Button>
-        </div>
+        <ToggleButtonGroup
+          options={[
+            { value: "profile" as Mode, label: "Profile", icon: User },
+            { value: "search" as Mode, label: "Search", icon: Search },
+            { value: "tweets" as Mode, label: "User Tweets", icon: MessageSquare },
+            { value: "tweet-details" as Mode, label: "Tweet Details", icon: Reply },
+          ]}
+          value={mode}
+          onChange={(v) => setMode(v as Mode)}
+        />
 
         <div className="flex gap-3 items-end">
           {(mode === "profile" || mode === "tweets") && (
@@ -195,9 +192,6 @@ export default function TwitterPage() {
           </div>
         )}
 
-        {!activeMutation.isSuccess && !isLoading && !activeMutation.isError && (
-          <EmptyState icon={Twitter} title="Twitter / X" description="Look up profiles, search tweets, or explore a user's activity." />
-        )}
       </div>
     </div>
   );

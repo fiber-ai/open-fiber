@@ -20,7 +20,6 @@ import {
   Repeat,
   Twitter,
   Youtube,
-  Compass,
   FileSearch,
   Share2,
   Upload,
@@ -92,7 +91,6 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Twitter / X", href: "/tools/twitter", icon: Twitter },
       { label: "YouTube", href: "/tools/youtube", icon: Youtube },
-      { label: "Sales Navigator", href: "/tools/sales-navigator", icon: Compass },
     ],
   },
   {

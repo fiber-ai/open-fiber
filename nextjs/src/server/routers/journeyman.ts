@@ -12,6 +12,7 @@ import { createTRPCRouter, protectedProcedure, fiberFetch } from "../trpc";
 export const journeymanRouter = createTRPCRouter({
   createList: protectedProcedure
     .input(z.object({ name: z.string().min(1) }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
       return fiberFetch(ctx.apiKey, "POST", "/v1/job-changes/create-list", {
         name: input.name,

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { ArrowLeft, Trash2, RefreshCw, Loader2, ShieldCheck, Copy, Zap } from "lucide-react";
+import { ArrowLeft, Trash2, RefreshCw, Loader2, ShieldCheck, Zap } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { AudienceMembersTable } from "@/components/audiences/audience-members-table";
@@ -45,20 +45,6 @@ export default function AudienceDetailPage() {
       utils.audiences.getStatus.invalidate({ audienceId: id });
     },
   });
-
-  const duplicateMutation = trpc.audiences.create.useMutation({
-    onSuccess: (data) => {
-      utils.audiences.list.invalidate();
-      if (data?.output?.audienceId) {
-        router.push(`/audiences/${data.output.audienceId}`);
-      }
-    },
-  });
-
-  const handleDuplicate = () => {
-    const name = audience?.name ? `${audience.name} (copy)` : "Duplicated audience";
-    duplicateMutation.mutate({ name });
-  };
 
   // Enrichment
   const [enriching, setEnriching] = useState(false);
@@ -155,19 +141,6 @@ export default function AudienceDetailPage() {
             <Zap className="mr-2 h-4 w-4" />
           )}
           Enrich
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleDuplicate}
-          disabled={duplicateMutation.isPending}
-        >
-          {duplicateMutation.isPending ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Copy className="mr-2 h-4 w-4" />
-          )}
-          Duplicate
         </Button>
         <Dialog open={exclDialogOpen} onOpenChange={setExclDialogOpen}>
           <DialogTrigger asChild>

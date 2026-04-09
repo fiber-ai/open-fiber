@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "profile" | "company" | "keywords" | "profile-comments" | "profile-reactions";
 
@@ -77,26 +78,20 @@ export default function LinkedInPostsPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="LinkedIn Posts" description="Fetch posts from profiles, companies, or search by keywords" />
+      <Header icon={MessageSquare} title="LinkedIn Posts" description="Fetch posts from profiles, companies, or search by keywords" />
 
       <div className="border-b p-4 space-y-3">
-        <div className="flex gap-2">
-          <Button variant={mode === "profile" ? "default" : "outline"} size="sm" onClick={() => setMode("profile")}>
-            <User className="mr-1.5 h-4 w-4" /> Profile Posts
-          </Button>
-          <Button variant={mode === "company" ? "default" : "outline"} size="sm" onClick={() => setMode("company")}>
-            <Building2 className="mr-1.5 h-4 w-4" /> Company Posts
-          </Button>
-          <Button variant={mode === "keywords" ? "default" : "outline"} size="sm" onClick={() => setMode("keywords")}>
-            <Search className="mr-1.5 h-4 w-4" /> Keyword Search
-          </Button>
-          <Button variant={mode === "profile-comments" ? "default" : "outline"} size="sm" onClick={() => setMode("profile-comments")}>
-            <MessageCircle className="mr-1.5 h-4 w-4" /> Profile Comments
-          </Button>
-          <Button variant={mode === "profile-reactions" ? "default" : "outline"} size="sm" onClick={() => setMode("profile-reactions")}>
-            <Heart className="mr-1.5 h-4 w-4" /> Profile Reactions
-          </Button>
-        </div>
+        <ToggleButtonGroup
+          options={[
+            { value: "profile" as Mode, label: "Profile Posts", icon: User },
+            { value: "company" as Mode, label: "Company Posts", icon: Building2 },
+            { value: "keywords" as Mode, label: "Keyword Search", icon: Search },
+            { value: "profile-comments" as Mode, label: "Comments", icon: MessageCircle },
+            { value: "profile-reactions" as Mode, label: "Reactions", icon: Heart },
+          ]}
+          value={mode}
+          onChange={(v) => setMode(v as Mode)}
+        />
 
         <div className="flex gap-3 items-end">
           {(mode === "profile" || mode === "company" || mode === "profile-comments" || mode === "profile-reactions") && (
@@ -168,9 +163,6 @@ export default function LinkedInPostsPage() {
 
         {hasResult && posts.length === 0 && (
           <EmptyState icon={MessageSquare} title="No posts found" description="No posts available for this query." />
-        )}
-        {!hasResult && !isLoading && !activeError && (
-          <EmptyState icon={MessageSquare} title="LinkedIn Posts" description="Fetch recent posts from any profile, company, or search by keywords." />
         )}
       </div>
     </div>

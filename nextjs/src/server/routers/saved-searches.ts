@@ -179,6 +179,7 @@ export const savedSearchRouter = createTRPCRouter({
         prospectSearchParams: peopleSearchParamsSchema.optional(),
       })
     )
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
         updateSavedSearch({

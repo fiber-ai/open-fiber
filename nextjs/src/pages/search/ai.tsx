@@ -10,6 +10,7 @@ import { ProspectDetailSheet } from "@/components/search/prospect-detail-sheet";
 import { PaginationControls } from "@/components/shared/pagination-controls";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+
 import { Badge } from "@/components/ui/badge";
 
 type ResultType = "companies" | "prospects" | "jd" | null;
@@ -57,6 +58,7 @@ export default function AISearchPage() {
   return (
     <div className="flex h-full flex-col">
       <Header
+        icon={Zap}
         title="AI Search"
         description="Describe what you're looking for in plain English"
       />
@@ -146,13 +148,6 @@ export default function AISearchPage() {
           </div>
         )}
 
-        {!resultType && !isLoading && (
-          <EmptyState
-            icon={Zap}
-            title="AI-Powered Search"
-            description='Type a natural language description above and click "Search Companies" or "Search Prospects" to find results.'
-          />
-        )}
       </div>
 
       {/* Detail Sheets */}

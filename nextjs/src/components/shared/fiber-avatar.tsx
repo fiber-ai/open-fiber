@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Building2, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,7 @@ interface FiberAvatarProps {
 const sizeMap = {
   sm: "h-6 w-6",
   md: "h-8 w-8",
-  lg: "h-10 w-10",
+  lg: "h-12 w-12",
 } as const;
 
 const iconSizeMap = {
@@ -40,11 +40,15 @@ export function FiberAvatar({
   className,
 }: FiberAvatarProps) {
   const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    setFailed(false);
+  }, [src]);
 
   const dimensions = sizeMap[size];
   const iconDimensions = iconSizeMap[size];
   const isRound = type === "person";
   const Icon = type === "company" ? Building2 : User;
+  const objectFitClass = type === "company" ? "object-contain" : "object-cover";
 
   if (src && !failed) {
     return (
@@ -53,7 +57,8 @@ export function FiberAvatar({
         alt={alt ?? ""}
         className={cn(
           dimensions,
-          "border object-cover",
+          "border",
+          objectFitClass,
           isRound ? "rounded-full" : "rounded",
           className
         )}

@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "profile" | "company";
 
@@ -48,20 +48,20 @@ export default function BulkEnrichPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="Bulk Live Enrich" description="Fetch fresh LinkedIn data for multiple profiles or companies at once" />
+      <Header icon={Users} title="Bulk Live Enrich" description="Fetch fresh LinkedIn data for multiple profiles or companies at once" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-6">
           <Card>
             <CardContent className="pt-6 space-y-4">
-              <div className="flex gap-2">
-                <Button variant={mode === "profile" ? "default" : "outline"} size="sm" onClick={() => setMode("profile")}>
-                  <User className="mr-1.5 h-4 w-4" /> Profiles
-                </Button>
-                <Button variant={mode === "company" ? "default" : "outline"} size="sm" onClick={() => setMode("company")}>
-                  <Building2 className="mr-1.5 h-4 w-4" /> Companies
-                </Button>
-              </div>
+              <ToggleButtonGroup
+                options={[
+                  { value: "profile" as Mode, label: "Profiles", icon: User },
+                  { value: "company" as Mode, label: "Companies", icon: Building2 },
+                ]}
+                value={mode}
+                onChange={(v) => setMode(v as Mode)}
+              />
 
               <div className="space-y-2">
                 <Label>
@@ -134,9 +134,6 @@ export default function BulkEnrichPage() {
             </Card>
           )}
 
-          {!activeMutation.isSuccess && !activeMutation.isPending && !activeMutation.isError && (
-            <EmptyState icon={Users} title="Bulk Live Enrich" description="Paste LinkedIn URLs to fetch fresh data for multiple profiles or companies at once." />
-          )}
         </div>
       </div>
     </div>

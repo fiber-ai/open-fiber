@@ -11,6 +11,7 @@ import { PollingIndicator } from "@/components/shared/polling-indicator";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 
+
 export default function SocialMediaPage() {
   const [input, setInput] = useState("");
   const [runId, setRunId] = useState<string | null>(null);
@@ -51,7 +52,7 @@ export default function SocialMediaPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="Social Media Finder" description="Find all social profiles for a person across platforms" />
+      <Header icon={Share2} title="Social Media Finder" description="Find all social profiles for a person across platforms" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-6">
@@ -119,9 +120,6 @@ export default function SocialMediaPage() {
             <EmptyState icon={Share2} title="No results" description="No social profiles found for the provided LinkedIn URLs." />
           )}
 
-          {!triggerMutation.isSuccess && !isPolling && !triggerMutation.isPending && (
-            <EmptyState icon={Share2} title="Social Media Finder" description="Enter LinkedIn URLs to discover Twitter, GitHub, and other social profiles." />
-          )}
         </div>
       </div>
     </div>

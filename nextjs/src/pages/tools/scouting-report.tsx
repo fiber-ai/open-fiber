@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { FiberAvatar } from "@/components/shared/fiber-avatar";
 
@@ -47,7 +46,7 @@ export default function ScoutingReportPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="Scouting Report" description="AI-generated company research (may take 1-2 minutes)" />
+      <Header icon={FileSearch} title="Scouting Report" description="AI-generated company research (may take 1-2 minutes)" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-2xl space-y-6">
@@ -197,9 +196,6 @@ export default function ScoutingReportPage() {
             </div>
           )}
 
-          {!mutation.isSuccess && !mutation.isPending && !mutation.isError && (
-            <EmptyState icon={FileSearch} title="Scouting Reports" description="Generate AI-powered research reports for any company." />
-          )}
         </div>
       </div>
     </div>

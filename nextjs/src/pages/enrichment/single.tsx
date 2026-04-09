@@ -15,6 +15,7 @@ import { CopyButton } from "@/components/shared/copy-button";
 
 export default function SingleEnrichmentPage() {
   const [tab, setTab] = useState<"linkedin" | "name" | "email">("linkedin");
+  const [activeLinkedInVariant, setActiveLinkedInVariant] = useState<RevealVariant | null>(null);
 
   const [exhaustiveTaskId, setExhaustiveTaskId] = useState<string | null>(null);
 
@@ -54,6 +55,7 @@ export default function SingleEnrichmentPage() {
   } as const;
 
   const handleLinkedInSubmit = (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant) => {
+    setActiveLinkedInVariant(variant);
     // Reset exhaustive polling state
     setExhaustiveTaskId(null);
 
@@ -85,15 +87,32 @@ export default function SingleEnrichmentPage() {
     });
   };
 
-  // Pick the result from whichever sync variant was used, or exhaustive poll
-  const enrichResult =
-    enrichMutation.data ?? slimMutation.data ?? premiumMutation.data ?? druidMutation.data ?? exhaustivePoll.data ?? null;
+  // Pick the result from the active variant only (avoids stale data from prior variants)
+  const enrichResult = (() => {
+    switch (activeLinkedInVariant) {
+      case "standard": return enrichMutation.data ?? null;
+      case "slim": return slimMutation.data ?? null;
+      case "premium": return premiumMutation.data ?? null;
+      case "druid": return druidMutation.data ?? null;
+      case "exhaustive": return exhaustivePoll.data ?? null;
+      default: return null;
+    }
+  })();
   const emailResult = emailLookup.data;
   const nameResult = kitchenSink.data;
 
   const isSyncLoading = enrichMutation.isPending || slimMutation.isPending || premiumMutation.isPending || druidMutation.isPending;
   const isExhaustivePolling = !!exhaustiveTaskId && !exhaustivePoll.data?.output?.profile?.status?.match(/completed|failed/);
-  const syncError = enrichMutation.error ?? slimMutation.error ?? premiumMutation.error ?? druidMutation.error ?? exhaustiveTrigger.error ?? null;
+  const syncError = (() => {
+    switch (activeLinkedInVariant) {
+      case "standard": return enrichMutation.error ?? null;
+      case "slim": return slimMutation.error ?? null;
+      case "premium": return premiumMutation.error ?? null;
+      case "druid": return druidMutation.error ?? null;
+      case "exhaustive": return exhaustiveTrigger.error ?? null;
+      default: return null;
+    }
+  })();
 
   return (
     <div className="flex h-full flex-col">

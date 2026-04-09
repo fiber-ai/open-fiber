@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { z } from "zod";
-import { Link2, Loader2, User, Building2 } from "lucide-react";
+import { Link2, Loader2, User, Building2, ClipboardPaste, FileUp } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { CsvImporter, type CsvColumnConfig, type CsvImporterResult } from "@/components/shared/csv-importer";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "profile" | "company";
 type InputMode = "paste" | "csv";
@@ -40,21 +40,27 @@ export default function UrlRepairPage() {
   const standardizeProfile = trpc.linkedin.standardizeProfile.useMutation();
   const standardizeCompany = trpc.linkedin.standardizeCompany.useMutation();
 
+  // Process sequentially (not Promise.all) to respect API rate limits.
+  // Batch UI updates every 5 items to reduce re-renders while still
+  // giving progressive feedback on large inputs.
   const processIdentifiers = async (identifiers: string[]) => {
     setIsProcessing(true);
     setResults([]);
 
     const newResults: StandardizeResult[] = [];
+    const BATCH_SIZE = 5;
 
-    for (const identifier of identifiers) {
+    for (let i = 0; i < identifiers.length; i++) {
       try {
         const mutate = mode === "profile" ? standardizeProfile : standardizeCompany;
-        const data = await mutate.mutateAsync({ identifier });
-        newResults.push({ input: identifier, output: data?.output ?? null });
+        const data = await mutate.mutateAsync({ identifier: identifiers[i] });
+        newResults.push({ input: identifiers[i], output: data?.output ?? null });
       } catch (err) {
-        newResults.push({ input: identifier, output: null, error: (err as Error).message });
+        newResults.push({ input: identifiers[i], output: null, error: (err as Error).message });
       }
-      setResults([...newResults]);
+      if ((i + 1) % BATCH_SIZE === 0 || i === identifiers.length - 1) {
+        setResults([...newResults]);
+      }
     }
 
     setIsProcessing(false);
@@ -75,29 +81,29 @@ export default function UrlRepairPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="URL Repair" description="Standardize LinkedIn URNs, Sales Navigator URLs, and slugs to canonical format" />
+      <Header icon={Link2} title="URL Repair" description="Standardize LinkedIn URNs, Sales Navigator URLs, and slugs to canonical format" />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-6">
           <Card>
             <CardContent className="pt-6 space-y-4">
-              <div className="flex gap-2">
-                <Button variant={mode === "profile" ? "default" : "outline"} size="sm" onClick={() => setMode("profile")}>
-                  <User className="mr-1.5 h-4 w-4" /> Profile URLs
-                </Button>
-                <Button variant={mode === "company" ? "default" : "outline"} size="sm" onClick={() => setMode("company")}>
-                  <Building2 className="mr-1.5 h-4 w-4" /> Company URLs
-                </Button>
-              </div>
+              <ToggleButtonGroup
+                options={[
+                  { value: "profile" as Mode, label: "Profile URLs", icon: User },
+                  { value: "company" as Mode, label: "Company URLs", icon: Building2 },
+                ]}
+                value={mode}
+                onChange={(v) => setMode(v as Mode)}
+              />
 
-              <div className="flex gap-2">
-                <Button variant={inputMode === "paste" ? "default" : "outline"} size="sm" onClick={() => setInputMode("paste")}>
-                  Paste
-                </Button>
-                <Button variant={inputMode === "csv" ? "default" : "outline"} size="sm" onClick={() => setInputMode("csv")}>
-                  Upload CSV
-                </Button>
-              </div>
+              <ToggleButtonGroup
+                options={[
+                  { value: "paste" as InputMode, label: "Paste", icon: ClipboardPaste },
+                  { value: "csv" as InputMode, label: "Upload CSV", icon: FileUp },
+                ]}
+                value={inputMode}
+                onChange={(v) => setInputMode(v as InputMode)}
+              />
 
               {inputMode === "csv" && (
                 <CsvImporter
@@ -203,9 +209,6 @@ export default function UrlRepairPage() {
             </Card>
           )}
 
-          {results.length === 0 && !isProcessing && (
-            <EmptyState icon={Link2} title="URL Repair" description="Paste LinkedIn URNs or Sales Navigator URLs to convert them to standard format." />
-          )}
         </div>
       </div>
     </div>

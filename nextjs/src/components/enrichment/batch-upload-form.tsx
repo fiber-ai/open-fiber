@@ -43,15 +43,6 @@ export function BatchUploadForm({ onSubmit, isLoading }: BatchUploadFormProps) {
 
   return (
     <div className="space-y-4">
-      <CsvImporter
-        schema={linkedinRowSchema}
-        columns={COLUMNS}
-        onComplete={handleComplete}
-        maxRows={10000}
-        confirmLabel="Start Batch Enrichment"
-        isLoading={isLoading}
-      />
-
       {/* Options */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">Data to Fetch</Label>
@@ -70,6 +61,15 @@ export function BatchUploadForm({ onSubmit, isLoading }: BatchUploadFormProps) {
           </label>
         </div>
       </div>
+
+      <CsvImporter
+        schema={linkedinRowSchema}
+        columns={COLUMNS}
+        onComplete={handleComplete}
+        maxRows={10000}
+        confirmLabel="Start Batch Enrichment"
+        isLoading={isLoading}
+      />
     </div>
   );
 }
