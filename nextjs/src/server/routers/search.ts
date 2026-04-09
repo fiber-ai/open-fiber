@@ -10,6 +10,7 @@ import {
   textToProfileSearch,
   textToCompanySearchParams,
   textToProfileSearchParams,
+  textToCombinedSearch,
   investorSearch,
   investmentSearch,
   jobPostingSearch,
@@ -17,7 +18,7 @@ import {
   companyTypeahead,
   locationTypeahead,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
 import { companySearchParamsSchema, peopleSearchParamsSchema } from "@/lib/schemas/search";
 
 const searchResultSchema = z.object({
@@ -338,6 +339,66 @@ export const searchRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return callFiber(() =>
         jobPostingSearchCount({ body: { apiKey: ctx.apiKey, searchParams: input.searchParams } })
+      );
+    }),
+
+  // --- Job Description → People ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  jdToProfileSearch: protectedProcedure
+    .input(
+      z.discriminatedUnion("request", [
+        z.object({
+          request: z.literal("initial"),
+          query: z.string().min(1),
+          pageSize: z.number().min(1).max(100).default(25),
+        }),
+        z.object({
+          request: z.literal("subsequent"),
+          cursor: z.string(),
+        }),
+      ])
+    )
+    .output(searchResultSchema)
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/natural-language-search/job-description-search", {
+        search: input.request === "initial"
+          ? { request: "initial", query: input.query, pageSize: input.pageSize }
+          : { request: "subsequent", cursor: input.cursor },
+      });
+    }),
+
+  // --- Combined Search Count ---
+  combinedSearchCount: protectedProcedure
+    .input(z.object({
+      companySearchParams: companySearchParamsSchema,
+      prospectSearchParams: peopleSearchParamsSchema.optional(),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/combined-search/count", {
+        companySearchParams: input.companySearchParams,
+        prospectSearchParams: input.prospectSearchParams ?? {},
+      });
+    }),
+
+  // --- Text-to-Combined Search ---
+  textToCombinedSearch: protectedProcedure
+    .input(z.object({
+      query: z.string().min(1),
+      companyItemLimit: z.number().min(0).max(100).default(25),
+      profileItemLimit: z.number().min(1).max(100).default(25),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() =>
+        textToCombinedSearch({
+          body: {
+            apiKey: ctx.apiKey,
+            query: input.query,
+            companyItemLimit: input.companyItemLimit,
+            profileItemLimit: input.profileItemLimit,
+          },
+        })
       );
     }),
 

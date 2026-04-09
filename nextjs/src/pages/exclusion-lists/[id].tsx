@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import { z } from "zod";
 import { ArrowLeft, Plus, Trash2, Loader2, ShieldCheck } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
@@ -11,6 +12,25 @@ import { Card, CardContent } from "@/components/ui/card";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { CsvImporter, type CsvColumnConfig } from "@/components/shared/csv-importer";
+
+const companyExclSchema = z.object({
+  domain: z.string().optional(),
+  linkedinUrl: z.string().optional(),
+}).refine((r) => r.domain || r.linkedinUrl, { message: "Need domain or LinkedIn URL" });
+
+const prospectExclSchema = z.object({
+  linkedinUrl: z.string().min(1, "LinkedIn URL is required"),
+});
+
+const COMPANY_EXCL_COLUMNS: CsvColumnConfig[] = [
+  { key: "domain", label: "Domain", aliases: ["website", "url", "site"] },
+  { key: "linkedinUrl", label: "LinkedIn URL", aliases: ["linkedin", "li_url"] },
+];
+
+const PROSPECT_EXCL_COLUMNS: CsvColumnConfig[] = [
+  { key: "linkedinUrl", label: "LinkedIn URL", aliases: ["linkedin", "url", "profile", "li_url"], required: true },
+];
 
 interface ExcludedItem {
   id?: string;
@@ -27,6 +47,7 @@ export default function ExclusionListDetailPage() {
   const utils = trpc.useUtils();
   const [pageSize] = useState(25);
   const [input, setInput] = useState("");
+  const [showCsvUpload, setShowCsvUpload] = useState(false);
 
   // Company queries
   const companyQuery = trpc.exclusionLists.getExcludedCompanies.useQuery(
@@ -140,6 +161,48 @@ export default function ExclusionListDetailPage() {
               </form>
             </CardContent>
           </Card>
+
+          {/* CSV Upload */}
+          <div className="space-y-2">
+            <button
+              type="button"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+              onClick={() => setShowCsvUpload((v) => !v)}
+            >
+              {showCsvUpload ? "Hide" : "Or upload"} a CSV file
+            </button>
+            {showCsvUpload && (
+              <Card>
+                <CardContent className="pt-6">
+                  <CsvImporter
+                    schema={isCompany ? companyExclSchema : prospectExclSchema}
+                    columns={isCompany ? COMPANY_EXCL_COLUMNS : PROSPECT_EXCL_COLUMNS}
+                    confirmLabel={`Add to Exclusion List`}
+                    isLoading={isAddPending}
+                    onComplete={(result) => {
+                      if (isCompany) {
+                        const rows = result.validRows as Array<{ domain?: string; linkedinUrl?: string }>;
+                        addCompanyMutation.mutate({
+                          listId: id,
+                          companies: rows.map((r) => ({
+                            domain: r.domain ?? null,
+                            linkedinUrl: r.linkedinUrl ?? null,
+                          })),
+                        });
+                      } else {
+                        const rows = result.validRows as Array<{ linkedinUrl: string }>;
+                        addProspectMutation.mutate({
+                          listId: id,
+                          prospects: rows.map((r) => ({ linkedinUrl: r.linkedinUrl })),
+                        });
+                      }
+                      setShowCsvUpload(false);
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
           {activeQuery.isLoading && <LoadingSkeleton rows={5} />}
           {activeQuery.isError && <ErrorDisplay message={activeQuery.error.message} onRetry={() => activeQuery.refetch()} />}

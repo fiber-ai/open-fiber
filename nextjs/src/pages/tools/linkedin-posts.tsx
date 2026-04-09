@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Search, User, Building2, Loader2, ThumbsUp, MessageCircle } from "lucide-react";
+import { MessageSquare, Search, User, Building2, Loader2, ThumbsUp, MessageCircle, Heart } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 
-type Mode = "profile" | "company" | "keywords";
+type Mode = "profile" | "company" | "keywords" | "profile-comments" | "profile-reactions";
 
 interface Post {
   post_id?: string | null;
@@ -36,6 +36,8 @@ export default function LinkedInPostsPage() {
   const profilePosts = trpc.linkedin.profilePosts.useMutation();
   const companyPosts = trpc.linkedin.companyPosts.useMutation();
   const keywordSearch = trpc.linkedin.postSearchByKeywords.useMutation();
+  const profileComments = trpc.linkedin.profileComments.useMutation();
+  const profileReactions = trpc.linkedin.profileReactions.useMutation();
 
   const handleSearch = () => {
     if (mode === "profile" && identifier.trim()) {
@@ -44,18 +46,34 @@ export default function LinkedInPostsPage() {
       companyPosts.mutate({ identifier: identifier.trim() });
     } else if (mode === "keywords" && keywords.trim()) {
       keywordSearch.mutate({ keywords: keywords.trim(), recency: recency as "Day" | "Week" | "Month" | "Quarter" | "HalfYear" | "Year" });
+    } else if (mode === "profile-comments" && identifier.trim()) {
+      profileComments.mutate({ identifier: identifier.trim() });
+    } else if (mode === "profile-reactions" && identifier.trim()) {
+      profileReactions.mutate({ identifier: identifier.trim() });
     }
   };
 
-  const isLoading = profilePosts.isPending || companyPosts.isPending || keywordSearch.isPending;
-  const activeError = mode === "profile" ? profilePosts.error : mode === "company" ? companyPosts.error : keywordSearch.error;
+  const mutationForMode = {
+    profile: profilePosts,
+    company: companyPosts,
+    keywords: keywordSearch,
+    "profile-comments": profileComments,
+    "profile-reactions": profileReactions,
+  }[mode];
+
+  const isLoading = mutationForMode.isPending;
+  const activeError = mutationForMode.error;
   // profile/company posts are in output.data, keyword search is in output.posts
   const posts = (mode === "profile"
     ? profilePosts.data?.output?.data
     : mode === "company"
     ? companyPosts.data?.output?.data
+    : mode === "profile-comments"
+    ? profileComments.data?.output?.data
+    : mode === "profile-reactions"
+    ? profileReactions.data?.output?.data
     : keywordSearch.data?.output?.posts) ?? [];
-  const hasResult = mode === "profile" ? profilePosts.isSuccess : mode === "company" ? companyPosts.isSuccess : keywordSearch.isSuccess;
+  const hasResult = mutationForMode.isSuccess;
 
   return (
     <div className="flex h-full flex-col">
@@ -72,13 +90,25 @@ export default function LinkedInPostsPage() {
           <Button variant={mode === "keywords" ? "default" : "outline"} size="sm" onClick={() => setMode("keywords")}>
             <Search className="mr-1.5 h-4 w-4" /> Keyword Search
           </Button>
+          <Button variant={mode === "profile-comments" ? "default" : "outline"} size="sm" onClick={() => setMode("profile-comments")}>
+            <MessageCircle className="mr-1.5 h-4 w-4" /> Profile Comments
+          </Button>
+          <Button variant={mode === "profile-reactions" ? "default" : "outline"} size="sm" onClick={() => setMode("profile-reactions")}>
+            <Heart className="mr-1.5 h-4 w-4" /> Profile Reactions
+          </Button>
         </div>
 
         <div className="flex gap-3 items-end">
-          {(mode === "profile" || mode === "company") && (
+          {(mode === "profile" || mode === "company" || mode === "profile-comments" || mode === "profile-reactions") && (
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium">{mode === "profile" ? "LinkedIn Profile URL or Slug" : "LinkedIn Company URL or Slug"}</Label>
-              <Input placeholder={mode === "profile" ? "https://www.linkedin.com/in/username" : "https://www.linkedin.com/company/name"} value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+              <Label className="text-xs font-medium">
+                {mode === "company" ? "LinkedIn Company URL or Slug" : "LinkedIn Profile URL or Slug"}
+              </Label>
+              <Input
+                placeholder={mode === "company" ? "https://www.linkedin.com/company/name" : "https://www.linkedin.com/in/username"}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+              />
             </div>
           )}
           {mode === "keywords" && (

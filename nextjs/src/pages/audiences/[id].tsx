@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { ArrowLeft, Trash2, RefreshCw, Loader2, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Trash2, RefreshCw, Loader2, ShieldCheck, Copy, Zap } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { AudienceMembersTable } from "@/components/audiences/audience-members-table";
@@ -45,6 +45,45 @@ export default function AudienceDetailPage() {
       utils.audiences.getStatus.invalidate({ audienceId: id });
     },
   });
+
+  const duplicateMutation = trpc.audiences.create.useMutation({
+    onSuccess: (data) => {
+      utils.audiences.list.invalidate();
+      if (data?.output?.audienceId) {
+        router.push(`/audiences/${data.output.audienceId}`);
+      }
+    },
+  });
+
+  const handleDuplicate = () => {
+    const name = audience?.name ? `${audience.name} (copy)` : "Duplicated audience";
+    duplicateMutation.mutate({ name });
+  };
+
+  // Enrichment
+  const [enriching, setEnriching] = useState(false);
+  const enrichMutation = trpc.audiences.triggerEnrichment.useMutation({
+    onSuccess: () => setEnriching(true),
+  });
+  const enrichStatus = trpc.audiences.getEnrichmentStatus.useQuery(
+    { audienceId: id },
+    {
+      enabled: enriching,
+      refetchInterval: (q) => {
+        const stage = q.state.data?.output?.currentStage;
+        if (stage === "DONE" || stage === "FAILED") return false;
+        return 3000;
+      },
+    }
+  );
+  const enrichProgress = enrichStatus.data?.output;
+
+  useEffect(() => {
+    const stage = enrichStatus.data?.output?.currentStage;
+    if (stage === "DONE" || stage === "FAILED") {
+      setEnriching(false);
+    }
+  }, [enrichStatus.data?.output?.currentStage]);
 
   const [exclName, setExclName] = useState("");
   const [exclType, setExclType] = useState<"company" | "prospect">("company");
@@ -97,6 +136,38 @@ export default function AudienceDetailPage() {
             <RefreshCw className="mr-2 h-4 w-4" />
           )}
           Build
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() =>
+            enrichMutation.mutate({
+              audienceId: id,
+              maxProspectsToEnrich: 100,
+              enrichmentType: { getWorkEmails: true, getPersonalEmails: false, getPhoneNumbers: false },
+            })
+          }
+          disabled={enrichMutation.isPending || enriching}
+        >
+          {enrichMutation.isPending || enriching ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Zap className="mr-2 h-4 w-4" />
+          )}
+          Enrich
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDuplicate}
+          disabled={duplicateMutation.isPending}
+        >
+          {duplicateMutation.isPending ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Copy className="mr-2 h-4 w-4" />
+          )}
+          Duplicate
         </Button>
         <Dialog open={exclDialogOpen} onOpenChange={setExclDialogOpen}>
           <DialogTrigger asChild>
@@ -183,6 +254,27 @@ export default function AudienceDetailPage() {
               </div>
             </div>
           </div>
+
+          {/* Enrichment progress */}
+          {enriching && enrichProgress && (
+            <div className="border-b px-6 py-3 space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="font-medium flex items-center gap-2">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  Enriching — {enrichProgress.currentStage}
+                </span>
+                <span className="text-muted-foreground">
+                  {enrichProgress.enrichedProspects ?? 0} / {enrichProgress.totalProspects ?? "?"} prospects
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full bg-primary transition-all duration-500"
+                  style={{ width: `${enrichProgress.percentComplete ?? 0}%` }}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Members */}
           <div className="flex-1 overflow-y-auto">

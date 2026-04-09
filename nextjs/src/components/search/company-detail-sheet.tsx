@@ -1,5 +1,4 @@
 import {
-  Building2,
   MapPin,
   Users,
   DollarSign,
@@ -12,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { FiberAvatar } from "@/components/shared/fiber-avatar";
 import { formatNumber } from "@/lib/utils";
 import type { CompanyRow } from "./company-table";
 
@@ -57,17 +57,12 @@ export function CompanyDetailSheet({ company, onClose }: CompanyDetailSheetProps
       {/* Header */}
       <div className="flex items-start justify-between p-6">
         <div className="flex items-center gap-3">
-          {company.logo_url ? (
-            <img
-              src={company.logo_url}
-              alt={company.preferred_name ?? "Company logo"}
-              className="h-12 w-12 rounded border object-contain"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded border bg-muted">
-              <Building2 className="h-6 w-6 text-muted-foreground" />
-            </div>
-          )}
+          <FiberAvatar
+            src={company.logo_url}
+            alt={company.preferred_name ?? "Company logo"}
+            type="company"
+            size="lg"
+          />
           <div>
             <h2 className="text-lg font-semibold">
               {company.preferred_name ?? "Unknown"}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Globe } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import { useCreditCosts } from "@/hooks/use-credit-costs";
 import { Header } from "@/components/layout/header";
 import { LinkedInLiveForm } from "@/components/enrichment/linkedin-live-form";
 import { LinkedInLiveResult } from "@/components/enrichment/linkedin-live-result";
@@ -11,6 +12,7 @@ type ResultType = "profile" | "company" | null;
 
 export default function LinkedInLivePage() {
   const [resultType, setResultType] = useState<ResultType>(null);
+  const costs = useCreditCosts();
 
   const profileMutation = trpc.linkedin.profileLiveEnrich.useMutation();
   const companyMutation = trpc.linkedin.companyLiveEnrich.useMutation();
@@ -42,7 +44,7 @@ export default function LinkedInLivePage() {
     <div className="flex h-full flex-col">
       <Header
         title="LinkedIn Live"
-        description="Real-time LinkedIn profile and company data (2 credits per lookup)"
+        description={`Real-time LinkedIn profile and company data (${costs.liveEnrichPerson} credits per lookup)`}
       />
 
       <div className="flex-1 overflow-y-auto p-6">

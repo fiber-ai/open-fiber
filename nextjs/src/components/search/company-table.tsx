@@ -1,12 +1,12 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import {
-  Building2,
   MapPin,
   Users,
   DollarSign,
   ExternalLink,
 } from "lucide-react";
 import { DataTable } from "@/components/shared/data-table";
+import { FiberAvatar } from "@/components/shared/fiber-avatar";
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/utils";
 
@@ -40,17 +40,11 @@ const columns: ColumnDef<CompanyRow, unknown>[] = [
       const company = row.original;
       return (
         <div className="flex items-center gap-3">
-          {company.logo_url ? (
-            <img
-              src={company.logo_url}
-              alt={company.preferred_name ?? "Company logo"}
-              className="h-8 w-8 rounded border object-contain"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded border bg-muted">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
+          <FiberAvatar
+            src={company.logo_url}
+            alt={company.preferred_name ?? "Company logo"}
+            type="company"
+          />
           <div className="min-w-0">
             <p className="truncate font-medium">
               {company.preferred_name ?? "Unknown"}

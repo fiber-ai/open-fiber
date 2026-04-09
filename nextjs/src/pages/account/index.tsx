@@ -1,9 +1,10 @@
-import { CreditCard, ExternalLink, Calendar, TrendingUp } from "lucide-react";
+import { CreditCard, ExternalLink, Calendar, TrendingUp, AlertTriangle, Settings } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { formatNumber } from "@/lib/utils";
@@ -163,6 +164,24 @@ export default function AccountPage() {
               </CardContent>
             </Card>
 
+            {/* Low credit warning */}
+            {output.available < output.max * 0.1 && output.max > 0 && (
+              <Card className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+                <CardContent className="pt-6 flex items-center gap-3">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                  <div>
+                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Credits running low</p>
+                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                      You have {formatNumber(output.available)} credits remaining ({Math.round((output.available / output.max) * 100)}% of plan).{" "}
+                      <a href="https://fiber.ai/app/api" target="_blank" rel="noopener noreferrer" className="underline">
+                        Add more credits
+                      </a>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Credit Costs Per Operation */}
             {output.creditsPerOperation && (
               <Card>
@@ -205,6 +224,9 @@ export default function AccountPage() {
               </Card>
             )}
 
+            {/* Billing Settings */}
+            <BillingSettings />
+
             {/* Manage Link */}
             <div className="flex justify-center">
               <a
@@ -222,5 +244,65 @@ export default function AccountPage() {
         )}
       </div>
     </div>
+  );
+}
+
+/**
+ * Billing settings sub-component.
+ * Fetches and displays auto top-up configuration.
+ * Gracefully handles 404/403 if the endpoint isn't available for this org.
+ */
+function BillingSettings() {
+  const autoTopUp = trpc.utility.getAutoTopUp.useQuery(undefined, {
+    retry: false,
+    staleTime: 30_000,
+  });
+
+  // If the endpoint fails (not available for this org), just don't show the section
+  if (autoTopUp.isError || autoTopUp.isLoading) return null;
+
+  const settings = autoTopUp.data?.output;
+  if (!settings) return null;
+
+  const isEnabled = (settings.enabled as boolean) ?? false;
+  const threshold = (settings.threshold as number) ?? 0;
+  const amount = (settings.amount as number) ?? 0;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <Settings className="h-4 w-4" />
+          Auto Top-Up
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm">Status</span>
+          <Badge variant={isEnabled ? "default" : "secondary"}>
+            {isEnabled ? "Enabled" : "Disabled"}
+          </Badge>
+        </div>
+        {isEnabled && (
+          <>
+            <Separator />
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Top up when balance drops below</span>
+              <span className="font-mono">{formatNumber(threshold)} credits</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Top up amount</span>
+              <span className="font-mono">{formatNumber(amount)} credits</span>
+            </div>
+          </>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Manage auto top-up settings on{" "}
+          <a href="https://fiber.ai/app/api" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+            fiber.ai
+          </a>
+        </p>
+      </CardContent>
+    </Card>
   );
 }

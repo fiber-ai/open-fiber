@@ -1,6 +1,7 @@
 import { type ColumnDef } from "@tanstack/react-table";
-import { User, MapPin, Briefcase, ExternalLink } from "lucide-react";
+import { MapPin, Briefcase, ExternalLink } from "lucide-react";
 import { DataTable } from "@/components/shared/data-table";
+import { FiberAvatar } from "@/components/shared/fiber-avatar";
 import { Badge } from "@/components/ui/badge";
 
 export interface ProspectRow {
@@ -37,17 +38,11 @@ const columns: ColumnDef<ProspectRow, unknown>[] = [
       const displayName = p.name ?? ([p.first_name, p.last_name].filter(Boolean).join(" ") || "Unknown");
       return (
         <div className="flex items-center gap-3">
-          {p.profile_pic ? (
-            <img
-              src={p.profile_pic}
-              alt={displayName}
-              className="h-8 w-8 rounded-full border object-cover"
-            />
-          ) : (
-            <div className="flex h-8 w-8 items-center justify-center rounded-full border bg-muted">
-              <User className="h-4 w-4 text-muted-foreground" />
-            </div>
-          )}
+          <FiberAvatar
+            src={p.profile_pic}
+            alt={displayName}
+            type="person"
+          />
           <div className="min-w-0">
             <p className="truncate font-medium">{displayName}</p>
             {p.headline && (

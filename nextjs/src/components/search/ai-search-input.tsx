@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Building2, UserSearch } from "lucide-react";
+import { Sparkles, Loader2, Building2, UserSearch, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,12 +7,14 @@ import { Textarea } from "@/components/ui/textarea";
 interface AISearchInputProps {
   onSearchCompanies: (query: string) => void;
   onSearchProspects: (query: string) => void;
+  onSearchJD?: (query: string) => void;
   isLoading: boolean;
 }
 
 export function AISearchInput({
   onSearchCompanies,
   onSearchProspects,
+  onSearchJD,
   isLoading,
 }: AISearchInputProps) {
   const [query, setQuery] = useState("");
@@ -59,6 +61,21 @@ export function AISearchInput({
           )}
           Search Prospects
         </Button>
+        {onSearchJD && (
+          <Button
+            onClick={() => onSearchJD(query)}
+            disabled={!query.trim() || isLoading}
+            variant="outline"
+            className="flex-1"
+          >
+            {isLoading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="mr-2 h-4 w-4" />
+            )}
+            JD → People
+          </Button>
+        )}
       </div>
     </div>
   );
