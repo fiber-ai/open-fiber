@@ -12,7 +12,7 @@ import {
   startLocalBusinessSearch,
   pollLocalBusinessSearch,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
 
 const mapsStartSchema = z.object({ output: z.object({ searchID: z.string() }).passthrough() }).passthrough();
 
@@ -246,5 +246,79 @@ export const toolsRouter = createTRPCRouter({
           },
         })
       );
+    }),
+
+  // --- Scouting Report (AI Research) ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  getScoutingReport: protectedProcedure
+    .input(z.object({
+      identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"] as const),
+      value: z.string().min(1),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/scouting-report", {
+        company: { identifier: input.identifier, value: input.value },
+      });
+    }),
+
+  // --- Revenue Intelligence ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  getCompanyRevenue: protectedProcedure
+    .input(z.object({
+      name: z.string().optional(),
+      domain: z.string().optional(),
+      linkedinUrl: z.string().optional(),
+      linkedinOrgId: z.string().optional(),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/company-revenue", {
+        companyMetadata: {
+          ...(input.name ? { name: input.name } : {}),
+          ...(input.domain ? { domain: input.domain } : {}),
+          ...(input.linkedinUrl ? { linkedinUrl: input.linkedinUrl } : {}),
+          ...(input.linkedinOrgId ? { linkedinOrgId: input.linkedinOrgId } : {}),
+        },
+      });
+    }),
+
+  // --- Social Media Lookup ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  triggerSocialMediaLookup: protectedProcedure
+    .input(z.object({
+      people: z.array(z.object({
+        linkedinUrl: z.string(),
+      })).min(1),
+    }))
+    .output(z.object({ output: z.object({ socialMediaFinderRunId: z.string() }).passthrough() }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/social-media-lookup/trigger", {
+        people: input.people.map((p) => ({
+          inputType: "linkedinUrl" as const,
+          linkedinUrl: p.linkedinUrl,
+        })),
+      });
+    }),
+
+  pollSocialMediaLookup: protectedProcedure
+    .input(z.object({
+      socialMediaFinderRunId: z.string(),
+      cursor: z.string().nullable().optional(),
+      pageSize: z.number().min(1).max(100).default(25),
+    }))
+    .output(z.object({
+      output: z.object({
+        status: z.string(),
+        results: z.array(z.record(z.unknown())).optional(),
+        nextCursor: z.string().nullable().optional(),
+      }).passthrough(),
+    }).passthrough())
+    .query(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/social-media-lookup/polling", {
+        socialMediaFinderRunId: input.socialMediaFinderRunId,
+        cursor: input.cursor,
+        pageSize: input.pageSize,
+      });
     }),
 });

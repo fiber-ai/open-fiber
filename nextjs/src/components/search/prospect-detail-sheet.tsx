@@ -1,5 +1,4 @@
 import {
-  User,
   MapPin,
   Briefcase,
   GraduationCap,
@@ -12,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { FiberAvatar } from "@/components/shared/fiber-avatar";
 import type { ProspectRow } from "./prospect-table";
 
 interface ProspectDetailSheetProps {
@@ -53,17 +53,12 @@ export function ProspectDetailSheet({ prospect, onClose }: ProspectDetailSheetPr
       {/* Header */}
       <div className="flex items-start justify-between p-6">
         <div className="flex items-center gap-3">
-          {prospect.profile_pic ? (
-            <img
-              src={prospect.profile_pic}
-              alt={displayName}
-              className="h-12 w-12 rounded-full border object-cover"
-            />
-          ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-full border bg-muted">
-              <User className="h-6 w-6 text-muted-foreground" />
-            </div>
-          )}
+          <FiberAvatar
+            src={prospect.profile_pic}
+            alt={displayName}
+            type="person"
+            size="lg"
+          />
           <div>
             <h2 className="text-lg font-semibold">{displayName}</h2>
             {prospect.headline && (

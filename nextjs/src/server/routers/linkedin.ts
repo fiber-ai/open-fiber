@@ -2,9 +2,11 @@ import { z } from "zod";
 import {
   profileLiveEnrich, companyLiveEnrich, reverseEmailLookup,
   profilePostsLiveFetch, companyPostsLiveFetch, postSearchByKeywords,
-  postCommentsLiveFetch, postReactionsLiveFetch, kitchenSinkProfile, kitchenSinkCompany,
+  postCommentsLiveFetch, postReactionsLiveFetch,
+  profileCommentsLiveFetch, profileReactionsLiveFetch,
+  kitchenSinkProfile, kitchenSinkCompany, kitchenSinkBulkCompany,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
 
 // Person fields shared by reverse email and kitchen sink results
 const personFields = z.object({
@@ -110,6 +112,22 @@ export const linkedinRouter = createTRPCRouter({
       return callFiber(() => postReactionsLiveFetch({ body: { apiKey: ctx.apiKey, contentId: input.postUrn, cursor: input.cursor ?? undefined } }));
     }),
 
+  profileComments: protectedProcedure
+    .input(z.object({ identifier: z.string(), cursor: z.string().nullable().optional() }))
+    .output(postsOutput)
+    .mutation(async ({ ctx, input }) => {
+      const data = await callFiber(() => profileCommentsLiveFetch({ body: { apiKey: ctx.apiKey, identifier: input.identifier, cursor: input.cursor ?? undefined } }));
+      return asOutput<z.infer<typeof postsOutput>>(data);
+    }),
+
+  profileReactions: protectedProcedure
+    .input(z.object({ identifier: z.string(), cursor: z.string().nullable().optional() }))
+    .output(postsOutput)
+    .mutation(async ({ ctx, input }) => {
+      const data = await callFiber(() => profileReactionsLiveFetch({ body: { apiKey: ctx.apiKey, identifier: input.identifier, cursor: input.cursor ?? undefined } }));
+      return asOutput<z.infer<typeof postsOutput>>(data);
+    }),
+
   kitchenSinkProfile: protectedProcedure
     .input(z.object({
       profileIdentifier: z.object({ identifier: z.enum(["linkedinSlug", "linkedinUrl", "userID"]), value: z.string() }).nullable().optional(),
@@ -132,5 +150,79 @@ export const linkedinRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const data = await callFiber(() => kitchenSinkCompany({ body: { apiKey: ctx.apiKey, companyIdentifier: input.companyIdentifier ?? null, companyName: input.companyName ?? null, companyDomain: input.companyDomain ?? null } }));
       return asOutput<z.infer<typeof kitchenSinkOutput>>(data);
+    }),
+
+  // --- Bulk Company Lookup (for CSV import) ---
+  kitchenSinkBulkCompany: protectedProcedure
+    .input(z.object({
+      companies: z.array(z.object({
+        companyIdentifier: z.object({
+          identifier: z.enum(["linkedinSlug", "linkedinUrl", "linkedinOrgID"]),
+          value: z.string(),
+        }).nullable().optional(),
+        companyName: z.object({ value: z.string().nullable().optional() }).nullable().optional(),
+        companyDomain: z.object({ value: z.string().nullable().optional() }).nullable().optional(),
+      })).min(1).max(10000),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      const data = await callFiber(() => kitchenSinkBulkCompany({
+        body: {
+          apiKey: ctx.apiKey,
+          companies: input.companies.map((c) => ({
+            companyIdentifier: c.companyIdentifier ?? undefined,
+            companyName: c.companyName ?? undefined,
+            companyDomain: c.companyDomain ?? undefined,
+          })),
+        },
+      }));
+      return asOutput<{ output: Record<string, unknown> }>(data);
+    }),
+
+  // --- Bulk Live Enrich ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  bulkLiveEnrichProfile: protectedProcedure
+    .input(z.object({
+      identifiers: z.array(z.string().min(1)).min(1),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/linkedin-live-fetch/profile/bulk", {
+        identifiers: input.identifiers,
+      });
+    }),
+
+  bulkLiveEnrichCompany: protectedProcedure
+    .input(z.object({
+      identifiers: z.array(z.object({
+        type: z.enum(["slug", "orgId", "liUrl"]),
+        value: z.string().min(1),
+      })).min(1),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/linkedin-live-fetch/company/bulk", {
+        companies: input.identifiers,
+      });
+    }),
+
+  // --- Standardize URLs ---
+  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  standardizeProfile: protectedProcedure
+    .input(z.object({ identifier: z.string().min(1) }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/standardize/profile/single", {
+        identifier: input.identifier,
+      });
+    }),
+
+  standardizeCompany: protectedProcedure
+    .input(z.object({ identifier: z.string().min(1) }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return fiberFetch(ctx.apiKey, "POST", "/v1/standardize/company/single", {
+        identifier: input.identifier,
+      });
     }),
 });

@@ -10,9 +10,10 @@ import { ProspectDetailSheet } from "@/components/search/prospect-detail-sheet";
 import { PaginationControls } from "@/components/shared/pagination-controls";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+
 import { Badge } from "@/components/ui/badge";
 
-type ResultType = "companies" | "prospects" | null;
+type ResultType = "companies" | "prospects" | "jd" | null;
 
 export default function AISearchPage() {
   const [resultType, setResultType] = useState<ResultType>(null);
@@ -22,6 +23,7 @@ export default function AISearchPage() {
 
   const companySearch = trpc.search.textToCompanySearch.useMutation();
   const prospectSearch = trpc.search.textToProfileSearch.useMutation();
+  const jdSearch = trpc.search.jdToProfileSearch.useMutation();
 
   const handleSearchCompanies = (query: string) => {
     setResultType("companies");
@@ -33,7 +35,12 @@ export default function AISearchPage() {
     prospectSearch.mutate({ query, pageSize });
   };
 
-  const isLoading = companySearch.isPending || prospectSearch.isPending;
+  const handleSearchJD = (query: string) => {
+    setResultType("jd");
+    jdSearch.mutate({ request: "initial", query, pageSize });
+  };
+
+  const isLoading = companySearch.isPending || prospectSearch.isPending || jdSearch.isPending;
 
   const companyResult = companySearch.data;
   const prospectResult = prospectSearch.data;
@@ -41,13 +48,17 @@ export default function AISearchPage() {
   const companies = (companyResult?.output?.data ?? []) as CompanyRow[];
   const prospects = (prospectResult?.output?.data ?? []) as ProspectRow[];
 
+  const jdProspects = (jdSearch.data?.output?.data ?? []) as ProspectRow[];
+
   const activeError =
     resultType === "companies" ? companySearch.error :
-    resultType === "prospects" ? prospectSearch.error : null;
+    resultType === "prospects" ? prospectSearch.error :
+    resultType === "jd" ? jdSearch.error : null;
 
   return (
     <div className="flex h-full flex-col">
       <Header
+        icon={Zap}
         title="AI Search"
         description="Describe what you're looking for in plain English"
       />
@@ -61,6 +72,7 @@ export default function AISearchPage() {
           <AISearchInput
             onSearchCompanies={handleSearchCompanies}
             onSearchProspects={handleSearchProspects}
+            onSearchJD={handleSearchJD}
             isLoading={isLoading}
           />
         </div>
@@ -115,13 +127,27 @@ export default function AISearchPage() {
           </div>
         )}
 
-        {!resultType && !isLoading && (
-          <EmptyState
-            icon={Zap}
-            title="AI-Powered Search"
-            description='Type a natural language description above and click "Search Companies" or "Search Prospects" to find results.'
-          />
+        {resultType === "jd" && jdSearch.isSuccess && (
+          <div className="p-4">
+            <div className="mb-3 flex items-center gap-2">
+              <UserSearch className="h-4 w-4" />
+              <span className="text-sm font-medium">JD Match Results</span>
+              <Badge variant="secondary" className="text-xs">
+                {jdProspects.length}
+              </Badge>
+            </div>
+            {jdProspects.length > 0 ? (
+              <ProspectTable data={jdProspects} onRowClick={(r) => setSelectedProspect(r)} />
+            ) : (
+              <EmptyState
+                icon={UserSearch}
+                title="No matches found"
+                description="Try a different job description."
+              />
+            )}
+          </div>
         )}
+
       </div>
 
       {/* Detail Sheets */}

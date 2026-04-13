@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Mail, User, Search, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
-import { EnrichmentForm, type EnrichmentOptions } from "@/components/enrichment/enrichment-form";
+import { EnrichmentForm, type EnrichmentOptions, type RevealVariant } from "@/components/enrichment/enrichment-form";
+import { PollingIndicator } from "@/components/shared/polling-indicator";
 import { EnrichmentResultCard } from "@/components/enrichment/enrichment-result-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
@@ -14,19 +15,62 @@ import { CopyButton } from "@/components/shared/copy-button";
 
 export default function SingleEnrichmentPage() {
   const [tab, setTab] = useState<"linkedin" | "name" | "email">("linkedin");
+  const [activeLinkedInVariant, setActiveLinkedInVariant] = useState<RevealVariant | null>(null);
 
+  const [exhaustiveTaskId, setExhaustiveTaskId] = useState<string | null>(null);
+
+  // Sync reveal mutations — one per variant
   const enrichMutation = trpc.enrichment.syncContactEnrichment.useMutation();
+  const slimMutation = trpc.enrichment.syncSlimReveal.useMutation();
+  const premiumMutation = trpc.enrichment.syncPremiumReveal.useMutation();
+  const druidMutation = trpc.enrichment.syncDruidReveal.useMutation();
+  const exhaustiveTrigger = trpc.enrichment.triggerExhaustiveReveal.useMutation();
+
+  // Exhaustive async polling
+  const exhaustivePoll = trpc.enrichment.pollExhaustiveReveal.useQuery(
+    { taskId: exhaustiveTaskId! },
+    {
+      enabled: !!exhaustiveTaskId,
+      refetchInterval: (q) => {
+        const profile = q.state.data?.output?.profile;
+        if (profile && (profile.status === "completed" || profile.status === "failed")) return false;
+        return 3000;
+      },
+    }
+  );
+
   const emailLookup = trpc.linkedin.reverseEmailLookup.useMutation();
   const kitchenSink = trpc.linkedin.kitchenSinkProfile.useMutation();
   const [emailInput, setEmailInput] = useState("");
   const [personName, setPersonName] = useState("");
   const [personEmail, setPersonEmail] = useState("");
 
-  const handleLinkedInSubmit = (linkedinUrl: string, options: EnrichmentOptions) => {
-    enrichMutation.mutate({
-      linkedinUrl,
-      enrichmentType: options,
-    });
+  // Map variant → mutation for clean routing
+  const syncMutations = {
+    standard: enrichMutation,
+    slim: slimMutation,
+    premium: premiumMutation,
+    druid: druidMutation,
+    exhaustive: exhaustiveTrigger, // trigger only, polling is separate
+  } as const;
+
+  const handleLinkedInSubmit = (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant) => {
+    setActiveLinkedInVariant(variant);
+    // Reset exhaustive polling state
+    setExhaustiveTaskId(null);
+
+    if (variant === "exhaustive") {
+      exhaustiveTrigger.mutate(
+        { linkedinUrl, enrichmentType: options },
+        {
+          onSuccess: (data) => {
+            if (data?.output?.taskId) setExhaustiveTaskId(data.output.taskId);
+          },
+        }
+      );
+    } else {
+      syncMutations[variant].mutate({ linkedinUrl, enrichmentType: options });
+    }
   };
 
   const handleEmailSubmit = (e: React.FormEvent) => {
@@ -43,9 +87,32 @@ export default function SingleEnrichmentPage() {
     });
   };
 
-  const enrichResult = enrichMutation.data;
+  // Pick the result from the active variant only (avoids stale data from prior variants)
+  const enrichResult = (() => {
+    switch (activeLinkedInVariant) {
+      case "standard": return enrichMutation.data ?? null;
+      case "slim": return slimMutation.data ?? null;
+      case "premium": return premiumMutation.data ?? null;
+      case "druid": return druidMutation.data ?? null;
+      case "exhaustive": return exhaustivePoll.data ?? null;
+      default: return null;
+    }
+  })();
   const emailResult = emailLookup.data;
   const nameResult = kitchenSink.data;
+
+  const isSyncLoading = enrichMutation.isPending || slimMutation.isPending || premiumMutation.isPending || druidMutation.isPending;
+  const isExhaustivePolling = !!exhaustiveTaskId && !exhaustivePoll.data?.output?.profile?.status?.match(/completed|failed/);
+  const syncError = (() => {
+    switch (activeLinkedInVariant) {
+      case "standard": return enrichMutation.error ?? null;
+      case "slim": return slimMutation.error ?? null;
+      case "premium": return premiumMutation.error ?? null;
+      case "druid": return druidMutation.error ?? null;
+      case "exhaustive": return exhaustiveTrigger.error ?? null;
+      default: return null;
+    }
+  })();
 
   return (
     <div className="flex h-full flex-col">
@@ -91,7 +158,7 @@ export default function SingleEnrichmentPage() {
               <CardContent>
                 <EnrichmentForm
                   onSubmit={handleLinkedInSubmit}
-                  isLoading={enrichMutation.isPending}
+                  isLoading={isSyncLoading || exhaustiveTrigger.isPending}
                 />
               </CardContent>
             </Card>
@@ -219,11 +286,11 @@ export default function SingleEnrichmentPage() {
           )}
 
           {/* LinkedIn Results */}
-          {tab === "linkedin" && enrichMutation.isError && (
-            <ErrorDisplay
-              message={enrichMutation.error.message}
-              onRetry={() => enrichMutation.variables && enrichMutation.mutate(enrichMutation.variables)}
-            />
+          {tab === "linkedin" && syncError && (
+            <ErrorDisplay message={syncError.message} />
+          )}
+          {tab === "linkedin" && isExhaustivePolling && (
+            <PollingIndicator message="Running exhaustive enrichment..." />
           )}
           {tab === "linkedin" && enrichResult?.output && (
             <EnrichmentResultCard
@@ -330,7 +397,7 @@ export default function SingleEnrichmentPage() {
           )}
 
           {/* Empty state */}
-          {!enrichResult && !emailResult && !nameResult && !enrichMutation.isPending && !emailLookup.isPending && !kitchenSink.isPending && (
+          {!enrichResult && !emailResult && !nameResult && !isSyncLoading && !isExhaustivePolling && !emailLookup.isPending && !kitchenSink.isPending && (
             <EmptyState
               icon={Mail}
               title="Contact Enrichment"

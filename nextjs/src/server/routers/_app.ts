@@ -9,6 +9,10 @@ import { toolsRouter } from "./tools";
 import { validationRouter } from "./validation";
 import { exclusionListRouter } from "./exclusion-lists";
 import { exportsRouter } from "./exports";
+import { journeymanRouter } from "./journeyman";
+import { twitterRouter } from "./twitter";
+import { youtubeRouter } from "./youtube";
+import { salesNavRouter } from "./sales-nav";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -21,6 +25,10 @@ export const appRouter = createTRPCRouter({
   validation: validationRouter,
   exclusionLists: exclusionListRouter,
   exports: exportsRouter,
+  journeyman: journeymanRouter,
+  twitter: twitterRouter,
+  youtube: youtubeRouter,
+  salesNav: salesNavRouter,
 });
 
 export type AppRouter = typeof appRouter;

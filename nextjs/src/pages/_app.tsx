@@ -2,6 +2,7 @@ import App, { type AppProps, type AppContext } from "next/app";
 import type { NextPage } from "next";
 import type { ReactElement, ReactNode } from "react";
 import { useEffect } from "react";
+import Head from "next/head";
 import { trpc } from "@/lib/trpc";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
@@ -46,6 +47,9 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   return (
     <>
+      <Head>
+        <title>OpenFiber</title>
+      </Head>
       {getLayout(<Component {...pageProps} />)}
       <Toaster />
       <GlobalToastListener />

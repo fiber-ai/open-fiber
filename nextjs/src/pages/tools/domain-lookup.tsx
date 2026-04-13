@@ -9,7 +9,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PollingIndicator } from "@/components/shared/polling-indicator";
-import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { CopyButton } from "@/components/shared/copy-button";
 import { useCreditCosts } from "@/hooks/use-credit-costs";
@@ -65,7 +64,7 @@ export default function DomainLookupPage() {
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="Domain Lookup" description={`AI-powered company domain discovery (${costs.domainLookup} credits/company)`} />
+      <Header icon={Globe} title="Domain Lookup" description={`AI-powered company domain discovery (${costs.domainLookup} credits/company)`} />
 
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-3xl space-y-6">
@@ -149,9 +148,6 @@ export default function DomainLookupPage() {
             </Card>
           )}
 
-          {!runId && !trigger.isPending && (
-            <EmptyState icon={Globe} title="Domain Lookup" description="Enter company names to discover their website domains using AI." />
-          )}
         </div>
       </div>
     </div>

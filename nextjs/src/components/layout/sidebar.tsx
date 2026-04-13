@@ -17,6 +17,14 @@ import {
   Briefcase,
   GitBranch,
   MessageSquare,
+  Repeat,
+  Twitter,
+  Youtube,
+  FileSearch,
+  Share2,
+  Upload,
+  Link2,
+  BookmarkCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -52,12 +60,14 @@ const navGroups: NavGroup[] = [
       { label: "Single Lookup", href: "/enrichment/single", icon: Mail },
       { label: "Batch Enrichment", href: "/enrichment/batch", icon: Users },
       { label: "LinkedIn Live", href: "/enrichment/linkedin-live", icon: Globe },
+      { label: "Bulk Enrich", href: "/enrichment/bulk", icon: Users },
     ],
   },
   {
     label: "Audiences",
     items: [
       { label: "All Audiences", href: "/audiences", icon: Users },
+      { label: "Saved Searches", href: "/saved-searches", icon: BookmarkCheck },
     ],
   },
   {
@@ -69,6 +79,18 @@ const navGroups: NavGroup[] = [
       { label: "Phone Validation", href: "/tools/phone-validation", icon: ShieldCheck },
       { label: "GitHub Lookups", href: "/tools/github-lookups", icon: GitBranch },
       { label: "LinkedIn Posts", href: "/tools/linkedin-posts", icon: MessageSquare },
+      { label: "Job Changes", href: "/tools/job-changes", icon: Repeat },
+      { label: "Scouting Report", href: "/tools/scouting-report", icon: FileSearch },
+      { label: "Social Media", href: "/tools/social-media", icon: Share2 },
+      { label: "Company Import", href: "/tools/company-import", icon: Upload },
+      { label: "URL Repair", href: "/tools/url-repair", icon: Link2 },
+    ],
+  },
+  {
+    label: "Social",
+    items: [
+      { label: "Twitter / X", href: "/tools/twitter", icon: Twitter },
+      { label: "YouTube", href: "/tools/youtube", icon: Youtube },
     ],
   },
   {

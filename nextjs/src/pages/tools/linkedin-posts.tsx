@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Search, User, Building2, Loader2, ThumbsUp, MessageCircle } from "lucide-react";
+import { MessageSquare, Search, User, Building2, Loader2, ThumbsUp, MessageCircle, Heart } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -9,8 +9,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
-type Mode = "profile" | "company" | "keywords";
+type Mode = "profile" | "company" | "keywords" | "profile-comments" | "profile-reactions";
 
 interface Post {
   post_id?: string | null;
@@ -36,6 +37,8 @@ export default function LinkedInPostsPage() {
   const profilePosts = trpc.linkedin.profilePosts.useMutation();
   const companyPosts = trpc.linkedin.companyPosts.useMutation();
   const keywordSearch = trpc.linkedin.postSearchByKeywords.useMutation();
+  const profileComments = trpc.linkedin.profileComments.useMutation();
+  const profileReactions = trpc.linkedin.profileReactions.useMutation();
 
   const handleSearch = () => {
     if (mode === "profile" && identifier.trim()) {
@@ -44,41 +47,63 @@ export default function LinkedInPostsPage() {
       companyPosts.mutate({ identifier: identifier.trim() });
     } else if (mode === "keywords" && keywords.trim()) {
       keywordSearch.mutate({ keywords: keywords.trim(), recency: recency as "Day" | "Week" | "Month" | "Quarter" | "HalfYear" | "Year" });
+    } else if (mode === "profile-comments" && identifier.trim()) {
+      profileComments.mutate({ identifier: identifier.trim() });
+    } else if (mode === "profile-reactions" && identifier.trim()) {
+      profileReactions.mutate({ identifier: identifier.trim() });
     }
   };
 
-  const isLoading = profilePosts.isPending || companyPosts.isPending || keywordSearch.isPending;
-  const activeError = mode === "profile" ? profilePosts.error : mode === "company" ? companyPosts.error : keywordSearch.error;
+  const mutationForMode = {
+    profile: profilePosts,
+    company: companyPosts,
+    keywords: keywordSearch,
+    "profile-comments": profileComments,
+    "profile-reactions": profileReactions,
+  }[mode];
+
+  const isLoading = mutationForMode.isPending;
+  const activeError = mutationForMode.error;
   // profile/company posts are in output.data, keyword search is in output.posts
   const posts = (mode === "profile"
     ? profilePosts.data?.output?.data
     : mode === "company"
     ? companyPosts.data?.output?.data
+    : mode === "profile-comments"
+    ? profileComments.data?.output?.data
+    : mode === "profile-reactions"
+    ? profileReactions.data?.output?.data
     : keywordSearch.data?.output?.posts) ?? [];
-  const hasResult = mode === "profile" ? profilePosts.isSuccess : mode === "company" ? companyPosts.isSuccess : keywordSearch.isSuccess;
+  const hasResult = mutationForMode.isSuccess;
 
   return (
     <div className="flex h-full flex-col">
-      <Header title="LinkedIn Posts" description="Fetch posts from profiles, companies, or search by keywords" />
+      <Header icon={MessageSquare} title="LinkedIn Posts" description="Fetch posts from profiles, companies, or search by keywords" />
 
       <div className="border-b p-4 space-y-3">
-        <div className="flex gap-2">
-          <Button variant={mode === "profile" ? "default" : "outline"} size="sm" onClick={() => setMode("profile")}>
-            <User className="mr-1.5 h-4 w-4" /> Profile Posts
-          </Button>
-          <Button variant={mode === "company" ? "default" : "outline"} size="sm" onClick={() => setMode("company")}>
-            <Building2 className="mr-1.5 h-4 w-4" /> Company Posts
-          </Button>
-          <Button variant={mode === "keywords" ? "default" : "outline"} size="sm" onClick={() => setMode("keywords")}>
-            <Search className="mr-1.5 h-4 w-4" /> Keyword Search
-          </Button>
-        </div>
+        <ToggleButtonGroup
+          options={[
+            { value: "profile" as Mode, label: "Profile Posts", icon: User },
+            { value: "company" as Mode, label: "Company Posts", icon: Building2 },
+            { value: "keywords" as Mode, label: "Keyword Search", icon: Search },
+            { value: "profile-comments" as Mode, label: "Comments", icon: MessageCircle },
+            { value: "profile-reactions" as Mode, label: "Reactions", icon: Heart },
+          ]}
+          value={mode}
+          onChange={(v) => setMode(v as Mode)}
+        />
 
         <div className="flex gap-3 items-end">
-          {(mode === "profile" || mode === "company") && (
+          {(mode === "profile" || mode === "company" || mode === "profile-comments" || mode === "profile-reactions") && (
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium">{mode === "profile" ? "LinkedIn Profile URL or Slug" : "LinkedIn Company URL or Slug"}</Label>
-              <Input placeholder={mode === "profile" ? "https://www.linkedin.com/in/username" : "https://www.linkedin.com/company/name"} value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+              <Label className="text-xs font-medium">
+                {mode === "company" ? "LinkedIn Company URL or Slug" : "LinkedIn Profile URL or Slug"}
+              </Label>
+              <Input
+                placeholder={mode === "company" ? "https://www.linkedin.com/company/name" : "https://www.linkedin.com/in/username"}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+              />
             </div>
           )}
           {mode === "keywords" && (
@@ -138,9 +163,6 @@ export default function LinkedInPostsPage() {
 
         {hasResult && posts.length === 0 && (
           <EmptyState icon={MessageSquare} title="No posts found" description="No posts available for this query." />
-        )}
-        {!hasResult && !isLoading && !activeError && (
-          <EmptyState icon={MessageSquare} title="LinkedIn Posts" description="Fetch recent posts from any profile, company, or search by keywords." />
         )}
       </div>
     </div>

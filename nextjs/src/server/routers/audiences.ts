@@ -2,9 +2,23 @@ import { z } from "zod";
 import {
   createAudience, deleteAudience, listAudiences, getAudienceStatus,
   getAudienceCompanies, getAudienceProspects, buildAudience, triggerEnrichment,
+  updateAudienceSearchParams, getEnrichmentStatus,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 import { enrichmentTypeSchema } from "@/lib/schemas/enrichment";
+import { companySearchParamsSchema, peopleSearchParamsSchema } from "@/lib/schemas/search";
+
+const enrichmentStatusOutputSchema = z.object({
+  output: z.object({
+    enrichmentId: z.string(),
+    currentStage: z.string(),
+    totalProspects: z.number().nullable().optional(),
+    enrichedProspects: z.number().nullable().optional(),
+    failedProspects: z.number().nullable().optional(),
+    percentComplete: z.number().nullable().optional(),
+    completedAt: z.string().nullable().optional(),
+  }).passthrough(),
+}).passthrough();
 
 const audienceItemSchema = z.object({
   audienceId: z.string(), name: z.string(), status: z.string(),
@@ -106,6 +120,37 @@ export const audienceRouter = createTRPCRouter({
       return callFiber(() => triggerEnrichment({
         path: { audienceId: input.audienceId },
         body: { apiKey: ctx.apiKey, maxProspectsToEnrich: input.maxProspectsToEnrich, enrichmentType: input.enrichmentType },
+      }));
+    }),
+
+  updateSearchParams: protectedProcedure
+    .input(z.object({
+      audienceId: z.string(),
+      companySearchParams: companySearchParamsSchema.optional(),
+      prospectSearchParams: peopleSearchParamsSchema.optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => updateAudienceSearchParams({
+        path: { audienceId: input.audienceId },
+        body: {
+          apiKey: ctx.apiKey,
+          ...(input.companySearchParams
+            ? { companySearchParams: input.companySearchParams as Record<string, unknown> }
+            : {}),
+          ...(input.prospectSearchParams
+            ? { prospectSearchParams: input.prospectSearchParams as Record<string, unknown> }
+            : {}),
+        },
+      }));
+    }),
+
+  getEnrichmentStatus: protectedProcedure
+    .input(z.object({ audienceId: z.string() }))
+    .output(enrichmentStatusOutputSchema)
+    .query(async ({ ctx, input }) => {
+      return callFiber(() => getEnrichmentStatus({
+        path: { audienceId: input.audienceId },
+        query: { apiKey: ctx.apiKey },
       }));
     }),
 });
