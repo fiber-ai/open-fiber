@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Building2, UserSearch, FileText } from "lucide-react";
+import { Sparkles, Loader2, Building2, FileText, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AISearchInputProps {
+  onSearch: (query: string) => void;
   onSearchCompanies: (query: string) => void;
-  onSearchProspects: (query: string) => void;
   onSearchJD?: (query: string) => void;
   isLoading: boolean;
 }
 
 export function AISearchInput({
+  onSearch,
   onSearchCompanies,
-  onSearchProspects,
   onSearchJD,
   isLoading,
 }: AISearchInputProps) {
@@ -27,7 +27,7 @@ export function AISearchInput({
         </Label>
         <Textarea
           className="min-h-[120px]"
-          placeholder={"e.g. Series A SaaS companies in the US with 50-200 employees that use React\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
+          placeholder={"e.g. Senior backend engineers at Series B fintech startups in the US with 100-500 employees\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -37,19 +37,19 @@ export function AISearchInput({
       </div>
       <div className="flex gap-2">
         <Button
-          onClick={() => onSearchCompanies(query)}
+          onClick={() => onSearch(query)}
           disabled={!query.trim() || isLoading}
           className="flex-1"
         >
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <Building2 className="mr-2 h-4 w-4" />
+            <Search className="mr-2 h-4 w-4" />
           )}
-          Search Companies
+          Search
         </Button>
         <Button
-          onClick={() => onSearchProspects(query)}
+          onClick={() => onSearchCompanies(query)}
           disabled={!query.trim() || isLoading}
           variant="outline"
           className="flex-1"
@@ -57,9 +57,9 @@ export function AISearchInput({
           {isLoading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
-            <UserSearch className="mr-2 h-4 w-4" />
+            <Building2 className="mr-2 h-4 w-4" />
           )}
-          Search Prospects
+          Companies Only
         </Button>
         {onSearchJD && (
           <Button
@@ -73,7 +73,7 @@ export function AISearchInput({
             ) : (
               <FileText className="mr-2 h-4 w-4" />
             )}
-            JD → People
+            JD &rarr; People
           </Button>
         )}
       </div>

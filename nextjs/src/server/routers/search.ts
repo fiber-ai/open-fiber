@@ -10,7 +10,6 @@ import {
   textToProfileSearch,
   textToCompanySearchParams,
   textToProfileSearchParams,
-  textToCombinedSearch,
   investorSearch,
   investmentSearch,
   jobPostingSearch,
@@ -25,6 +24,19 @@ const searchResultSchema = z.object({
   output: z.object({
     data: z.array(z.record(z.unknown())),
     nextCursor: z.string().nullable().optional(),
+  }).passthrough(),
+}).passthrough();
+
+const combinedSearchResultSchema = z.object({
+  output: z.object({
+    data: z.object({
+      companies: z.array(z.record(z.unknown())),
+      profiles: z.array(z.record(z.unknown())),
+    }),
+    companySearchParams: z.record(z.unknown()).nullable(),
+    profileSearchParams: z.record(z.unknown()).nullable(),
+    companyCursor: z.string().nullable(),
+    profileCursor: z.string().nullable(),
   }).passthrough(),
 }).passthrough();
 
@@ -381,25 +393,41 @@ export const searchRouter = createTRPCRouter({
       });
     }),
 
-  // --- Text-to-Combined Search ---
+  // --- Text-to-Combined Search (V2) ---
+  // SDK v0.0.5 has stale V1 types — using fiberFetch directly for V2 schema
   textToCombinedSearch: protectedProcedure
     .input(z.object({
       query: z.string().min(1),
-      companyItemLimit: z.number().min(0).max(100).default(25),
-      profileItemLimit: z.number().min(1).max(100).default(25),
+      companyConfig: z.object({
+        pageSize: z.number().max(100).nullable().default(25),
+        exclusionListIDs: z.array(z.string()).nullable().optional(),
+        companyCursor: z.string().nullable().optional(),
+      }).default({}),
+      profileConfig: z.object({
+        pageSize: z.number().min(1).max(100).default(25),
+        exclusionListIDs: z.array(z.string()).nullable().optional(),
+        profileCursor: z.string().nullable().optional(),
+        getDetailedEducation: z.boolean().nullable().optional().default(false),
+        getDetailedWorkExperience: z.boolean().nullable().optional().default(false),
+      }).default({}),
     }))
-    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .output(combinedSearchResultSchema)
     .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        textToCombinedSearch({
-          body: {
-            apiKey: ctx.apiKey,
-            query: input.query,
-            companyItemLimit: input.companyItemLimit,
-            profileItemLimit: input.profileItemLimit,
-          },
-        })
-      );
+      return fiberFetch(ctx.apiKey, "POST", "/v1/natural-language-search/combined/sync", {
+        query: input.query,
+        companyConfig: {
+          pageSize: input.companyConfig.pageSize,
+          exclusionListIDs: input.companyConfig.exclusionListIDs ?? null,
+          companyCursor: input.companyConfig.companyCursor ?? null,
+        },
+        profileConfig: {
+          pageSize: input.profileConfig.pageSize,
+          exclusionListIDs: input.profileConfig.exclusionListIDs ?? null,
+          profileCursor: input.profileConfig.profileCursor ?? null,
+          getDetailedEducation: input.profileConfig.getDetailedEducation ?? false,
+          getDetailedWorkExperience: input.profileConfig.getDetailedWorkExperience ?? false,
+        },
+      });
     }),
 
   // --- Typeahead ---

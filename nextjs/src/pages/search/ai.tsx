@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Zap, Building2, UserSearch } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
@@ -13,46 +13,184 @@ import { ErrorDisplay } from "@/components/shared/error-display";
 
 import { Badge } from "@/components/ui/badge";
 
-type ResultType = "companies" | "prospects" | "jd" | null;
+type ResultType = "combined" | "companies" | "jd" | null;
 
 export default function AISearchPage() {
   const [resultType, setResultType] = useState<ResultType>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyRow | null>(null);
   const [selectedProspect, setSelectedProspect] = useState<ProspectRow | null>(null);
-  const [pageSize] = useState(25);
 
+  // Pagination state
+  const [companyPageSize, setCompanyPageSize] = useState(25);
+  const [profilePageSize, setProfilePageSize] = useState(25);
+  const [companyCursor, setCompanyCursor] = useState<string | null>(null);
+  const [profileCursor, setProfileCursor] = useState<string | null>(null);
+  const [cursorHistory, setCursorHistory] = useState<{ companyCursors: (string | null)[]; profileCursors: (string | null)[] }>({
+    companyCursors: [null],
+    profileCursors: [null],
+  });
+
+  // Store current query for pagination
+  const [currentQuery, setCurrentQuery] = useState("");
+
+  const combinedSearch = trpc.search.textToCombinedSearch.useMutation();
   const companySearch = trpc.search.textToCompanySearch.useMutation();
-  const prospectSearch = trpc.search.textToProfileSearch.useMutation();
   const jdSearch = trpc.search.jdToProfileSearch.useMutation();
 
-  const handleSearchCompanies = (query: string) => {
+  const handleSearch = useCallback((query: string) => {
+    setResultType("combined");
+    setCurrentQuery(query);
+    setCompanyCursor(null);
+    setProfileCursor(null);
+    setCursorHistory({ companyCursors: [null], profileCursors: [null] });
+    combinedSearch.mutate({
+      query,
+      companyConfig: {
+        pageSize: companyPageSize,
+        companyCursor: null,
+      },
+      profileConfig: {
+        pageSize: profilePageSize,
+        profileCursor: null,
+      },
+    });
+  }, [companyPageSize, profilePageSize, combinedSearch]);
+
+  const handleSearchCompanies = useCallback((query: string) => {
     setResultType("companies");
-    companySearch.mutate({ query, pageSize });
-  };
+    setCurrentQuery(query);
+    companySearch.mutate({ query, pageSize: companyPageSize });
+  }, [companyPageSize, companySearch]);
 
-  const handleSearchProspects = (query: string) => {
-    setResultType("prospects");
-    prospectSearch.mutate({ query, pageSize });
-  };
-
-  const handleSearchJD = (query: string) => {
+  const handleSearchJD = useCallback((query: string) => {
     setResultType("jd");
-    jdSearch.mutate({ request: "initial", query, pageSize });
-  };
+    setCurrentQuery(query);
+    jdSearch.mutate({ request: "initial", query, pageSize: profilePageSize });
+  }, [profilePageSize, jdSearch]);
 
-  const isLoading = companySearch.isPending || prospectSearch.isPending || jdSearch.isPending;
+  // Pagination handlers for combined search
+  const handleNextProfilePage = useCallback(() => {
+    const nextCursor = combinedSearch.data?.output?.profileCursor as string | null;
+    if (!nextCursor) return;
+    setProfileCursor(nextCursor);
+    setCursorHistory((prev) => ({
+      ...prev,
+      profileCursors: [...prev.profileCursors, nextCursor],
+    }));
+    combinedSearch.mutate({
+      query: currentQuery,
+      companyConfig: {
+        pageSize: companyPageSize,
+        companyCursor,
+      },
+      profileConfig: {
+        pageSize: profilePageSize,
+        profileCursor: nextCursor,
+      },
+    });
+  }, [combinedSearch, currentQuery, companyPageSize, profilePageSize, companyCursor]);
 
-  const companyResult = companySearch.data;
-  const prospectResult = prospectSearch.data;
+  const handlePrevProfilePage = useCallback(() => {
+    const newCursors = cursorHistory.profileCursors.slice(0, -1);
+    const prevCursor = newCursors[newCursors.length - 1] ?? null;
+    setProfileCursor(prevCursor);
+    setCursorHistory((prev) => ({ ...prev, profileCursors: newCursors }));
+    combinedSearch.mutate({
+      query: currentQuery,
+      companyConfig: {
+        pageSize: companyPageSize,
+        companyCursor,
+      },
+      profileConfig: {
+        pageSize: profilePageSize,
+        profileCursor: prevCursor,
+      },
+    });
+  }, [combinedSearch, currentQuery, companyPageSize, profilePageSize, companyCursor, cursorHistory.profileCursors]);
 
-  const companies = (companyResult?.output?.data ?? []) as CompanyRow[];
-  const prospects = (prospectResult?.output?.data ?? []) as ProspectRow[];
+  const handleNextCompanyPage = useCallback(() => {
+    const nextCursor = combinedSearch.data?.output?.companyCursor as string | null;
+    if (!nextCursor) return;
+    setCompanyCursor(nextCursor);
+    setCursorHistory((prev) => ({
+      ...prev,
+      companyCursors: [...prev.companyCursors, nextCursor],
+    }));
+    combinedSearch.mutate({
+      query: currentQuery,
+      companyConfig: {
+        pageSize: companyPageSize,
+        companyCursor: nextCursor,
+      },
+      profileConfig: {
+        pageSize: profilePageSize,
+        profileCursor,
+      },
+    });
+  }, [combinedSearch, currentQuery, companyPageSize, profilePageSize, profileCursor]);
 
+  const handlePrevCompanyPage = useCallback(() => {
+    const newCursors = cursorHistory.companyCursors.slice(0, -1);
+    const prevCursor = newCursors[newCursors.length - 1] ?? null;
+    setCompanyCursor(prevCursor);
+    setCursorHistory((prev) => ({ ...prev, companyCursors: newCursors }));
+    combinedSearch.mutate({
+      query: currentQuery,
+      companyConfig: {
+        pageSize: companyPageSize,
+        companyCursor: prevCursor,
+      },
+      profileConfig: {
+        pageSize: profilePageSize,
+        profileCursor,
+      },
+    });
+  }, [combinedSearch, currentQuery, companyPageSize, profilePageSize, profileCursor, cursorHistory.companyCursors]);
+
+  const handleProfilePageSizeChange = useCallback((size: number) => {
+    setProfilePageSize(size);
+    setProfileCursor(null);
+    setCursorHistory((prev) => ({ ...prev, profileCursors: [null] }));
+    if (currentQuery && resultType === "combined") {
+      combinedSearch.mutate({
+        query: currentQuery,
+        companyConfig: { pageSize: companyPageSize, companyCursor },
+        profileConfig: { pageSize: size, profileCursor: null },
+      });
+    }
+  }, [combinedSearch, currentQuery, resultType, companyPageSize, companyCursor]);
+
+  const handleCompanyPageSizeChange = useCallback((size: number) => {
+    setCompanyPageSize(size);
+    setCompanyCursor(null);
+    setCursorHistory((prev) => ({ ...prev, companyCursors: [null] }));
+    if (currentQuery && resultType === "combined") {
+      combinedSearch.mutate({
+        query: currentQuery,
+        companyConfig: { pageSize: size, companyCursor: null },
+        profileConfig: { pageSize: profilePageSize, profileCursor },
+      });
+    }
+  }, [combinedSearch, currentQuery, resultType, profilePageSize, profileCursor]);
+
+  const isLoading = combinedSearch.isPending || companySearch.isPending || jdSearch.isPending;
+
+  // Extract combined results (shape validated by combinedSearchResultSchema in tRPC router)
+  const combinedOutput = combinedSearch.data?.output;
+  const combinedCompanies = (combinedOutput?.data?.companies ?? []) as CompanyRow[];
+  const combinedProspects = (combinedOutput?.data?.profiles ?? []) as ProspectRow[];
+  const hasNextProfilePage = !!(combinedOutput?.profileCursor);
+  const hasNextCompanyPage = !!(combinedOutput?.companyCursor);
+
+  // Extract company-only results
+  const companies = (companySearch.data?.output?.data ?? []) as CompanyRow[];
+
+  // Extract JD results
   const jdProspects = (jdSearch.data?.output?.data ?? []) as ProspectRow[];
 
   const activeError =
+    resultType === "combined" ? combinedSearch.error :
     resultType === "companies" ? companySearch.error :
-    resultType === "prospects" ? prospectSearch.error :
     resultType === "jd" ? jdSearch.error : null;
 
   return (
@@ -70,8 +208,8 @@ export default function AISearchPage() {
             <span className="text-sm font-medium">Powered by Fiber AI</span>
           </div>
           <AISearchInput
+            onSearch={handleSearch}
             onSearchCompanies={handleSearchCompanies}
-            onSearchProspects={handleSearchProspects}
             onSearchJD={handleSearchJD}
             isLoading={isLoading}
           />
@@ -85,6 +223,74 @@ export default function AISearchPage() {
           </div>
         )}
 
+        {/* Combined search results: show both companies and profiles */}
+        {resultType === "combined" && combinedSearch.isSuccess && (
+          <div className="p-4 space-y-6">
+            {/* Company results section */}
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <Building2 className="h-4 w-4" />
+                <span className="text-sm font-medium">Matching Companies</span>
+                <Badge variant="secondary" className="text-xs">
+                  {combinedCompanies.length}
+                </Badge>
+              </div>
+              {combinedCompanies.length > 0 ? (
+                <>
+                  <CompanyTable data={combinedCompanies} onRowClick={(r) => setSelectedCompany(r)} />
+                  <PaginationControls
+                    hasNextPage={hasNextCompanyPage}
+                    hasPrevPage={cursorHistory.companyCursors.length > 1}
+                    onNext={handleNextCompanyPage}
+                    onPrev={handlePrevCompanyPage}
+                    pageSize={companyPageSize}
+                    onPageSizeChange={handleCompanyPageSizeChange}
+                    resultCount={combinedCompanies.length}
+                  />
+                </>
+              ) : (
+                <EmptyState
+                  icon={Building2}
+                  title="No companies found"
+                  description="No companies matched the criteria in your query."
+                />
+              )}
+            </div>
+
+            {/* Profile results section */}
+            <div>
+              <div className="mb-3 flex items-center gap-2">
+                <UserSearch className="h-4 w-4" />
+                <span className="text-sm font-medium">Matching Prospects</span>
+                <Badge variant="secondary" className="text-xs">
+                  {combinedProspects.length}
+                </Badge>
+              </div>
+              {combinedProspects.length > 0 ? (
+                <>
+                  <ProspectTable data={combinedProspects} onRowClick={(r) => setSelectedProspect(r)} />
+                  <PaginationControls
+                    hasNextPage={hasNextProfilePage}
+                    hasPrevPage={cursorHistory.profileCursors.length > 1}
+                    onNext={handleNextProfilePage}
+                    onPrev={handlePrevProfilePage}
+                    pageSize={profilePageSize}
+                    onPageSizeChange={handleProfilePageSizeChange}
+                    resultCount={combinedProspects.length}
+                  />
+                </>
+              ) : (
+                <EmptyState
+                  icon={UserSearch}
+                  title="No prospects found"
+                  description="No prospects matched the criteria at the matching companies."
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Company-only results */}
         {resultType === "companies" && companySearch.isSuccess && (
           <div className="p-4">
             <div className="mb-3 flex items-center gap-2">
@@ -106,27 +312,7 @@ export default function AISearchPage() {
           </div>
         )}
 
-        {resultType === "prospects" && prospectSearch.isSuccess && (
-          <div className="p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <UserSearch className="h-4 w-4" />
-              <span className="text-sm font-medium">Prospect Results</span>
-              <Badge variant="secondary" className="text-xs">
-                {prospects.length}
-              </Badge>
-            </div>
-            {prospects.length > 0 ? (
-              <ProspectTable data={prospects} onRowClick={(r) => setSelectedProspect(r)} />
-            ) : (
-              <EmptyState
-                icon={UserSearch}
-                title="No prospects found"
-                description="Try rephrasing your search query."
-              />
-            )}
-          </div>
-        )}
-
+        {/* JD results */}
         {resultType === "jd" && jdSearch.isSuccess && (
           <div className="p-4">
             <div className="mb-3 flex items-center gap-2">
