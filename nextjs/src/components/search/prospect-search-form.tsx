@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, Search, RotateCcw, Hash, Loader2 } from "lucide-react";
 import { stripEmpty } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -74,6 +74,24 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
 
   // Job title helper state
   const [titleInput, setTitleInput] = useState("");
+  const [countryInput, setCountryInput] = useState(
+    params.country3LetterCode?.anyOf?.join(", ") ?? ""
+  );
+  const [stateInput, setStateInput] = useState(
+    params.state?.anyOf?.map((s) => s.stateName).join(", ") ?? ""
+  );
+
+  // Keep state entries in sync with country code changes
+  useEffect(() => {
+    if (!params.state?.anyOf?.length) return;
+    const countryCode = params.country3LetterCode?.anyOf?.[0];
+    if (!countryCode) return;
+    const currentCode = params.state.anyOf[0]?.countryCode;
+    if (currentCode === countryCode) return;
+    update("state", {
+      anyOf: params.state.anyOf.map((s) => ({ ...s, countryCode })),
+    });
+  }, [params.country3LetterCode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +105,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
   const handleReset = () => {
     setParams({});
     setTitleInput("");
+    setCountryInput("");
+    setStateInput("");
     setSelectedProspectExcl([]);
     setSelectedCompanyExcl([]);
   };
@@ -120,9 +140,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
                   titles.length
                     ? {
                         anyOf: titles.map((t) => ({
-                          tag: "term" as const,
-                          value: t,
-                          modifiers: { currentOnly: true },
+                          type: "term" as const,
+                          term: t,
                         })),
                       }
                     : null
@@ -142,8 +161,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">Country</Label>
             <Input
               placeholder="e.g. USA, GBR, DEU"
-              value={params.country3LetterCode?.anyOf?.join(", ") ?? ""}
+              value={countryInput}
               onChange={(e) => {
+                setCountryInput(e.target.value);
                 const codes = e.target.value
                   .split(",")
                   .map((s) => s.trim().toUpperCase())
@@ -157,11 +177,19 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">State / Region</Label>
             <Input
-              placeholder="e.g. California, New York"
-              value={params.state?.anyOf?.join(", ") ?? ""}
+              placeholder={params.country3LetterCode?.anyOf?.length ? "e.g. California, New York" : "Enter a country code first"}
+              value={stateInput}
+              disabled={!params.country3LetterCode?.anyOf?.length}
               onChange={(e) => {
+                setStateInput(e.target.value);
                 const states = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-                update("state", states.length ? { anyOf: states } : null);
+                const codes = countryInput.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+                if (!codes.length) return;
+                const countryCode = codes[0];
+                update("state", states.length
+                  ? { anyOf: states.map((s) => ({ countryCode, stateName: s })) }
+                  : null
+                );
               }}
               className="text-sm"
             />
@@ -325,7 +353,7 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
               <span>
                 <span className="font-semibold">
                   {formatNumber(
-                    (count.data as { output?: { count?: number } })?.output?.count ?? 0
+                    count.data?.output?.totalProfilesFound ?? 0
                   )}
                 </span>{" "}
                 prospects match

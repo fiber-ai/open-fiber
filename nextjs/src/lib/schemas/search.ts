@@ -271,33 +271,37 @@ export const PROFILE_TAG_LABELS: Record<string, string> = {
   "board-member": "Board Member",
 };
 
+const jobTitleV2ItemSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("term"), term: z.string() }),
+  z.object({ type: z.literal("static-groups"), groups: z.array(z.string()) }),
+  z.object({ type: z.literal("dynamic-groups"), groups: z.array(z.string()), keywords: z.array(z.string()).default([]) }),
+]);
+
 export const peopleSearchParamsSchema = z.object({
   // Job Title
   jobTitleV2: z
     .object({
-      anyOf: z.array(z.object({
-        tag: z.literal("term"),
-        value: z.string(),
-        modifiers: z.object({
-          currentOnly: z.boolean().optional(),
-          exact: z.boolean().optional(),
-        }).optional(),
-      })).nullable().optional(),
-      noneOf: z.array(z.object({
-        tag: z.literal("term"),
-        value: z.string(),
-        modifiers: z.object({
-          currentOnly: z.boolean().optional(),
-          exact: z.boolean().optional(),
-        }).optional(),
-      })).nullable().optional(),
+      anyOf: z.array(jobTitleV2ItemSchema).nullable().optional(),
+      noneOf: z.array(jobTitleV2ItemSchema).nullable().optional(),
     })
     .nullable()
     .optional(),
 
   // Location
   country3LetterCode: anyOfNoneOfString,
-  state: anyOfNoneOfString,
+  state: z
+    .object({
+      anyOf: z.array(z.object({
+        countryCode: z.string(),
+        stateName: z.string(),
+      })).nullable().optional(),
+      noneOf: z.array(z.object({
+        countryCode: z.string(),
+        stateName: z.string(),
+      })).nullable().optional(),
+    })
+    .nullable()
+    .optional(),
 
   // Experience
   yearsOfExperience: numericRange,
