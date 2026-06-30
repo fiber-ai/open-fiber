@@ -84,6 +84,12 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
   const [params, setParams] = useState<CompanySearchParams>({});
   const [selectedExclusionLists, setSelectedExclusionLists] = useState<string[]>([]);
 
+  // Local state for text inputs to prevent comma/space eating
+  const [countryInput, setCountryInput] = useState("");
+  const [stateInput, setStateInput] = useState("");
+  const [keywordsInput, setKeywordsInput] = useState("");
+  const [techInput, setTechInput] = useState("");
+
   const exclusionLists = trpc.exclusionLists.listCompanyLists.useQuery(undefined, { staleTime: 60_000 });
   const exclData = exclusionLists.data;
   const exclOptions = (exclData?.output ?? []).map((l) => ({ value: l.listID, label: l.name }));
@@ -102,6 +108,10 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
 
   const handleReset = () => {
     setParams({});
+    setCountryInput("");
+    setStateInput("");
+    setKeywordsInput("");
+    setTechInput("");
     setSelectedExclusionLists([]);
   };
 
@@ -155,10 +165,10 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <Label className="text-xs font-medium">Country</Label>
             <Input
               placeholder="e.g. USA, GBR, DEU"
-              value={params.headquartersCountryCode?.anyOf?.join(", ") ?? ""}
+              value={countryInput}
               onChange={(e) => {
-                const val = e.target.value;
-                const codes = val
+                setCountryInput(e.target.value);
+                const codes = e.target.value
                   .split(",")
                   .map((s) => s.trim().toUpperCase())
                   .filter(Boolean);
@@ -172,10 +182,10 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <Label className="text-xs font-medium">State / Region</Label>
             <Input
               placeholder="e.g. California, New York"
-              value={params.headquartersStateName?.anyOf?.join(", ") ?? ""}
+              value={stateInput}
               onChange={(e) => {
-                const val = e.target.value;
-                const states = val.split(",").map((s) => s.trim()).filter(Boolean);
+                setStateInput(e.target.value);
+                const states = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 update("headquartersStateName", states.length ? { anyOf: states } : null);
               }}
               className="text-sm"
@@ -266,10 +276,10 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <Label className="text-xs font-medium">Keywords</Label>
             <Input
               placeholder="e.g. AI, machine learning, SaaS"
-              value={params.keywords?.containsAny?.join(", ") ?? ""}
+              value={keywordsInput}
               onChange={(e) => {
-                const val = e.target.value;
-                const kws = val.split(",").map((s) => s.trim()).filter(Boolean);
+                setKeywordsInput(e.target.value);
+                const kws = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 update("keywords", kws.length ? { containsAny: kws } : null);
               }}
               className="text-sm"
@@ -322,14 +332,10 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <Label className="text-xs font-medium">Technologies</Label>
             <Input
               placeholder="e.g. React, Python, AWS"
-              value={
-                params.technologies?.anyOf
-                  ?.map((t) => t.technology ?? t.name ?? "")
-                  .join(", ") ?? ""
-              }
+              value={techInput}
               onChange={(e) => {
-                const val = e.target.value;
-                const techs = val.split(",").map((s) => s.trim()).filter(Boolean);
+                setTechInput(e.target.value);
+                const techs = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 update(
                   "technologies",
                   techs.length

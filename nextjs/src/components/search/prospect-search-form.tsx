@@ -80,6 +80,10 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
   const [stateInput, setStateInput] = useState(
     params.state?.anyOf?.map((s) => s.stateName).join(", ") ?? ""
   );
+  const [keywordsInput, setKeywordsInput] = useState("");
+  const [languagesInput, setLanguagesInput] = useState("");
+  const [schoolInput, setSchoolInput] = useState("");
+  const [nameInput, setNameInput] = useState("");
 
   // Keep state entries in sync with country code changes
   useEffect(() => {
@@ -107,6 +111,10 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
     setTitleInput("");
     setCountryInput("");
     setStateInput("");
+    setKeywordsInput("");
+    setLanguagesInput("");
+    setSchoolInput("");
+    setNameInput("");
     setSelectedProspectExcl([]);
     setSelectedCompanyExcl([]);
   };
@@ -232,10 +240,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">School Name</Label>
             <Input
               placeholder="e.g. Stanford, MIT, Harvard"
-              value={
-                params.education?.anyOf?.[0]?.school ?? ""
-              }
+              value={schoolInput}
               onChange={(e) => {
+                setSchoolInput(e.target.value);
                 const val = e.target.value.trim();
                 update(
                   "education",
@@ -253,8 +260,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">Keywords</Label>
             <Input
               placeholder="e.g. machine learning, sales, growth"
-              value={params.keywords?.containsAny?.join(", ") ?? ""}
+              value={keywordsInput}
               onChange={(e) => {
+                setKeywordsInput(e.target.value);
                 const kws = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 update("keywords", kws.length ? { containsAny: kws } : null);
               }}
@@ -272,8 +280,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">Languages Spoken</Label>
             <Input
               placeholder="e.g. English, Spanish, Mandarin"
-              value={params.languages?.anyOf?.join(", ") ?? ""}
+              value={languagesInput}
               onChange={(e) => {
+                setLanguagesInput(e.target.value);
                 const langs = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 update("languages", langs.length ? { anyOf: langs } : null);
               }}
@@ -288,8 +297,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">Person Name</Label>
             <Input
               placeholder="e.g. John Smith"
-              value={params.fuzzyName?.anyOf?.[0]?.name ?? ""}
+              value={nameInput}
               onChange={(e) => {
+                setNameInput(e.target.value);
                 const val = e.target.value.trim();
                 update("fuzzyName", val ? { anyOf: [{ name: val }] } : null);
               }}
