@@ -74,8 +74,12 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
 
   // Job title helper state
   const [titleInput, setTitleInput] = useState("");
-  const [countryInput, setCountryInput] = useState("");
-  const [stateInput, setStateInput] = useState("");
+  const [countryInput, setCountryInput] = useState(
+    params.country3LetterCode?.anyOf?.join(", ") ?? ""
+  );
+  const [stateInput, setStateInput] = useState(
+    params.state?.anyOf?.map((s) => s.stateName).join(", ") ?? ""
+  );
 
   // Keep state entries in sync with country code changes
   useEffect(() => {
@@ -180,7 +184,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
                 setStateInput(e.target.value);
                 const states = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
                 const codes = countryInput.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
-                const countryCode = codes[0] ?? "USA";
+                if (!codes.length) return;
+                const countryCode = codes[0];
                 update("state", states.length
                   ? { anyOf: states.map((s) => ({ countryCode, stateName: s })) }
                   : null
