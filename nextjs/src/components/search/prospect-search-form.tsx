@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, Search, RotateCcw, Hash, Loader2 } from "lucide-react";
 import { stripEmpty } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -76,6 +76,18 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
   const [titleInput, setTitleInput] = useState("");
   const [countryInput, setCountryInput] = useState("");
   const [stateInput, setStateInput] = useState("");
+
+  // Keep state entries in sync with country code changes
+  useEffect(() => {
+    if (!params.state?.anyOf?.length) return;
+    const countryCode = params.country3LetterCode?.anyOf?.[0];
+    if (!countryCode) return;
+    const currentCode = params.state.anyOf[0]?.countryCode;
+    if (currentCode === countryCode) return;
+    update("state", {
+      anyOf: params.state.anyOf.map((s) => ({ ...s, countryCode })),
+    });
+  }, [params.country3LetterCode]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,12 +173,14 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">State / Region</Label>
             <Input
-              placeholder="e.g. California, New York"
+              placeholder={params.country3LetterCode?.anyOf?.length ? "e.g. California, New York" : "Enter a country code first"}
               value={stateInput}
+              disabled={!params.country3LetterCode?.anyOf?.length}
               onChange={(e) => {
                 setStateInput(e.target.value);
                 const states = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-                const countryCode = params.country3LetterCode?.anyOf?.[0] ?? "USA";
+                const codes = countryInput.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
+                const countryCode = codes[0] ?? "USA";
                 update("state", states.length
                   ? { anyOf: states.map((s) => ({ countryCode, stateName: s })) }
                   : null

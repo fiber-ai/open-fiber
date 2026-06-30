@@ -271,20 +271,18 @@ export const PROFILE_TAG_LABELS: Record<string, string> = {
   "board-member": "Board Member",
 };
 
+const jobTitleV2ItemSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("term"), term: z.string() }),
+  z.object({ type: z.literal("static-groups"), groups: z.array(z.string()) }),
+  z.object({ type: z.literal("dynamic-groups"), groups: z.array(z.string()), keywords: z.array(z.string()).default([]) }),
+]);
+
 export const peopleSearchParamsSchema = z.object({
   // Job Title
   jobTitleV2: z
     .object({
-      anyOf: z.array(z.discriminatedUnion("type", [
-        z.object({ type: z.literal("term"), term: z.string() }),
-        z.object({ type: z.literal("static-groups"), groups: z.array(z.string()) }),
-        z.object({ type: z.literal("dynamic-groups"), groups: z.array(z.string()), keywords: z.array(z.string()).default([]) }),
-      ])).nullable().optional(),
-      noneOf: z.array(z.discriminatedUnion("type", [
-        z.object({ type: z.literal("term"), term: z.string() }),
-        z.object({ type: z.literal("static-groups"), groups: z.array(z.string()) }),
-        z.object({ type: z.literal("dynamic-groups"), groups: z.array(z.string()), keywords: z.array(z.string()).default([]) }),
-      ])).nullable().optional(),
+      anyOf: z.array(jobTitleV2ItemSchema).nullable().optional(),
+      noneOf: z.array(jobTitleV2ItemSchema).nullable().optional(),
     })
     .nullable()
     .optional(),
