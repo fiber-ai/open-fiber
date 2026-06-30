@@ -81,7 +81,7 @@ export default function CombinedSearchPage() {
     const titles = jobTitles.split(",").map((s) => s.trim()).filter(Boolean);
     if (titles.length) {
       profileParams.jobTitleV2 = {
-        anyOf: titles.map((t) => ({ tag: "term" as const, value: t, modifiers: { currentOnly: true } })),
+        anyOf: titles.map((t) => ({ type: "term" as const, term: t })),
       };
     }
 

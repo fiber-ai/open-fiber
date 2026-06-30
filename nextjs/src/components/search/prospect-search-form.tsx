@@ -74,6 +74,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
 
   // Job title helper state
   const [titleInput, setTitleInput] = useState("");
+  const [countryInput, setCountryInput] = useState("");
+  const [stateInput, setStateInput] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +89,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
   const handleReset = () => {
     setParams({});
     setTitleInput("");
+    setCountryInput("");
+    setStateInput("");
     setSelectedProspectExcl([]);
     setSelectedCompanyExcl([]);
   };
@@ -120,9 +124,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
                   titles.length
                     ? {
                         anyOf: titles.map((t) => ({
-                          tag: "term" as const,
-                          value: t,
-                          modifiers: { currentOnly: true },
+                          type: "term" as const,
+                          term: t,
                         })),
                       }
                     : null
@@ -142,8 +145,9 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">Country</Label>
             <Input
               placeholder="e.g. USA, GBR, DEU"
-              value={params.country3LetterCode?.anyOf?.join(", ") ?? ""}
+              value={countryInput}
               onChange={(e) => {
+                setCountryInput(e.target.value);
                 const codes = e.target.value
                   .split(",")
                   .map((s) => s.trim().toUpperCase())
@@ -158,10 +162,15 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <Label className="text-xs font-medium">State / Region</Label>
             <Input
               placeholder="e.g. California, New York"
-              value={params.state?.anyOf?.join(", ") ?? ""}
+              value={stateInput}
               onChange={(e) => {
+                setStateInput(e.target.value);
                 const states = e.target.value.split(",").map((s) => s.trim()).filter(Boolean);
-                update("state", states.length ? { anyOf: states } : null);
+                const countryCode = params.country3LetterCode?.anyOf?.[0] ?? "USA";
+                update("state", states.length
+                  ? { anyOf: states.map((s) => ({ countryCode, stateName: s })) }
+                  : null
+                );
               }}
               className="text-sm"
             />
@@ -325,7 +334,7 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
               <span>
                 <span className="font-semibold">
                   {formatNumber(
-                    (count.data as { output?: { count?: number } })?.output?.count ?? 0
+                    count.data?.output?.totalProfilesFound ?? 0
                   )}
                 </span>{" "}
                 prospects match
