@@ -13,6 +13,16 @@ import { journeymanRouter } from "./journeyman";
 import { twitterRouter } from "./twitter";
 import { youtubeRouter } from "./youtube";
 import { salesNavRouter } from "./sales-nav";
+import { redditRouter } from "./reddit";
+import { instagramRouter } from "./instagram";
+import { tiktokRouter } from "./tiktok";
+import { depthChartRouter } from "./depth-chart";
+import { stealthRouter } from "./stealth";
+import { blueCollarRouter } from "./blue-collar";
+import { mediaRouter } from "./media";
+import { flightsRouter } from "./flights";
+import { realEstateRouter } from "./real-estate";
+import { trackerRouter } from "./tracker";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -29,6 +39,16 @@ export const appRouter = createTRPCRouter({
   twitter: twitterRouter,
   youtube: youtubeRouter,
   salesNav: salesNavRouter,
+  reddit: redditRouter,
+  instagram: instagramRouter,
+  tiktok: tiktokRouter,
+  depthChart: depthChartRouter,
+  stealth: stealthRouter,
+  blueCollar: blueCollarRouter,
+  media: mediaRouter,
+  flights: flightsRouter,
+  realEstate: realEstateRouter,
+  tracker: trackerRouter,
 });
 
 export type AppRouter = typeof appRouter;

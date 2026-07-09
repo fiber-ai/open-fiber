@@ -23,10 +23,8 @@ export interface EnrichmentOptions {
  * The `id` matches the tRPC procedure suffix for easy routing.
  */
 export const REVEAL_VARIANTS = [
-  { id: "standard", label: "Standard", description: "Default enrichment" },
-  { id: "slim", label: "Slim", description: "Faster, lighter data" },
-  { id: "premium", label: "Premium", description: "Higher quality results" },
-  { id: "druid", label: "Druid", description: "Streamlined enrichment" },
+  { id: "standard", label: "Standard", description: "Fast, verified contact reveal" },
+  { id: "premium", label: "Premium", description: "Widest waterfall, premium cost" },
   { id: "exhaustive", label: "Exhaustive", description: "Most thorough (async)" },
 ] as const;
 

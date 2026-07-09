@@ -262,11 +262,11 @@ function BillingSettings() {
   if (autoTopUp.isError || autoTopUp.isLoading) return null;
 
   const settings = autoTopUp.data?.output;
-  if (!settings) return null;
+  if (!settings || settings.configured === false) return null;
 
-  const isEnabled = (settings.enabled as boolean) ?? false;
-  const threshold = (settings.threshold as number) ?? 0;
-  const amount = (settings.amount as number) ?? 0;
+  const isEnabled = (settings.isEnabled as boolean) ?? false;
+  const threshold = (settings.creditThreshold as number) ?? 0;
+  const amount = (settings.creditsToBuy as number) ?? 0;
 
   return (
     <Card>

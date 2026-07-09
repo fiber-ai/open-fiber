@@ -7,53 +7,27 @@ import { CompanyTable, type CompanyRow } from "@/components/search/company-table
 import { ProspectTable, type ProspectRow } from "@/components/search/prospect-table";
 import { CompanyDetailSheet } from "@/components/search/company-detail-sheet";
 import { ProspectDetailSheet } from "@/components/search/prospect-detail-sheet";
-import { PaginationControls } from "@/components/shared/pagination-controls";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
-
 import { Badge } from "@/components/ui/badge";
 
-type ResultType = "companies" | "prospects" | "jd" | null;
-
 export default function AISearchPage() {
-  const [resultType, setResultType] = useState<ResultType>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyRow | null>(null);
   const [selectedProspect, setSelectedProspect] = useState<ProspectRow | null>(null);
-  const [pageSize] = useState(25);
 
-  const companySearch = trpc.search.textToCompanySearch.useMutation();
-  const prospectSearch = trpc.search.textToProfileSearch.useMutation();
-  const jdSearch = trpc.search.jdToProfileSearch.useMutation();
+  const nlSearch = trpc.search.nlSearch.useMutation();
 
-  const handleSearchCompanies = (query: string) => {
-    setResultType("companies");
-    companySearch.mutate({ query, pageSize });
+  const handleSearch = (query: string) => {
+    nlSearch.mutate({ query });
   };
 
-  const handleSearchProspects = (query: string) => {
-    setResultType("prospects");
-    prospectSearch.mutate({ query, pageSize });
-  };
-
-  const handleSearchJD = (query: string) => {
-    setResultType("jd");
-    jdSearch.mutate({ request: "initial", query, pageSize });
-  };
-
-  const isLoading = companySearch.isPending || prospectSearch.isPending || jdSearch.isPending;
-
-  const companyResult = companySearch.data;
-  const prospectResult = prospectSearch.data;
-
-  const companies = (companyResult?.output?.data ?? []) as CompanyRow[];
-  const prospects = (prospectResult?.output?.data ?? []) as ProspectRow[];
-
-  const jdProspects = (jdSearch.data?.output?.data ?? []) as ProspectRow[];
-
-  const activeError =
-    resultType === "companies" ? companySearch.error :
-    resultType === "prospects" ? prospectSearch.error :
-    resultType === "jd" ? jdSearch.error : null;
+  // Slushie returns a discriminated result: companies OR people (never both).
+  const results = nlSearch.data?.output?.results as
+    | { resultType?: string; companies?: CompanyRow[]; people?: ProspectRow[] }
+    | undefined;
+  const kind = results?.resultType;
+  const companies = (kind === "companies" ? results?.companies ?? [] : []) as CompanyRow[];
+  const prospects = (kind === "people" ? results?.people ?? [] : []) as ProspectRow[];
 
   return (
     <div className="flex h-full flex-col">
@@ -69,23 +43,18 @@ export default function AISearchPage() {
             <Zap className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium">Powered by Fiber AI</span>
           </div>
-          <AISearchInput
-            onSearchCompanies={handleSearchCompanies}
-            onSearchProspects={handleSearchProspects}
-            onSearchJD={handleSearchJD}
-            isLoading={isLoading}
-          />
+          <AISearchInput onSearch={handleSearch} isLoading={nlSearch.isPending} />
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {activeError && (
+        {nlSearch.isError && (
           <div className="p-6">
-            <ErrorDisplay message={activeError.message} />
+            <ErrorDisplay message={nlSearch.error.message} />
           </div>
         )}
 
-        {resultType === "companies" && companySearch.isSuccess && (
+        {nlSearch.isSuccess && kind === "companies" && (
           <div className="p-4">
             <div className="mb-3 flex items-center gap-2">
               <Building2 className="h-4 w-4" />
@@ -106,7 +75,7 @@ export default function AISearchPage() {
           </div>
         )}
 
-        {resultType === "prospects" && prospectSearch.isSuccess && (
+        {nlSearch.isSuccess && kind === "people" && (
           <div className="p-4">
             <div className="mb-3 flex items-center gap-2">
               <UserSearch className="h-4 w-4" />
@@ -127,27 +96,15 @@ export default function AISearchPage() {
           </div>
         )}
 
-        {resultType === "jd" && jdSearch.isSuccess && (
+        {nlSearch.isSuccess && kind !== "companies" && kind !== "people" && (
           <div className="p-4">
-            <div className="mb-3 flex items-center gap-2">
-              <UserSearch className="h-4 w-4" />
-              <span className="text-sm font-medium">JD Match Results</span>
-              <Badge variant="secondary" className="text-xs">
-                {jdProspects.length}
-              </Badge>
-            </div>
-            {jdProspects.length > 0 ? (
-              <ProspectTable data={jdProspects} onRowClick={(r) => setSelectedProspect(r)} />
-            ) : (
-              <EmptyState
-                icon={UserSearch}
-                title="No matches found"
-                description="Try a different job description."
-              />
-            )}
+            <EmptyState
+              icon={Zap}
+              title="No results"
+              description="We couldn't interpret that query. Try describing the companies or people you're looking for."
+            />
           </div>
         )}
-
       </div>
 
       {/* Detail Sheets */}

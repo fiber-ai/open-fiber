@@ -20,20 +20,22 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 });
 
 export async function callFiber<T>(
-  fn: () => Promise<{ data?: T; error?: unknown }>
+  fn: () => Promise<{ data?: T; error?: unknown; response?: { status?: number } }>
 ): Promise<T> {
   const result = await fn();
 
   if (result.error) {
     const err = result.error as { status?: number; message?: string; detail?: string };
-    const status = err.status ?? 500;
+    // The SDK carries the HTTP status on `response.status`; the error body rarely
+    // includes it. Prefer response.status so 401/402/429 map correctly.
+    const status = result.response?.status ?? err.status ?? 500;
     const message = err.message ?? err.detail ?? "Fiber API error";
 
     let code: TRPCError["code"] = "INTERNAL_SERVER_ERROR";
     if (status === 401) code = "UNAUTHORIZED";
     else if (status === 402) code = "FORBIDDEN";
     else if (status === 404) code = "NOT_FOUND";
-    else if (status === 422) code = "BAD_REQUEST";
+    else if (status === 400 || status === 422) code = "BAD_REQUEST";
     else if (status === 429) code = "TOO_MANY_REQUESTS";
 
     throw new TRPCError({ code, message, cause: result.error });
@@ -86,7 +88,7 @@ export async function fiberFetch<T>(
     if (status === 401) code = "UNAUTHORIZED";
     else if (status === 402) code = "FORBIDDEN";
     else if (status === 404) code = "NOT_FOUND";
-    else if (status === 422) code = "BAD_REQUEST";
+    else if (status === 400 || status === 422) code = "BAD_REQUEST";
     else if (status === 429) code = "TOO_MANY_REQUESTS";
 
     throw new TRPCError({ code, message, cause: data });

@@ -4,21 +4,16 @@ import {
   companyCount,
   peopleSearch,
   peopleSearchCount,
-  combinedSearch,
-  pollCombinedSearch,
-  textToCompanySearch,
-  textToProfileSearch,
-  textToCompanySearchParams,
-  textToProfileSearchParams,
-  textToCombinedSearch,
-  investorSearch,
-  investmentSearch,
+  paginatedCombinedSearch,
+  slushieRun,
+  nlpSearchParse,
   jobPostingSearch,
   jobPostingSearchCount,
   companyTypeahead,
   locationTypeahead,
+  combinedSearchCount,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 import { companySearchParamsSchema, peopleSearchParamsSchema } from "@/lib/schemas/search";
 
 const searchResultSchema = z.object({
@@ -38,22 +33,6 @@ const peopleCountResultSchema = z.object({
 
 const jobPostingCountResultSchema = z.object({
   output: z.object({ totalJobsFound: z.number() }).passthrough(),
-}).passthrough();
-
-const investorResultSchema = z.object({
-  output: z.object({
-    investors: z.array(z.object({
-      name: z.string().nullable().optional(),
-      totalInvestmentCount: z.number(),
-      leadInvestmentCount: z.number(),
-      leadInvestmentRate: z.number(),
-      lastInvestmentDate: z.string().nullable().optional(),
-      type: z.string().nullable().optional(),
-      isTopVc: z.boolean().nullable().optional(),
-      domain: z.string().nullable().optional(),
-      countryCode: z.string().nullable().optional(),
-    }).passthrough()),
-  }).passthrough(),
 }).passthrough();
 
 const jobPostingResultSchema = z.object({
@@ -174,148 +153,87 @@ export const searchRouter = createTRPCRouter({
       );
     }),
 
-  // --- Combined Search ---
-  startCombinedSearch: protectedProcedure
+  // --- Combined Search (synchronous, paginated) ---
+  combinedSearch: protectedProcedure
     .input(
       z.object({
         companyParams: companySearchParamsSchema,
         profileParams: peopleSearchParamsSchema.optional(),
+        companyPageSize: z.number().int().min(1).max(100).default(25),
+        profilePageSize: z.number().int().min(1).max(100).default(25),
+        companyCursor: z.string().nullable().optional(),
+        profileCursor: z.string().nullable().optional(),
       })
     )
-    .output(z.object({ output: z.object({ searchID: z.string() }).passthrough() }).passthrough())
+    .output(
+      z.object({
+        output: z.object({
+          companies: z.array(z.record(z.unknown())),
+          profiles: z.array(z.record(z.unknown())),
+          nextCompaniesCursor: z.string().nullable().optional(),
+          nextProfilesCursor: z.string().nullable().optional(),
+        }).passthrough(),
+      }).passthrough()
+    )
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        combinedSearch({
+        paginatedCombinedSearch({
           body: {
             apiKey: ctx.apiKey,
-            companyParams: input.companyParams as Record<string, unknown>,
-            profileParams: (input.profileParams ?? {}) as Record<string, unknown>,
+            companyConfig: {
+              searchParams: input.companyParams as Record<string, unknown>,
+              pageSize: input.companyPageSize,
+              companyCursor: input.companyCursor ?? null,
+            },
+            profileConfig: {
+              searchParams: (input.profileParams ?? {}) as Record<string, unknown>,
+              pageSize: input.profilePageSize,
+              profileCursor: input.profileCursor ?? null,
+            },
           },
         })
       );
     }),
 
-  pollCombinedSearch: protectedProcedure
+  // --- AI / Natural Language Search (Slushie) ---
+  // Infers whether to return companies or people from the query.
+  nlSearch: protectedProcedure
     .input(
       z.object({
-        searchId: z.string(),
-        entityType: z.enum(["company", "profile"]),
-        cursor: z.string().nullable().optional(),
-        pageSize: z.number().min(1).max(100).default(25),
+        query: z.string().trim().min(1),
+        pageSize: z.number().int().min(1).max(100).default(25),
+        pageToken: z.string().nullable().optional(),
       })
     )
-    .output(z.object({
-      output: z.object({
-        status: z.string().optional(),
-        data: z.object({ type: z.string().optional(), items: z.array(z.record(z.unknown())).optional() }).passthrough().optional(),
-        nextCursor: z.string().nullable().optional(),
-      }).passthrough(),
-    }).passthrough())
-    .query(async ({ ctx, input }) => {
-      return callFiber(() =>
-        pollCombinedSearch({
-          body: {
-            apiKey: ctx.apiKey,
-            searchId: input.searchId,
-            entityType: input.entityType,
-            cursor: input.cursor ?? null,
-            pageSize: input.pageSize,
-          },
-        })
-      );
-    }),
-
-  // --- AI / Natural Language Search ---
-  textToCompanySearch: protectedProcedure
-    .input(
+    .output(
       z.object({
-        query: z.string().min(1),
-        pageSize: z.number().min(1).max(100).default(25),
-        cursor: z.string().nullable().optional(),
-      })
+        output: z.object({
+          searchId: z.string(),
+          nextPageToken: z.string().nullable().optional(),
+          results: z.record(z.unknown()),
+          parsedParams: z.record(z.unknown()).nullable().optional(),
+        }).passthrough(),
+      }).passthrough()
     )
-    .output(searchResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        textToCompanySearch({
+        slushieRun({
           body: {
             apiKey: ctx.apiKey,
             query: input.query,
             pageSize: input.pageSize,
-            cursor: input.cursor ?? null,
+            pageToken: input.pageToken ?? null,
           },
         })
       );
     }),
 
-  textToProfileSearch: protectedProcedure
-    .input(
-      z.object({
-        query: z.string().min(1),
-        pageSize: z.number().min(1).max(100).default(25),
-        cursor: z.string().nullable().optional(),
-      })
-    )
-    .output(searchResultSchema)
+  // Parse a natural-language query into structured filters (no search executed).
+  nlParseParams: protectedProcedure
+    .input(z.object({ query: z.string().trim().min(1) }))
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        textToProfileSearch({
-          body: {
-            apiKey: ctx.apiKey,
-            query: input.query,
-            pageSize: input.pageSize,
-            cursor: input.cursor ?? null,
-          },
-        })
-      );
-    }),
-
-  textToCompanySearchParams: protectedProcedure
-    .input(z.object({ query: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        textToCompanySearchParams({
-          body: {
-            apiKey: ctx.apiKey,
-            query: input.query,
-          },
-        })
-      );
-    }),
-
-  textToProfileSearchParams: protectedProcedure
-    .input(z.object({ query: z.string().min(1) }))
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        textToProfileSearchParams({
-          body: { apiKey: ctx.apiKey, query: input.query },
-        })
-      );
-    }),
-
-  // --- Investor & Investment Search ---
-  investorSearch: protectedProcedure
-    .input(z.object({
-      searchParams: z.record(z.unknown()).default({}),
-      pageSize: z.number().min(1).max(100).default(25),
-      cursor: z.string().nullable().optional(),
-    }))
-    .output(investorResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        investorSearch({ body: { apiKey: ctx.apiKey, searchParams: input.searchParams, pageSize: input.pageSize, cursor: input.cursor ?? null } })
-      );
-    }),
-
-  investmentSearch: protectedProcedure
-    .input(z.object({
-      searchParams: z.record(z.unknown()).default({}),
-      pageSize: z.number().min(1).max(100).default(25),
-      cursor: z.string().nullable().optional(),
-    }))
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        investmentSearch({ body: { apiKey: ctx.apiKey, searchParams: input.searchParams, pageSize: input.pageSize, cursor: input.cursor ?? null } })
+        nlpSearchParse({ body: { apiKey: ctx.apiKey, query: input.query } })
       );
     }),
 
@@ -342,31 +260,6 @@ export const searchRouter = createTRPCRouter({
       );
     }),
 
-  // --- Job Description → People ---
-  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
-  jdToProfileSearch: protectedProcedure
-    .input(
-      z.discriminatedUnion("request", [
-        z.object({
-          request: z.literal("initial"),
-          query: z.string().min(1),
-          pageSize: z.number().min(1).max(100).default(25),
-        }),
-        z.object({
-          request: z.literal("subsequent"),
-          cursor: z.string(),
-        }),
-      ])
-    )
-    .output(searchResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/natural-language-search/job-description-search", {
-        search: input.request === "initial"
-          ? { request: "initial", query: input.query, pageSize: input.pageSize }
-          : { request: "subsequent", cursor: input.cursor },
-      });
-    }),
-
   // --- Combined Search Count ---
   combinedSearchCount: protectedProcedure
     .input(z.object({
@@ -375,31 +268,13 @@ export const searchRouter = createTRPCRouter({
     }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/combined-search/count", {
-        companySearchParams: input.companySearchParams,
-        prospectSearchParams: input.prospectSearchParams ?? {},
-      });
-    }),
-
-  // --- Text-to-Combined Search ---
-  textToCombinedSearch: protectedProcedure
-    .input(z.object({
-      query: z.string().min(1),
-      companyItemLimit: z.number().min(0).max(100).default(25),
-      profileItemLimit: z.number().min(1).max(100).default(25),
-    }))
-    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        textToCombinedSearch({
-          body: {
-            apiKey: ctx.apiKey,
-            query: input.query,
-            companyItemLimit: input.companyItemLimit,
-            profileItemLimit: input.profileItemLimit,
-          },
-        })
-      );
+      return callFiber(() => combinedSearchCount({
+        body: {
+          apiKey: ctx.apiKey,
+          companyParams: input.companySearchParams as Record<string, unknown>,
+          profileParams: (input.prospectSearchParams ?? {}) as Record<string, unknown>,
+        },
+      }));
     }),
 
   // --- Typeahead ---

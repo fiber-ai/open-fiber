@@ -41,12 +41,12 @@ export default function YouTubePage() {
   const activeMutation = { search: searchMutation, video: videoMutation, channel: channelMutation }[mode];
   const isLoading = activeMutation.isPending || (mode === "video" && (commentsMutation.isPending || transcriptMutation.isPending));
 
-  const searchItems = (searchMutation.data?.output?.data ?? searchMutation.data?.output?.results ?? searchMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
+  const searchItems = (searchMutation.data?.output?.videos ?? searchMutation.data?.output?.data ?? searchMutation.data?.output?.results ?? searchMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
   const videoData = videoMutation.data?.output;
-  const comments = (commentsMutation.data?.output?.data ?? commentsMutation.data?.output?.results ?? commentsMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
+  const comments = (commentsMutation.data?.output?.comments ?? commentsMutation.data?.output?.data ?? commentsMutation.data?.output?.results ?? commentsMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
   const transcript = transcriptMutation.data?.output;
   const channelData = channelMutation.data?.output;
-  const channelVideos = (channelMutation.data?.output?.data ?? channelMutation.data?.output?.results ?? channelMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
+  const channelVideos = (channelMutation.data?.output?.videos ?? channelMutation.data?.output?.data ?? channelMutation.data?.output?.results ?? channelMutation.data?.output?.items) as Record<string, unknown>[] | undefined;
 
   return (
     <div className="flex h-full flex-col">
@@ -96,21 +96,38 @@ export default function YouTubePage() {
         {mode === "search" && searchMutation.isSuccess && (
           <div className="mx-auto max-w-2xl space-y-3">
             {!searchItems?.length && <EmptyState icon={Youtube} title="No results" description="No videos found." />}
-            {searchItems?.map((item, i) => (
-              <Card key={(item.videoId as string) ?? i} className="cursor-pointer hover:bg-accent/50" onClick={() => {
-                const id = (item.videoId as string);
-                if (id) { setVideoId(id); setMode("video"); }
-              }}>
-                <CardContent className="pt-4 space-y-1">
-                  <p className="font-medium text-sm">{(item.title as string) ?? "Untitled"}</p>
-                  <p className="text-xs text-muted-foreground">{(item.channelTitle as string) ?? ""}</p>
-                  <div className="flex gap-3 text-xs text-muted-foreground">
-                    {(item.viewCount as number) != null && <span>{(item.viewCount as number).toLocaleString()} views</span>}
-                    {(item.publishedAt as string) && <span>{new Date(item.publishedAt as string).toLocaleDateString()}</span>}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {searchItems?.map((item, i) => {
+              const vid = (item.id as string) ?? (item.videoId as string);
+              const url = (item.url as string) ?? (vid ? `https://www.youtube.com/watch?v=${vid}` : null);
+              const channelName = typeof item.channel === "string"
+                ? item.channel
+                : ((item.channel as { name?: string } | undefined)?.name ?? (item.channelTitle as string) ?? "");
+              return (
+                <Card key={vid ?? i} className="cursor-pointer hover:bg-accent/50" onClick={() => {
+                  if (vid) { setVideoId(vid); setMode("video"); }
+                }}>
+                  <CardContent className="pt-4 space-y-1">
+                    <p className="font-medium text-sm">{(item.title as string) ?? "Untitled"}</p>
+                    {channelName && <p className="text-xs text-muted-foreground">{channelName}</p>}
+                    <div className="flex gap-3 text-xs text-muted-foreground">
+                      {(item.viewCount as number) != null && <span>{(item.viewCount as number).toLocaleString()} views</span>}
+                      {(item.publishedAt as string) && <span>{new Date(item.publishedAt as string).toLocaleDateString()}</span>}
+                    </div>
+                    {url && (
+                      <a
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-block text-xs text-primary hover:underline"
+                      >
+                        Watch on YouTube ↗
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 

@@ -19,7 +19,7 @@ export default function SocialMediaPage() {
   const triggerMutation = trpc.tools.triggerSocialMediaLookup.useMutation();
 
   const pollQuery = trpc.tools.pollSocialMediaLookup.useQuery(
-    { socialMediaFinderRunId: runId! },
+    { runId: runId! },
     {
       enabled: !!runId,
       refetchInterval: (q) => {
@@ -38,8 +38,8 @@ export default function SocialMediaPage() {
       { people: urls.map((u) => ({ linkedinUrl: u })) },
       {
         onSuccess: (data) => {
-          if (data?.output?.socialMediaFinderRunId) {
-            setRunId(data.output.socialMediaFinderRunId);
+          if (data?.output?.runId) {
+            setRunId(data.output.runId);
           }
         },
       }
@@ -75,7 +75,9 @@ export default function SocialMediaPage() {
           </Card>
 
           {triggerMutation.isError && <ErrorDisplay message={triggerMutation.error.message} />}
-          {pollQuery.isError && <ErrorDisplay message={pollQuery.error.message} />}
+          {/* Suppress transient poll errors while the run is still in flight — the first
+              poll can 404 before the backend registers the runId, then self-recovers. */}
+          {pollQuery.isError && !isPolling && <ErrorDisplay message={pollQuery.error.message} />}
 
           {isPolling && <PollingIndicator message="Searching for social profiles..." />}
 

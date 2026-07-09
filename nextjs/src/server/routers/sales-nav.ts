@@ -2,9 +2,9 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, fiberFetch } from "../trpc";
 
 /**
- * Sales Navigator endpoints are not yet in the @fiberai/sdk.
- * Using fiberFetch() for direct API calls. When the SDK adds these
- * functions, swap fiberFetch calls to SDK calls — no schema changes needed.
+ * Sales Navigator endpoints are INTERNAL on the backend and are NOT part of the
+ * public @fiberai/sdk, so fiberFetch() is the sanctioned path here (unlike the
+ * other routers, which use native SDK calls). Leave as direct HTTP.
  */
 
 const triggerOutputSchema = z.object({

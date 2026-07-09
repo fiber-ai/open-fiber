@@ -1,11 +1,17 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, fiberFetch } from "../trpc";
-
-/**
- * Twitter/X endpoints are not yet in @fiberai/sdk v0.0.5.
- * Using fiberFetch() for direct API calls. When the SDK adds these,
- * swap fiberFetch to SDK calls — no schema changes needed.
- */
+import {
+  twitterProfile,
+  twitterSearch,
+  twitterUserTweets,
+  twitterUserFollowers,
+  twitterUserFollowing,
+  twitterUserMentions,
+  twitterTweetDetails,
+  twitterTweetReplies,
+  twitterTweetQuotes,
+  twitterTweetRetweeters,
+} from "@fiberai/sdk";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
 // --- Shared output schemas ---
 
@@ -32,69 +38,69 @@ export const twitterRouter = createTRPCRouter({
     .input(handleInput)
     .output(genericOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/profile", { handle: input.handle });
+      return callFiber(() => twitterProfile({ body: { apiKey: ctx.apiKey, handle: input.handle } }));
     }),
 
   search: protectedProcedure
     .input(z.object({ query: z.string().min(1), cursor: z.string().nullable().optional() }))
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/search", { query: input.query, cursor: input.cursor });
+      return callFiber(() => twitterSearch({ body: { apiKey: ctx.apiKey, query: input.query, cursor: input.cursor ?? null } }));
     }),
 
   getUserTweets: protectedProcedure
     .input(handleWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/user-tweets", { handle: input.handle, cursor: input.cursor });
+      return callFiber(() => twitterUserTweets({ body: { apiKey: ctx.apiKey, handle: input.handle, cursor: input.cursor ?? null } }));
     }),
 
   getUserFollowers: protectedProcedure
     .input(handleWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/user-followers", { handle: input.handle, cursor: input.cursor });
+      return callFiber(() => twitterUserFollowers({ body: { apiKey: ctx.apiKey, handle: input.handle, cursor: input.cursor ?? null } }));
     }),
 
   getUserFollowing: protectedProcedure
     .input(handleWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/user-following", { handle: input.handle, cursor: input.cursor });
+      return callFiber(() => twitterUserFollowing({ body: { apiKey: ctx.apiKey, handle: input.handle, cursor: input.cursor ?? null } }));
     }),
 
   getUserMentions: protectedProcedure
     .input(handleWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/user-mentions", { handle: input.handle, cursor: input.cursor });
+      return callFiber(() => twitterUserMentions({ body: { apiKey: ctx.apiKey, handle: input.handle, cursor: input.cursor ?? null } }));
     }),
 
   getTweetDetails: protectedProcedure
     .input(tweetIdInput)
     .output(genericOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/tweet-details", { tweetId: input.tweetId });
+      return callFiber(() => twitterTweetDetails({ body: { apiKey: ctx.apiKey, tweetId: input.tweetId } }));
     }),
 
   getTweetReplies: protectedProcedure
     .input(tweetIdWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/tweet-replies", { tweetId: input.tweetId, cursor: input.cursor });
+      return callFiber(() => twitterTweetReplies({ body: { apiKey: ctx.apiKey, tweetId: input.tweetId, cursor: input.cursor ?? null } }));
     }),
 
   getTweetQuotes: protectedProcedure
     .input(tweetIdWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/tweet-quotes", { tweetId: input.tweetId, cursor: input.cursor });
+      return callFiber(() => twitterTweetQuotes({ body: { apiKey: ctx.apiKey, tweetId: input.tweetId, cursor: input.cursor ?? null } }));
     }),
 
   getTweetRetweeters: protectedProcedure
     .input(tweetIdWithCursor)
     .output(paginatedOutput)
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/twitter/tweet-retweeters", { tweetId: input.tweetId, cursor: input.cursor });
+      return callFiber(() => twitterTweetRetweeters({ body: { apiKey: ctx.apiKey, tweetId: input.tweetId, cursor: input.cursor ?? null } }));
     }),
 });
