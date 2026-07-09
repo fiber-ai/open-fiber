@@ -20,10 +20,8 @@ export default function SingleEnrichmentPage() {
   const [exhaustiveTaskId, setExhaustiveTaskId] = useState<string | null>(null);
 
   // Sync reveal mutations — one per variant
-  const enrichMutation = trpc.enrichment.syncContactEnrichment.useMutation();
-  const slimMutation = trpc.enrichment.syncSlimReveal.useMutation();
+  const standardMutation = trpc.enrichment.syncStandardReveal.useMutation();
   const premiumMutation = trpc.enrichment.syncPremiumReveal.useMutation();
-  const druidMutation = trpc.enrichment.syncDruidReveal.useMutation();
   const exhaustiveTrigger = trpc.enrichment.triggerExhaustiveReveal.useMutation();
 
   // Exhaustive async polling
@@ -47,10 +45,8 @@ export default function SingleEnrichmentPage() {
 
   // Map variant → mutation for clean routing
   const syncMutations = {
-    standard: enrichMutation,
-    slim: slimMutation,
+    standard: standardMutation,
     premium: premiumMutation,
-    druid: druidMutation,
     exhaustive: exhaustiveTrigger, // trigger only, polling is separate
   } as const;
 
@@ -90,10 +86,8 @@ export default function SingleEnrichmentPage() {
   // Pick the result from the active variant only (avoids stale data from prior variants)
   const enrichResult = (() => {
     switch (activeLinkedInVariant) {
-      case "standard": return enrichMutation.data ?? null;
-      case "slim": return slimMutation.data ?? null;
+      case "standard": return standardMutation.data ?? null;
       case "premium": return premiumMutation.data ?? null;
-      case "druid": return druidMutation.data ?? null;
       case "exhaustive": return exhaustivePoll.data ?? null;
       default: return null;
     }
@@ -101,14 +95,12 @@ export default function SingleEnrichmentPage() {
   const emailResult = emailLookup.data;
   const nameResult = kitchenSink.data;
 
-  const isSyncLoading = enrichMutation.isPending || slimMutation.isPending || premiumMutation.isPending || druidMutation.isPending;
+  const isSyncLoading = standardMutation.isPending || premiumMutation.isPending;
   const isExhaustivePolling = !!exhaustiveTaskId && !exhaustivePoll.data?.output?.profile?.status?.match(/completed|failed/);
   const syncError = (() => {
     switch (activeLinkedInVariant) {
-      case "standard": return enrichMutation.error ?? null;
-      case "slim": return slimMutation.error ?? null;
+      case "standard": return standardMutation.error ?? null;
       case "premium": return premiumMutation.error ?? null;
-      case "druid": return druidMutation.error ?? null;
       case "exhaustive": return exhaustiveTrigger.error ?? null;
       default: return null;
     }

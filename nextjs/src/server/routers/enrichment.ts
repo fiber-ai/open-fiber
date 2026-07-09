@@ -1,10 +1,11 @@
 import { z } from "zod";
 import {
-  syncContactEnrichment, triggerContactEnrichment, pollContactEnrichmentResult,
-  startBatchContactEnrichment, pollBatchContactEnrichment, estimateEnrichmentCost,
+  estimateEnrichmentCost,
   syncQuickContactReveal, syncTurboContactEnrichment,
+  startBatchContactDetails, pollBatchContactDetails,
+  triggerExhaustiveContactEnrichment, pollExhaustiveContactEnrichmentResult,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 import { enrichmentTypeSchema } from "@/lib/schemas/enrichment";
 
 const emailSchema = z.object({
@@ -69,39 +70,54 @@ const batchPollResultSchema = z.object({
 }).passthrough();
 
 export const enrichmentRouter = createTRPCRouter({
-  syncContactEnrichment: protectedProcedure
+  // --- Reveal Variants ---
+
+  /** Default (Standard) reveal. SDK: syncQuickContactReveal (POST /v1/contact-details/single) */
+  syncStandardReveal: protectedProcedure
     .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
     .output(syncEnrichResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        syncContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
+        syncQuickContactReveal({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
       );
     }),
 
-  triggerContactEnrichment: protectedProcedure
+  /** Premium/Turbo reveal — widest first-pass waterfall. SDK: syncTurboContactEnrichment */
+  syncPremiumReveal: protectedProcedure
+    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
+    .output(syncEnrichResultSchema)
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() =>
+        syncTurboContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
+      );
+    }),
+
+  /** Exhaustive reveal — most thorough, async waterfall. SDK: triggerExhaustiveContactEnrichment + poll */
+  triggerExhaustiveReveal: protectedProcedure
     .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
     .output(triggerResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        triggerContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: { value: input.linkedinUrl }, enrichmentType: input.enrichmentType } })
+        triggerExhaustiveContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
       );
     }),
 
-  pollContactEnrichment: protectedProcedure
+  pollExhaustiveReveal: protectedProcedure
     .input(z.object({ taskId: z.string() }))
     .output(pollEnrichResultSchema)
     .query(async ({ ctx, input }) => {
       return callFiber(() =>
-        pollContactEnrichmentResult({ body: { apiKey: ctx.apiKey, taskId: input.taskId } })
+        pollExhaustiveContactEnrichmentResult({ body: { apiKey: ctx.apiKey, taskId: input.taskId } })
       );
     }),
 
+  // --- Batch Contact Reveal ---
   startBatchEnrichment: protectedProcedure
     .input(z.object({ people: z.array(z.object({ linkedinUrl: z.string() })), enrichmentType: enrichmentTypeSchema }))
     .output(batchStartResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        startBatchContactEnrichment({
+        startBatchContactDetails({
           body: { apiKey: ctx.apiKey, personDetails: input.people.map((p) => ({ linkedinUrl: { value: p.linkedinUrl } })), enrichmentTypes: input.enrichmentType },
         })
       );
@@ -112,7 +128,7 @@ export const enrichmentRouter = createTRPCRouter({
     .output(batchPollResultSchema)
     .query(async ({ ctx, input }) => {
       return callFiber(() =>
-        pollBatchContactEnrichment({ body: { apiKey: ctx.apiKey, taskId: input.taskId, cursor: input.cursor ?? null, take: input.take } })
+        pollBatchContactDetails({ body: { apiKey: ctx.apiKey, taskId: input.taskId, cursor: input.cursor ?? null, take: input.take } })
       );
     }),
 
@@ -125,84 +141,5 @@ export const enrichmentRouter = createTRPCRouter({
           body: { apiKey: ctx.apiKey, maxProspectsToEnrich: input.maxProspectsToEnrich, enrichmentType: input.enrichmentType, runCompanyLiveEnrichment: input.runCompanyLiveEnrichment },
         })
       );
-    }),
-
-  // --- Reveal Variants ---
-
-  /** Slim reveal — faster, lighter data. SDK: syncQuickContactReveal */
-  syncSlimReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
-    .output(syncEnrichResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        syncQuickContactReveal({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
-      );
-    }),
-
-  /** Premium/Turbo reveal — higher quality data. SDK: syncTurboContactEnrichment */
-  syncPremiumReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
-    .output(syncEnrichResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return callFiber(() =>
-        syncTurboContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
-      );
-    }),
-
-  /** Druid reveal — streamlined. Not yet in SDK v0.0.5 */
-  syncDruidReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
-    .output(syncEnrichResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/druid-reveal/sync", {
-        linkedinUrl: input.linkedinUrl,
-        enrichmentType: input.enrichmentType,
-      });
-    }),
-
-  /** Exhaustive reveal — most thorough, async only. Not yet in SDK v0.0.5 */
-  triggerExhaustiveReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
-    .output(triggerResultSchema)
-    .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/exhaustive-reveal/start", {
-        linkedinUrl: input.linkedinUrl,
-        enrichmentType: input.enrichmentType,
-      });
-    }),
-
-  pollExhaustiveReveal: protectedProcedure
-    .input(z.object({ taskId: z.string() }))
-    .output(pollEnrichResultSchema)
-    .query(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/exhaustive-reveal/poll", {
-        taskId: input.taskId,
-      });
-    }),
-
-  // --- Bulk Contact Details ---
-  /** Not yet in SDK v0.0.5 */
-  triggerBulkContactDetails: protectedProcedure
-    .input(z.object({
-      people: z.array(z.object({ linkedinUrl: z.string() })).min(1),
-      enrichmentType: enrichmentTypeSchema,
-    }))
-    .output(z.object({ output: z.object({ taskId: z.string() }).passthrough() }).passthrough())
-    .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/bulk-contact-details/start", {
-        personDetails: input.people.map((p) => ({ linkedinUrl: { value: p.linkedinUrl } })),
-        enrichmentTypes: input.enrichmentType,
-      });
-    }),
-
-  pollBulkContactDetails: protectedProcedure
-    .input(z.object({ taskId: z.string(), cursor: z.string().nullable().optional(), take: z.number().min(1).max(100).default(100) }))
-    .output(batchPollResultSchema)
-    .query(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/bulk-contact-details/poll", {
-        taskId: input.taskId,
-        cursor: input.cursor,
-        take: input.take,
-      });
     }),
 });

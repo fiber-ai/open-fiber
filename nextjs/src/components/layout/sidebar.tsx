@@ -13,13 +13,21 @@ import {
   ChevronLeft,
   ChevronRight,
   Zap,
-  Landmark,
   Briefcase,
   GitBranch,
   MessageSquare,
   Repeat,
-  Twitter,
   Youtube,
+  Music2,
+  Instagram,
+  BarChart3,
+  Ghost,
+  HardHat,
+  Image,
+  Plane,
+  Home,
+  Building2,
+  Camera,
   FileSearch,
   Share2,
   Upload,
@@ -30,6 +38,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CreditBadge } from "./credit-badge";
+import { XLogo } from "@/components/icons/x-logo";
+import { RedditLogo } from "@/components/icons/reddit-logo";
 
 interface NavItem {
   label: string;
@@ -50,8 +60,9 @@ const navGroups: NavGroup[] = [
       { label: "Prospects", href: "/search/prospects", icon: UserSearch },
       { label: "Combined", href: "/search/combined", icon: Users },
       { label: "AI Search", href: "/search/ai", icon: Zap },
-      { label: "Investors", href: "/search/investors", icon: Landmark },
       { label: "Job Postings", href: "/search/job-postings", icon: Briefcase },
+      { label: "Stealth Founders", href: "/search/stealth", icon: Ghost },
+      { label: "Blue-Collar Jobs", href: "/search/blue-collar", icon: HardHat },
     ],
   },
   {
@@ -71,9 +82,26 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
+    label: "Market Intelligence",
+    items: [
+      { label: "Flights", href: "/market/flights", icon: Plane },
+      { label: "Real Estate", href: "/market/real-estate", icon: Home },
+    ],
+  },
+  {
+    label: "Trackers",
+    items: [
+      { label: "Company Trackers", href: "/trackers/companies", icon: Building2 },
+      { label: "People Trackers", href: "/trackers/people", icon: Users },
+    ],
+  },
+  {
     label: "Tools",
     items: [
       { label: "Google Maps", href: "/tools/google-maps", icon: MapPin },
+      { label: "Depth Chart", href: "/tools/depth-chart", icon: BarChart3 },
+      { label: "Company Logos", href: "/tools/logos", icon: Image },
+      { label: "Webpage Screenshot", href: "/tools/screenshot", icon: Camera },
       { label: "Domain Lookup", href: "/tools/domain-lookup", icon: Globe },
       { label: "Email Validation", href: "/tools/email-validation", icon: ShieldCheck },
       { label: "Phone Validation", href: "/tools/phone-validation", icon: ShieldCheck },
@@ -89,8 +117,11 @@ const navGroups: NavGroup[] = [
   {
     label: "Social",
     items: [
-      { label: "Twitter / X", href: "/tools/twitter", icon: Twitter },
+      { label: "Twitter / X", href: "/tools/twitter", icon: XLogo },
       { label: "YouTube", href: "/tools/youtube", icon: Youtube },
+      { label: "Reddit", href: "/tools/reddit", icon: RedditLogo },
+      { label: "TikTok", href: "/tools/tiktok", icon: Music2 },
+      { label: "Instagram", href: "/tools/instagram", icon: Instagram },
     ],
   },
   {

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PollingIndicator } from "@/components/shared/polling-indicator";
+import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { CopyButton } from "@/components/shared/copy-button";
 import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
@@ -27,8 +28,8 @@ export default function GithubLookupsPage() {
     {
       enabled: !!g2lRunId,
       refetchInterval: (q) => {
-        const d = q.state.data;
-        if (d?.output?.status === "completed" || d?.output?.status === "failed") return false;
+        const s = q.state.data?.output?.status;
+        if (s === "DONE" || s === "FAILED") return false;
         return 3000;
       },
     }
@@ -42,8 +43,8 @@ export default function GithubLookupsPage() {
     {
       enabled: !!l2gRunId,
       refetchInterval: (q) => {
-        const d = q.state.data;
-        if (d?.output?.status === "completed" || d?.output?.status === "failed") return false;
+        const s = q.state.data?.output?.overallStatus;
+        if (s === "DONE" || s === "FAILED") return false;
         return 3000;
       },
     }
@@ -81,11 +82,13 @@ export default function GithubLookupsPage() {
   const g2lData = pollG2L.data;
   const l2gData = pollL2G.data;
 
-  const isPolling = (mode === "github-to-linkedin" && g2lRunId && g2lData?.output?.status === "processing") ||
-    (mode === "linkedin-to-github" && l2gRunId && l2gData?.output?.status === "processing");
+  const isPolling =
+    (mode === "github-to-linkedin" && !!g2lRunId && g2lData?.output?.status !== "DONE" && g2lData?.output?.status !== "FAILED") ||
+    (mode === "linkedin-to-github" && !!l2gRunId && l2gData?.output?.overallStatus !== "DONE" && l2gData?.output?.overallStatus !== "FAILED");
   const isTriggering = triggerG2L.isPending || triggerL2G.isPending;
-  const activeResults = mode === "github-to-linkedin" ? g2lData?.output?.results : l2gData?.output?.results;
-  const isDone = mode === "github-to-linkedin" ? g2lData?.output?.status === "completed" : l2gData?.output?.status === "completed";
+  const activeResults = mode === "github-to-linkedin" ? g2lData?.output?.results : l2gData?.output?.people;
+  const isDone = mode === "github-to-linkedin" ? g2lData?.output?.status === "DONE" : l2gData?.output?.overallStatus === "DONE";
+  const isFailed = mode === "github-to-linkedin" ? g2lData?.output?.status === "FAILED" : l2gData?.output?.overallStatus === "FAILED";
 
   return (
     <div className="flex h-full flex-col">
@@ -125,6 +128,12 @@ export default function GithubLookupsPage() {
           )}
 
           {isPolling && <PollingIndicator message="Looking up profiles..." />}
+
+          {isFailed && <ErrorDisplay message="The lookup failed. Please try again." />}
+
+          {isDone && (!activeResults || activeResults.length === 0) && (
+            <EmptyState icon={Github} title="No matches found" description="No profiles were resolved for the provided inputs." />
+          )}
 
           {isDone && activeResults && activeResults.length > 0 && (
             <Card>

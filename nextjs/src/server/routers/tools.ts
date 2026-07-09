@@ -6,13 +6,18 @@ import {
   domainLookupTrigger,
   domainLookupPolling,
   githubLookupTrigger,
-  githubLookupPolling,
+  githubLookupPoll,
   githubToLinkedInTrigger,
   githubToLinkedInPolling,
   startLocalBusinessSearch,
   pollLocalBusinessSearch,
+  getScoutingReport,
+  getCompanyRevenue,
+  socialMediaLookupBatchTrigger,
+  socialMediaLookupBatchPolling,
+  webpageScreenshot,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
 const mapsStartSchema = z.object({ output: z.object({ searchID: z.string() }).passthrough() }).passthrough();
 
@@ -54,7 +59,10 @@ const githubTriggerSchema = z.object({ output: z.object({ githubAgentRunId: z.st
 
 const githubPollSchema = z.object({
   output: z.object({
-    status: z.string(), results: z.array(z.record(z.unknown())).optional(),
+    status: z.string().optional(),
+    overallStatus: z.string().optional(),
+    results: z.array(z.record(z.unknown())).optional(),
+    people: z.array(z.record(z.unknown())).optional(),
   }).passthrough(),
 }).passthrough();
 
@@ -181,7 +189,7 @@ export const toolsRouter = createTRPCRouter({
     .input(z.object({ githubAgentRunId: z.string(), cursor: z.string().nullable().optional(), pageSize: z.number().default(25) }))
     .output(githubPollSchema)
     .query(async ({ ctx, input }) => {
-      return callFiber(() => githubLookupPolling({ body: { apiKey: ctx.apiKey, githubAgentRunId: input.githubAgentRunId, cursor: input.cursor ?? undefined, pageSize: input.pageSize } }));
+      return callFiber(() => githubLookupPoll({ body: { apiKey: ctx.apiKey, githubAgentRunId: input.githubAgentRunId } }));
     }),
 
   triggerGithubToLinkedIn: protectedProcedure
@@ -214,7 +222,16 @@ export const toolsRouter = createTRPCRouter({
     }))
     .mutation(async ({ ctx, input }) => {
       return callFiber(() => startLocalBusinessSearch({
-        body: { apiKey: ctx.apiKey, data: [{ source: "custom" as const, companies: input.companies }] },
+        body: {
+          apiKey: ctx.apiKey,
+          companies: input.companies.map((c) => ({
+            companyName: c.companyName,
+            companyWebsite: c.domain ?? null,
+            companyCity: c.city ?? null,
+            companyState: c.state ?? null,
+            companyCountryName: c.country ?? null,
+          })),
+        },
       }));
     }),
 
@@ -222,7 +239,7 @@ export const toolsRouter = createTRPCRouter({
     .input(z.object({ taskId: z.string(), pageSize: z.number().min(1).max(100).default(25), cursor: z.string().nullable().optional() }))
     .query(async ({ ctx, input }) => {
       return callFiber(() => pollLocalBusinessSearch({
-        body: { apiKey: ctx.apiKey, taskId: input.taskId, pageSize: input.pageSize, cursor: input.cursor ?? null },
+        body: { apiKey: ctx.apiKey, researchRunId: input.taskId, pageSize: input.pageSize, cursor: input.cursor ?? null },
       }));
     }),
 
@@ -249,7 +266,6 @@ export const toolsRouter = createTRPCRouter({
     }),
 
   // --- Scouting Report (AI Research) ---
-  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
   getScoutingReport: protectedProcedure
     .input(z.object({
       identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"] as const),
@@ -257,13 +273,12 @@ export const toolsRouter = createTRPCRouter({
     }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/scouting-report", {
-        company: { identifier: input.identifier, value: input.value },
-      });
+      return callFiber(() => getScoutingReport({
+        body: { apiKey: ctx.apiKey, company: { identifier: input.identifier, value: input.value } },
+      }));
     }),
 
   // --- Revenue Intelligence ---
-  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
   getCompanyRevenue: protectedProcedure
     .input(z.object({
       name: z.string().optional(),
@@ -273,52 +288,68 @@ export const toolsRouter = createTRPCRouter({
     }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/company-revenue", {
-        companyMetadata: {
-          ...(input.name ? { name: input.name } : {}),
-          ...(input.domain ? { domain: input.domain } : {}),
-          ...(input.linkedinUrl ? { linkedinUrl: input.linkedinUrl } : {}),
-          ...(input.linkedinOrgId ? { linkedinOrgId: input.linkedinOrgId } : {}),
+      return callFiber(() => getCompanyRevenue({
+        body: {
+          apiKey: ctx.apiKey,
+          companyMetadata: {
+            ...(input.name ? { name: input.name } : {}),
+            ...(input.domain ? { domain: input.domain } : {}),
+            ...(input.linkedinUrl ? { linkedinUrl: input.linkedinUrl } : {}),
+            ...(input.linkedinOrgId ? { linkedinOrgId: input.linkedinOrgId } : {}),
+          },
         },
-      });
+      }));
     }),
 
-  // --- Social Media Lookup ---
-  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
+  // --- Social Media Lookup (async batch) ---
   triggerSocialMediaLookup: protectedProcedure
     .input(z.object({
       people: z.array(z.object({
-        linkedinUrl: z.string(),
+        linkedinUrl: z.string().min(1),
       })).min(1),
+      platforms: z.array(z.enum(["TWITTER", "INSTAGRAM"])).optional(),
     }))
-    .output(z.object({ output: z.object({ socialMediaFinderRunId: z.string() }).passthrough() }).passthrough())
+    .output(z.object({ output: z.object({ runId: z.string() }).passthrough() }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/social-media-lookup/trigger", {
-        people: input.people.map((p) => ({
-          inputType: "linkedinUrl" as const,
-          linkedinUrl: p.linkedinUrl,
-        })),
-      });
+      return callFiber(() => socialMediaLookupBatchTrigger({
+        body: {
+          apiKey: ctx.apiKey,
+          platforms: input.platforms,
+          people: input.people.map((p) => ({ inputType: "linkedinUrl" as const, linkedinUrl: p.linkedinUrl })),
+        },
+      }));
     }),
 
   pollSocialMediaLookup: protectedProcedure
     .input(z.object({
-      socialMediaFinderRunId: z.string(),
-      cursor: z.string().nullable().optional(),
-      pageSize: z.number().min(1).max(100).default(25),
+      runId: z.string(),
+      nextPageToken: z.string().nullable().optional(),
+      pageSize: z.number().int().min(1).max(100).default(25),
     }))
     .output(z.object({
       output: z.object({
         status: z.string(),
         results: z.array(z.record(z.unknown())).optional(),
-        nextCursor: z.string().nullable().optional(),
+        nextPageToken: z.string().nullable().optional(),
       }).passthrough(),
     }).passthrough())
     .query(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/social-media-lookup/polling", {
-        socialMediaFinderRunId: input.socialMediaFinderRunId,
-        cursor: input.cursor,
-        pageSize: input.pageSize,
-      });
+      return callFiber(() => socialMediaLookupBatchPolling({
+        body: { apiKey: ctx.apiKey, runId: input.runId, nextPageToken: input.nextPageToken ?? undefined, pageSize: input.pageSize },
+      }));
+    }),
+
+  // --- Webpage Screenshot ---
+  webpageScreenshot: protectedProcedure
+    .input(z.object({
+      url: z.string().trim().min(1),
+      fullPage: z.boolean().optional(),
+      format: z.enum(["mobile", "desktop"]).optional(),
+    }))
+    .output(z.object({ output: z.object({ screenshotUrl: z.string(), title: z.string().nullable().optional() }).passthrough() }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => webpageScreenshot({
+        body: { apiKey: ctx.apiKey, url: input.url, fullPage: input.fullPage, format: input.format },
+      }));
     }),
 });

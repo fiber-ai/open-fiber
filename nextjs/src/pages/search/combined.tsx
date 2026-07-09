@@ -9,7 +9,6 @@ import { ProspectDetailSheet } from "@/components/search/prospect-detail-sheet";
 import { PollingIndicator } from "@/components/shared/polling-indicator";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
-import { PaginationControls } from "@/components/shared/pagination-controls";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,48 +28,15 @@ export default function CombinedSearchPage() {
   const [countries, setCountries] = useState("");
   const [stages, setStages] = useState<string[]>([]);
   const [jobTitles, setJobTitles] = useState("");
-  const [pageSize] = useState(25);
 
   // Search state
-  const [searchId, setSearchId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("companies");
   const [selectedCompany, setSelectedCompany] = useState<CompanyRow | null>(null);
   const [selectedProspect, setSelectedProspect] = useState<ProspectRow | null>(null);
 
-  const startSearch = trpc.search.startCombinedSearch.useMutation({
-    onSuccess: (data) => {
-      
-      const id = data?.output?.searchID;
-      if (id) setSearchId(id);
-    },
-  });
-
-  const pollCompanies = trpc.search.pollCombinedSearch.useQuery(
-    { searchId: searchId!, entityType: "company", pageSize },
-    {
-      enabled: !!searchId,
-      refetchInterval: (query) => {
-        const data = query.state.data;
-        if (data?.output?.status === "COMPLETED") return false;
-        return 2000;
-      },
-    }
-  );
-
-  const pollProspects = trpc.search.pollCombinedSearch.useQuery(
-    { searchId: searchId!, entityType: "profile", pageSize },
-    {
-      enabled: !!searchId,
-      refetchInterval: (query) => {
-        const data = query.state.data;
-        if (data?.output?.status === "COMPLETED") return false;
-        return 2000;
-      },
-    }
-  );
+  const combined = trpc.search.combinedSearch.useMutation();
 
   const handleSearch = useCallback(() => {
-    setSearchId(null);
     const companyParams: CompanySearchParams = {};
     const countryArr = countries.split(",").map((s) => s.trim().toUpperCase()).filter(Boolean);
     if (countryArr.length) companyParams.headquartersCountryCode = { anyOf: countryArr };
@@ -85,18 +51,13 @@ export default function CombinedSearchPage() {
       };
     }
 
-    startSearch.mutate({ companyParams, profileParams });
-  }, [industries, countries, stages, jobTitles, startSearch]);
+    combined.mutate({ companyParams, profileParams });
+  }, [industries, countries, stages, jobTitles, combined]);
 
-  const companiesResult = pollCompanies.data;
-  const prospectsResult = pollProspects.data;
-  const companies = (companiesResult?.output?.data?.items ?? []) as CompanyRow[];
-  const prospects = (prospectsResult?.output?.data?.items ?? []) as ProspectRow[];
-  const isPolling =
-    searchId !== null &&
-    (companiesResult?.output?.status !== "COMPLETED" ||
-      prospectsResult?.output?.status !== "COMPLETED");
-  const isComplete = searchId !== null && !isPolling && !startSearch.isPending;
+  const companies = (combined.data?.output?.companies ?? []) as CompanyRow[];
+  const prospects = (combined.data?.output?.profiles ?? []) as ProspectRow[];
+  const isLoading = combined.isPending;
+  const isComplete = combined.isSuccess;
 
   return (
     <div className="flex h-full flex-col">
@@ -145,11 +106,8 @@ export default function CombinedSearchPage() {
             />
           </div>
         </div>
-        <Button
-          onClick={handleSearch}
-          disabled={startSearch.isPending || isPolling}
-        >
-          {startSearch.isPending || isPolling ? (
+        <Button onClick={handleSearch} disabled={isLoading}>
+          {isLoading ? (
             <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
           ) : (
             <Search className="mr-2 h-4 w-4" />
@@ -158,12 +116,12 @@ export default function CombinedSearchPage() {
         </Button>
       </div>
 
-      {/* Polling State */}
-      {isPolling && <PollingIndicator message="Searching for companies and prospects..." />}
+      {/* Loading State */}
+      {isLoading && <PollingIndicator message="Searching for companies and prospects..." />}
 
-      {startSearch.isError && (
+      {combined.isError && (
         <div className="p-6">
-          <ErrorDisplay message={startSearch.error.message} onRetry={handleSearch} />
+          <ErrorDisplay message={combined.error.message} onRetry={handleSearch} />
         </div>
       )}
 
@@ -217,7 +175,7 @@ export default function CombinedSearchPage() {
         </div>
       )}
 
-      {!searchId && !startSearch.isPending && !startSearch.isError && (
+      {!combined.data && !isLoading && !combined.isError && (
         <EmptyState
           icon={Search}
           title="Combined Company + Prospect Search"
@@ -240,12 +198,4 @@ export default function CombinedSearchPage() {
       )}
     </div>
   );
-}
-
-interface PollResult {
-  output?: {
-    status?: string;
-    data?: { items?: unknown[] };
-    nextCursor?: string | null;
-  };
 }

@@ -3,8 +3,9 @@ import {
   getOrgCredits, getRegions, getLanguages, getTimeZones,
   getIndustries, getTags, getNaicsCodes, getAccelerators,
   getSubdivisions,
+  getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
 const operationLevelSchema = z.object({
   limit: z.number().nullable().optional(),
@@ -66,35 +67,44 @@ export const utilityRouter = createTRPCRouter({
     }),
 
   // --- Billing ---
-  // Not yet in @fiberai/sdk v0.0.5 — using fiberFetch
   getAutoTopUp: protectedProcedure
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .query(async ({ ctx }) => {
-      return fiberFetch(ctx.apiKey, "GET", "/v1/billing/auto-topup");
+      return callFiber(() => getAutoTopupSettings({ query: { apiKey: ctx.apiKey } }));
     }),
 
   updateAutoTopUp: protectedProcedure
     .input(z.object({
-      enabled: z.boolean(),
-      threshold: z.number().min(0).optional(),
-      amount: z.number().min(0).optional(),
+      isEnabled: z.boolean(),
+      creditThreshold: z.number().int().min(0).optional(),
+      creditsToBuy: z.number().int().min(1).optional(),
     }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/billing/auto-topup", {
-        enabled: input.enabled,
-        ...(input.threshold != null ? { threshold: input.threshold } : {}),
-        ...(input.amount != null ? { amount: input.amount } : {}),
-      });
+      return callFiber(() => updateAutoTopupSettings({
+        body: {
+          apiKey: ctx.apiKey,
+          isEnabled: input.isEnabled,
+          creditThreshold: input.creditThreshold,
+          creditsToBuy: input.creditsToBuy,
+        },
+      }));
     }),
 
-  /** Buy credits — may redirect to Stripe or process directly depending on backend config */
+  /** Buy credits — charges the organization's saved payment method via Stripe. */
   buyCredits: protectedProcedure
-    .input(z.object({ amount: z.number().min(1) }))
+    .input(z.object({ creditsToBuy: z.number().int().min(1), idempotencyKey: z.string().optional() }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
-      return fiberFetch(ctx.apiKey, "POST", "/v1/billing/buy-credits", {
-        amount: input.amount,
-      });
+      return callFiber(() => buyCredits({
+        body: { apiKey: ctx.apiKey, creditsToBuy: input.creditsToBuy, idempotencyKey: input.idempotencyKey },
+      }));
+    }),
+
+  // --- Rate Limits ---
+  getRateLimits: protectedProcedure
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .query(async ({ ctx }) => {
+      return callFiber(() => getRateLimits({ query: { apiKey: ctx.apiKey } }));
     }),
 });
