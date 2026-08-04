@@ -10,11 +10,11 @@ export default function Home() {
 
   useEffect(() => {
     if (credits.isError) {
-      router.replace("/setup");
+      router.replace({ pathname: "/setup", query: { error: credits.error.message } });
     } else if (credits.isSuccess) {
       router.replace("/search/companies");
     }
-  }, [credits.isError, credits.isSuccess, router]);
+  }, [credits.isError, credits.isSuccess, router, credits.error]);
 
   return (
     <div className="flex h-full items-center justify-center">
