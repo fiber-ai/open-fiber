@@ -61,19 +61,16 @@ function aggregateUsagePeriods(periods: UsagePeriod[]) {
     };
   }
 
+  // centiCreditCost is a per-call price, not a quantity — it must never be summed across
+  // subscriptions (that would double the displayed cost of a single operation call). When
+  // the same operation is priced by more than one subscription, just use whichever pricing
+  // schedule we see first; there's no meaningful way to merge two different tier lists.
   const creditsPerOperation: CreditsPerOperation = {};
   for (const period of periods) {
     for (const [key, value] of Object.entries(period.creditsPerOperation ?? {})) {
-      const existing = creditsPerOperation[key];
-      creditsPerOperation[key] = existing
-        ? {
-            // Same operation priced by more than one subscription — sum cost per tier.
-            levels: value.levels.map((level, i) => ({
-              limit: level.limit,
-              centiCreditCost: level.centiCreditCost + (existing.levels[i]?.centiCreditCost ?? 0),
-            })),
-          }
-        : value;
+      if (!(key in creditsPerOperation)) {
+        creditsPerOperation[key] = value;
+      }
     }
   }
 
