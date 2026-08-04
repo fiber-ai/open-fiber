@@ -1,16 +1,21 @@
 import { z } from "zod";
 import {
-  getOrgCredits, getRegions, getLanguages, getTimeZones,
+  getRegions, getLanguages, getTimeZones,
   getIndustries, getTags, getNaicsCodes, getAccelerators,
   getSubdivisions,
   getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
 
 const operationLevelSchema = z.object({
   limit: z.number().nullable().optional(),
   centiCreditCost: z.number(),
 });
+
+const creditsPerOperationSchema = z
+  .record(z.object({ levels: z.array(operationLevelSchema) }))
+  .nullable()
+  .optional();
 
 const creditsOutputSchema = z.object({
   output: z.object({
@@ -19,15 +24,78 @@ const creditsOutputSchema = z.object({
     used: z.number(),
     available: z.number(),
     usagePeriodResetsOn: z.string(),
-    creditsPerOperation: z.record(z.object({ levels: z.array(operationLevelSchema) })).nullable().optional(),
+    creditsPerOperation: creditsPerOperationSchema,
   }).passthrough(),
 }).passthrough();
+
+// GET /v1/get-org-credits returns `output` as an array — one entry per active subscription
+// (backend commit d5363339b6, "New billing - v1"). The @fiberai/sdk generated types/schema
+// still describe `output` as a single object even at the latest available version, so we
+// call this endpoint directly instead of via the (stale) SDK function and aggregate here.
+const usagePeriodSchema = z.object({
+  organizationId: z.string(),
+  subscriptionId: z.string(),
+  max: z.number(),
+  used: z.number(),
+  available: z.number(),
+  usagePeriodResetsOn: z.string(),
+  creditsPerOperation: creditsPerOperationSchema,
+}).passthrough();
+
+const rawCreditsResponseSchema = z.object({
+  output: z.array(usagePeriodSchema),
+}).passthrough();
+
+type UsagePeriod = z.infer<typeof usagePeriodSchema>;
+type CreditsPerOperation = NonNullable<z.infer<typeof creditsPerOperationSchema>>;
+
+function aggregateUsagePeriods(periods: UsagePeriod[]) {
+  if (periods.length === 0) {
+    return {
+      organizationId: "",
+      max: 0,
+      used: 0,
+      available: 0,
+      usagePeriodResetsOn: new Date(0).toISOString(),
+      creditsPerOperation: null as CreditsPerOperation | null,
+    };
+  }
+
+  const creditsPerOperation: CreditsPerOperation = {};
+  for (const period of periods) {
+    for (const [key, value] of Object.entries(period.creditsPerOperation ?? {})) {
+      const existing = creditsPerOperation[key];
+      creditsPerOperation[key] = existing
+        ? {
+            // Same operation priced by more than one subscription — sum cost per tier.
+            levels: value.levels.map((level, i) => ({
+              limit: level.limit,
+              centiCreditCost: level.centiCreditCost + (existing.levels[i]?.centiCreditCost ?? 0),
+            })),
+          }
+        : value;
+    }
+  }
+
+  return {
+    organizationId: periods[0].organizationId,
+    max: periods.reduce((sum, p) => sum + p.max, 0),
+    used: periods.reduce((sum, p) => sum + p.used, 0),
+    available: periods.reduce((sum, p) => sum + p.available, 0),
+    // ISO 8601 date strings sort chronologically as plain strings.
+    usagePeriodResetsOn: [...periods].map((p) => p.usagePeriodResetsOn).sort()[0],
+    creditsPerOperation,
+  };
+}
 
 export const utilityRouter = createTRPCRouter({
   getCredits: protectedProcedure
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
-      return callFiber(() => getOrgCredits({ query: { apiKey: ctx.apiKey } }));
+      const raw = rawCreditsResponseSchema.parse(
+        await fiberFetch<unknown>(ctx.apiKey, "GET", "/v1/get-org-credits")
+      );
+      return { output: aggregateUsagePeriods(raw.output) };
     }),
 
   getRegions: protectedProcedure.query(async ({ ctx }) => {

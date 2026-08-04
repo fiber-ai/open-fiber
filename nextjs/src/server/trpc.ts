@@ -13,11 +13,28 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
   if (!ctx.apiKey) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Fiber API key is required. Set FIBER_API_KEY in .env or configure it in the app.",
+      message: "Please connect your Fiber API key to continue.",
     });
   }
   return next({ ctx: { ...ctx, apiKey: ctx.apiKey } });
 });
+
+// The backend returns 403 for several unrelated things — an actually-invalid API key,
+// but also route-tag restrictions ("You cannot access this route!") and per-resource
+// ownership checks ("Access denied to this saved search run", etc). Only the messages
+// below indicate the key itself doesn't resolve to an org; everything else is a 403 the
+// key holder is legitimately not allowed to do, and must NOT clear their session.
+const INVALID_KEY_MESSAGES = new Set(["Invalid API key provided!"]);
+
+function mapFiberStatusToTRPCCode(status: number, message: string): TRPCError["code"] {
+  if (status === 401) return "UNAUTHORIZED";
+  if (status === 403) return INVALID_KEY_MESSAGES.has(message) ? "UNAUTHORIZED" : "FORBIDDEN";
+  if (status === 402) return "FORBIDDEN";
+  if (status === 404) return "NOT_FOUND";
+  if (status === 400 || status === 422) return "BAD_REQUEST";
+  if (status === 429) return "TOO_MANY_REQUESTS";
+  return "INTERNAL_SERVER_ERROR";
+}
 
 export async function callFiber<T>(
   fn: () => Promise<{ data?: T; error?: unknown; response?: { status?: number } }>
@@ -30,13 +47,7 @@ export async function callFiber<T>(
     // includes it. Prefer response.status so 401/402/429 map correctly.
     const status = result.response?.status ?? err.status ?? 500;
     const message = err.message ?? err.detail ?? "Fiber API error";
-
-    let code: TRPCError["code"] = "INTERNAL_SERVER_ERROR";
-    if (status === 401) code = "UNAUTHORIZED";
-    else if (status === 402) code = "FORBIDDEN";
-    else if (status === 404) code = "NOT_FOUND";
-    else if (status === 400 || status === 422) code = "BAD_REQUEST";
-    else if (status === 429) code = "TOO_MANY_REQUESTS";
+    const code = mapFiberStatusToTRPCCode(status, message);
 
     throw new TRPCError({ code, message, cause: result.error });
   }
@@ -83,13 +94,7 @@ export async function fiberFetch<T>(
     const status = res.status;
     const obj = data as Record<string, unknown> | undefined;
     const message = (obj?.message ?? obj?.detail ?? "Fiber API error") as string;
-
-    let code: TRPCError["code"] = "INTERNAL_SERVER_ERROR";
-    if (status === 401) code = "UNAUTHORIZED";
-    else if (status === 402) code = "FORBIDDEN";
-    else if (status === 404) code = "NOT_FOUND";
-    else if (status === 400 || status === 422) code = "BAD_REQUEST";
-    else if (status === 429) code = "TOO_MANY_REQUESTS";
+    const code = mapFiberStatusToTRPCCode(status, message);
 
     throw new TRPCError({ code, message, cause: data });
   }

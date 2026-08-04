@@ -10,6 +10,9 @@ const SetupPage: NextPageWithLayout = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>();
 
+  const redirectError =
+    typeof router.query.error === "string" ? router.query.error : undefined;
+
   const handleSubmit = async (apiKey: string) => {
     setIsLoading(true);
     setError(undefined);
@@ -43,7 +46,7 @@ const SetupPage: NextPageWithLayout = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ApiKeyInput onSubmit={handleSubmit} isLoading={isLoading} error={error} />
+          <ApiKeyInput onSubmit={handleSubmit} isLoading={isLoading} error={error ?? redirectError} />
         </CardContent>
       </Card>
     </div>

@@ -56,12 +56,9 @@ function handleGlobalError(error: unknown) {
   }
 
   if (code === "FORBIDDEN") {
-    // 402 — out of credits
-    showToast(
-      "Out of credits",
-      "You've run out of Fiber credits. Add more at fiber.ai/app/api.",
-      "destructive"
-    );
+    // Covers 402 (out of credits) as well as non-auth 403s (route/plan restrictions,
+    // resource ownership) — show the backend's own message rather than assuming credits.
+    showToast("Access denied", error.message || "This action isn't available for your account.", "destructive");
     return;
   }
 
