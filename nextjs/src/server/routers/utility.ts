@@ -3,9 +3,9 @@ import {
   getRegions, getLanguages, getTimeZones,
   getIndustries, getTags, getNaicsCodes, getAccelerators,
   getSubdivisions,
-  getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
+  getOrgCredits, getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
 } from "@fiberai/sdk";
-import { createTRPCRouter, protectedProcedure, callFiber, fiberFetch } from "../trpc";
+import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
 const operationLevelSchema = z.object({
   limit: z.number().nullable().optional(),
@@ -29,9 +29,8 @@ const creditsOutputSchema = z.object({
 }).passthrough();
 
 // GET /v1/get-org-credits returns `output` as an array — one entry per active subscription
-// (backend commit d5363339b6, "New billing - v1"). The @fiberai/sdk generated types/schema
-// still describe `output` as a single object even at the latest available version, so we
-// call this endpoint directly instead of via the (stale) SDK function and aggregate here.
+// (backend commit d5363339b6, "New billing - v1"). Validated at runtime as a safety net
+// around the generated SDK types, then flattened into a single aggregate view below.
 const usagePeriodSchema = z.object({
   organizationId: z.string(),
   subscriptionId: z.string(),
@@ -48,6 +47,32 @@ const rawCreditsResponseSchema = z.object({
 
 type UsagePeriod = z.infer<typeof usagePeriodSchema>;
 type CreditsPerOperation = NonNullable<z.infer<typeof creditsPerOperationSchema>>;
+
+// GET /v1/auto-topup/settings returns `output.settings` as an array — one entry per active
+// subscription, same shape change as get-org-credits. We show the org's primary auto top-up
+// configuration: the first configured subscription, or the first subscription if none are
+// configured yet.
+const autoTopUpSettingSchema = z.discriminatedUnion("configured", [
+  z.object({
+    configured: z.literal(true),
+    subscriptionId: z.string(),
+    isEnabled: z.boolean(),
+    creditThreshold: z.number(),
+    creditsToBuy: z.number(),
+    maxPerDay: z.number().nullable().optional(),
+    maxPerMonth: z.number().nullable().optional(),
+  }).passthrough(),
+  z.object({
+    configured: z.literal(false),
+    subscriptionId: z.string(),
+  }).passthrough(),
+]);
+
+const autoTopUpResponseSchema = z.object({
+  output: z.object({
+    settings: z.array(autoTopUpSettingSchema),
+  }).passthrough(),
+}).passthrough();
 
 function aggregateUsagePeriods(periods: UsagePeriod[]) {
   if (periods.length === 0) {
@@ -90,7 +115,7 @@ export const utilityRouter = createTRPCRouter({
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
       const raw = rawCreditsResponseSchema.parse(
-        await fiberFetch<unknown>(ctx.apiKey, "GET", "/v1/get-org-credits")
+        await callFiber(() => getOrgCredits({ query: { apiKey: ctx.apiKey } }))
       );
       return { output: aggregateUsagePeriods(raw.output) };
     }),
@@ -133,13 +158,19 @@ export const utilityRouter = createTRPCRouter({
 
   // --- Billing ---
   getAutoTopUp: protectedProcedure
-    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .output(z.object({ output: autoTopUpSettingSchema.nullable() }).passthrough())
     .query(async ({ ctx }) => {
-      return callFiber(() => getAutoTopupSettings({ query: { apiKey: ctx.apiKey } }));
+      const raw = autoTopUpResponseSchema.parse(
+        await callFiber(() => getAutoTopupSettings({ query: { apiKey: ctx.apiKey } }))
+      );
+      const selected =
+        raw.output.settings.find((s) => s.configured) ?? raw.output.settings[0] ?? null;
+      return { output: selected };
     }),
 
   updateAutoTopUp: protectedProcedure
     .input(z.object({
+      subscriptionId: z.string(),
       isEnabled: z.boolean(),
       creditThreshold: z.number().int().min(0).optional(),
       creditsToBuy: z.number().int().min(1).optional(),
@@ -149,6 +180,7 @@ export const utilityRouter = createTRPCRouter({
       return callFiber(() => updateAutoTopupSettings({
         body: {
           apiKey: ctx.apiKey,
+          subscriptionId: input.subscriptionId,
           isEnabled: input.isEnabled,
           creditThreshold: input.creditThreshold,
           creditsToBuy: input.creditsToBuy,
@@ -158,11 +190,20 @@ export const utilityRouter = createTRPCRouter({
 
   /** Buy credits — charges the organization's saved payment method via Stripe. */
   buyCredits: protectedProcedure
-    .input(z.object({ creditsToBuy: z.number().int().min(1), idempotencyKey: z.string().optional() }))
+    .input(z.object({
+      subscriptionId: z.string(),
+      creditsToBuy: z.number().int().min(1),
+      idempotencyKey: z.string().optional(),
+    }))
     .output(z.object({ output: z.record(z.unknown()) }).passthrough())
     .mutation(async ({ ctx, input }) => {
       return callFiber(() => buyCredits({
-        body: { apiKey: ctx.apiKey, creditsToBuy: input.creditsToBuy, idempotencyKey: input.idempotencyKey },
+        body: {
+          apiKey: ctx.apiKey,
+          subscriptionId: input.subscriptionId,
+          creditsToBuy: input.creditsToBuy,
+          idempotencyKey: input.idempotencyKey,
+        },
       }));
     }),
 
