@@ -84,9 +84,6 @@ nextjs/playwright-report/
 nextjs/test-results/
 nextjs/blob-report/
 
-# openfiber-update-check state/logs (nextjs/scripts/openfiber-update-check.mts)
-nextjs/tmp/openfiber-update/
-
 # Nuxt.js build / generate output
 .nuxt
 dist
