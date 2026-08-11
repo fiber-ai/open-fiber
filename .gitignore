@@ -78,6 +78,12 @@ web_modules/
 .next
 out
 
+# Playwright E2E suite (nextjs/e2e/)
+nextjs/e2e/.auth/
+nextjs/playwright-report/
+nextjs/test-results/
+nextjs/blob-report/
+
 # Nuxt.js build / generate output
 .nuxt
 dist

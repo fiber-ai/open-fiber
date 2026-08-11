@@ -54,7 +54,7 @@ export function ApiKeyInput({ onSubmit, isLoading, error }: ApiKeyInputProps) {
         </p>
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
-      <Button type="submit" disabled={!apiKey.trim() || isLoading} className="w-full">
+      <Button type="submit" data-testid="api-key-submit" disabled={!apiKey.trim() || isLoading} className="w-full">
         {isLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (

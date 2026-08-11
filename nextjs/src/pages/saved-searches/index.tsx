@@ -50,6 +50,7 @@ export default function SavedSearchesPage() {
               return (
                 <Card
                   key={id}
+                  data-testid="list-item-row"
                   className="cursor-pointer transition-colors hover:bg-accent/50"
                   onClick={() => router.push(`/saved-searches/${id}`)}
                 >

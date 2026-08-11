@@ -1,0 +1,47 @@
+name: E2E Autofix (file Linear issue)
+
+# Fires right when the "E2E Tests" workflow finishes. On failure, files a Linear
+# issue with the Autosolve + openfiber labels so fiber-ai/autosolver's existing
+# pipeline picks it up (see the FIB-18659 plan, Phase 4) — this job does NOT
+# diagnose, fix, or open PRs itself; it only reports the failure.
+#
+# Note: the `openfiber` Linear label doesn't exist yet as of writing — until
+# it's created and this repo is onboarded to autosolver (config.jsonc +
+# gauntlet2 image build, done outside this repo), the issue still gets filed
+# but without that label, so autosolver won't pick it up yet. See the plan's
+# Phase 4 "needs someone with autosolver access" list.
+
+on:
+  workflow_run:
+    workflows: ["E2E Tests"]
+    types: [completed]
+
+jobs:
+  file-issue:
+    if: github.event.workflow_run.conclusion == 'failure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get failure log
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          gh run view "$RUN_ID" --log-failed > failure-log.txt || echo "(could not fetch failure log)" > failure-log.txt
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: File Linear issue
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: node nextjs/scripts/e2e-autofix.mjs
