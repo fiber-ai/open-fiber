@@ -76,7 +76,7 @@ export function TrackerLists({ entityType }: { entityType: EntityType }) {
               const id = (l.id as string) ?? "";
               const count = typeof l[countKey] === "number" ? (l[countKey] as number) : null;
               return (
-                <Card key={id} className="cursor-pointer hover:bg-accent/50" onClick={() => router.push(`/trackers/${entityType}/${id}`)}>
+                <Card key={id} data-testid="list-item-row" className="cursor-pointer hover:bg-accent/50" onClick={() => router.push(`/trackers/${entityType}/${id}`)}>
                   <CardContent className="pt-4 flex items-center gap-3">
                     {l.isActive === false ? <Circle className="h-4 w-4 text-muted-foreground" /> : <CircleCheck className="h-4 w-4 text-green-600" />}
                     <div className="flex-1 min-w-0">

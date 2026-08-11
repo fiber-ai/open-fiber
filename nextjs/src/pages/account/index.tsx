@@ -101,7 +101,7 @@ export default function AccountPage() {
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{formatNumber(output.available)}</p>
+                  <p data-testid="credits-available" className="text-3xl font-bold">{formatNumber(output.available)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     of {formatNumber(output.max)} total
                   </p>
@@ -116,7 +116,7 @@ export default function AccountPage() {
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-3xl font-bold">{formatNumber(output.used)}</p>
+                  <p data-testid="credits-used" className="text-3xl font-bold">{formatNumber(output.used)}</p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     {output.max > 0
                       ? `${Math.round((output.used / output.max) * 100)}% of plan`
@@ -133,7 +133,7 @@ export default function AccountPage() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xl font-bold">
+                  <p data-testid="credits-resets-on" className="text-xl font-bold">
                     {new Date(output.usagePeriodResetsOn).toLocaleDateString("en-US", {
                       month: "short",
                       day: "numeric",

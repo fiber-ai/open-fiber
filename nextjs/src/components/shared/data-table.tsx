@@ -104,6 +104,7 @@ export function DataTable<TData>({
             table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
+                data-testid="search-result-row"
                 className={cn(
                   "border-b transition-colors hover:bg-muted/50",
                   onRowClick && "cursor-pointer"
