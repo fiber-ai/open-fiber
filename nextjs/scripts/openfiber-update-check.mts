@@ -281,13 +281,34 @@ function worktreeProjectDir(worktreePath: string): string {
   return join(worktreePath, "nextjs");
 }
 
+function branchExists(root: string, branch: string): boolean {
+  const r: ExecResult = runRaw("git", ["rev-parse", "--verify", "--quiet", branch], {
+    cwd: root,
+  });
+  return r.code === 0;
+}
+
 function addWorktree(root: string, branch: string): string {
   const parent: string = join(dirname(root), ".worktrees");
   mkdirSync(parent, { recursive: true });
   const path: string = join(parent, branch.replace(/\//g, "-"));
-  const r: ExecResult = runRaw("git", ["worktree", "add", path, "-b", branch], {
-    cwd: root,
-  });
+
+  // Always base a brand-new branch on up-to-date origin/main rather than
+  // whatever ref the primary checkout's HEAD happens to be on — a cron run
+  // shouldn't silently inherit a stale local checkout or a feature branch.
+  const fetch: ExecResult = runRaw("git", ["fetch", "origin", "main"], { cwd: root });
+  if (fetch.code !== 0) {
+    fatal(`git fetch origin main failed: ${fetch.stderr.trim()}`);
+  }
+
+  // A prior attempt at this version keeps its branch around on purpose (so a
+  // retry preserves whatever progress was made). Reuse it via a plain
+  // checkout instead of `-b`, which fatals on "branch already exists".
+  const args: string[] = branchExists(root, branch)
+    ? ["worktree", "add", path, branch]
+    : ["worktree", "add", path, "-b", branch, "origin/main"];
+
+  const r: ExecResult = runRaw("git", args, { cwd: root });
   if (r.code !== 0) {
     fatal(`git worktree add failed: ${r.stderr.trim()}`);
   }
@@ -296,6 +317,21 @@ function addWorktree(root: string, branch: string): string {
 
 function removeWorktree(root: string, path: string): void {
   runRaw("git", ["worktree", "remove", "--force", path], { cwd: root });
+}
+
+/**
+ * Fresh worktrees have no `node_modules` — install before invoking the skill.
+ * This isn't just for the skill's typecheck/lint/build stages: Stage 0 snapshots
+ * `node_modules/@fiberai/sdk/dist/index.d.ts` as the "old version" baseline that
+ * Stage 2's whole breaking-change detection depends on, and that file doesn't
+ * exist until this runs.
+ */
+function installDeps(projectDir: string): void {
+  log(`Installing dependencies in ${projectDir} (npm ci)...`);
+  const r: ExecResult = runRaw("npm", ["ci"], { cwd: projectDir });
+  if (r.code !== 0) {
+    fatal(`npm ci failed in ${projectDir}: ${r.stderr.trim()}`);
+  }
 }
 
 /**
@@ -461,8 +497,12 @@ async function main(): Promise<void> {
 
   let outcome: "success" | "failure" = "failure";
   try {
-    ensureEnvFiles(worktreePath);
     const projectDir: string = worktreeProjectDir(worktreePath);
+    ensureEnvFiles(worktreePath);
+    // Install with the *old* SDK version still pinned (package.json here
+    // matches origin/main) so Stage 0's node_modules type-snapshot baseline
+    // exists before the skill bumps it in Stage 1.
+    installDeps(projectDir);
     log(`Running /${OPENCODE_COMMAND} in ${projectDir} (headless, --auto).`);
     const result: { code: number; timedOut: boolean } = await runOpencode(
       projectDir,

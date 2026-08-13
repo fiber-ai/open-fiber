@@ -8,7 +8,7 @@ trigger: /openfiber-update
 
 Repeatable playbook for syncing OpenFiber (`nextjs/`) with the latest `@fiberai/sdk` release. There is no SDK changelog — breaking changes are only discoverable by diffing type signatures and cross-checking the live API surface, so most of this skill is about *detecting* what changed, not just bumping a version number.
 
-Run all commands from `nextjs/` unless noted otherwise.
+Run all commands from `nextjs/` unless noted otherwise — this applies whether invoked manually or by `scripts/openfiber-update-check.mts` (which sets cwd to the worktree's `nextjs/` too). Paths in commands below are therefore relative to `nextjs/`, e.g. `src/server/routers/*.ts`, **not** `nextjs/src/server/routers/*.ts` — the latter silently matches nothing rather than erroring.
 
 **Model routing** (per `~/.config/opencode/model-routing.md` §9-10): this whole playbook defaults to OpenCode's configured model (DeepSeek V4 Flash/Pro). Each stage below is annotated with which tier fits it. If a stage's escalation condition is hit and no bigger model is available in this run, stop and let Stage 7 file a BLOCKED ticket rather than looping indefinitely — a human decides whether to pick it up in Claude Code.
 
@@ -17,8 +17,8 @@ Run all commands from `nextjs/` unless noted otherwise.
 
 1. `git status` — the working tree must be clean before starting. If it isn't, stop and tell the user rather than stashing/discarding anything for them.
 2. Read the current `@fiberai/sdk` version from `package.json`.
-3. Create a branch: `chore/openfiber-update-<new-version>` (exact new version filled in once known in Stage 1; use `chore/openfiber-update-wip` until then, then rename via `git branch -m` once the target version is known).
-4. Copy `node_modules/@fiberai/sdk/dist/index.d.ts` to a scratch file (e.g. `/tmp/fiberai-sdk-old.d.ts`) — this is the only reliable way to diff exported functions/signatures across versions since the package ships no CHANGELOG.
+3. Create a branch: `chore/openfiber-update-<new-version>` (exact new version filled in once known in Stage 1; use `chore/openfiber-update-wip` until then, then rename via `git branch -m` once the target version is known). **Skip this step if the current branch is already named `chore/openfiber-update-*`** — the automated harness (`scripts/openfiber-update-check.mts`) creates and checks out this branch itself before invoking this skill, already knowing the target version; only create one manually when invoked interactively without it.
+4. Copy `node_modules/@fiberai/sdk/dist/index.d.ts` to a scratch file (e.g. `/tmp/fiberai-sdk-old.d.ts`) — this is the only reliable way to diff exported functions/signatures across versions since the package ships no CHANGELOG. (The automated harness runs `npm ci` before invoking this skill specifically so this file exists; if running manually, install dependencies first.)
 
 ## Stage 1 — Bump versions
 *Model: DeepSeek V4 Flash — mechanical, mirrors an existing `npm install`/`npm update` pattern.*
@@ -34,7 +34,7 @@ Run all commands from `nextjs/` unless noted otherwise.
    - Removed exports → likely a deprecated/removed endpoint.
    - Changed required fields on input types (e.g. a newly-required `subscriptionId`, as happened in the 0.0.35→0.0.39 bump).
    - Changed return/output types (esp. object → array shape changes — the most common break class seen historically, e.g. credits and auto-topup responses).
-2. `grep -rn "fiberFetch" nextjs/src/server/routers/*.ts` — these are routers that bypass the generated SDK because a past version's generated types didn't match live behavior. For each hit, try switching it back to the real typed SDK call now that the SDK is newer; keep the `fiberFetch` bypass only if it still doesn't validate.
+2. `grep -rn "fiberFetch" src/server/routers/*.ts` (relative to `nextjs/`, per the note above — not `nextjs/src/...`, which silently matches nothing when cwd is already `nextjs/`) — these are routers that bypass the generated SDK because a past version's generated types didn't match live behavior. For each hit, try switching it back to the real typed SDK call now that the SDK is newer; keep the `fiberFetch` bypass only if it still doesn't validate.
 3. Cross-check the live endpoint surface with the `fiber-ai` MCP tools (`list_all_endpoints`, `search_endpoints`, `get_endpoint_details_full`) against what Stage 2.1's diff found — this catches endpoints that were hidden/deprecated on the backend without necessarily removing the SDK export.
 
 ## Stage 3 — Fix the build
@@ -50,7 +50,7 @@ Iterate until clean, fixing errors as they surface (expected classes: Zod schema
 *Model: DeepSeek V4 Flash — mechanical enumeration/diffing, not judgment (the judgment call about what to build is explicitly deferred to a human, see below).*
 
 1. From the new `index.d.ts` / the `fiber-ai` MCP endpoint listing, enumerate exported operations.
-2. `grep -rn` across `nextjs/src/server/routers/*.ts` for each operation name to see what's actually wired up.
+2. `grep -rn` across `src/server/routers/*.ts` (relative to `nextjs/` — see the cwd note in the intro) for each operation name to see what's actually wired up.
 3. For anything exported but never called anywhere in the routers, add it to a "new functionality, no UI" list: operation name, one-line description (from `get_endpoint_details_full` if useful), and the closest existing analogous page/router if one exists.
 4. Do **not** scaffold new pages for these — this list goes into the final report/Linear ticket for a human to scope as a follow-up.
 
@@ -59,7 +59,7 @@ Iterate until clean, fixing errors as they surface (expected classes: Zod schema
 
 For each endpoint confirmed hidden/removed in Stage 2:
 
-1. `grep -rn` across `nextjs/src/app/**` and `nextjs/src/server/routers/**` for usage.
+1. `grep -rn` across `src/pages/**` and `src/server/routers/**` (relative to `nextjs/` — see the cwd note in the intro). This repo uses the Next.js **Pages Router** — there is no `src/app/`; page routes live under `src/pages/**`.
 2. If a documented modern equivalent exists, migrate the router/page to it (mirroring the enrichment-reveal-options consolidation and Investors-page removal from the v44 migration). If there's no equivalent, delete the now-dead page/router code.
 
 ## Stage 6 — Run E2E
