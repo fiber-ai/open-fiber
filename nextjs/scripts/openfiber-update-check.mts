@@ -281,34 +281,35 @@ function worktreeProjectDir(worktreePath: string): string {
   return join(worktreePath, "nextjs");
 }
 
-function branchExists(root: string, branch: string): boolean {
-  const r: ExecResult = runRaw("git", ["rev-parse", "--verify", "--quiet", branch], {
-    cwd: root,
-  });
-  return r.code === 0;
-}
-
 function addWorktree(root: string, branch: string): string {
   const parent: string = join(dirname(root), ".worktrees");
   mkdirSync(parent, { recursive: true });
   const path: string = join(parent, branch.replace(/\//g, "-"));
 
-  // Always base a brand-new branch on up-to-date origin/main rather than
-  // whatever ref the primary checkout's HEAD happens to be on — a cron run
-  // shouldn't silently inherit a stale local checkout or a feature branch.
+  // Always base the branch on up-to-date origin/main rather than whatever ref
+  // the primary checkout's HEAD happens to be on — a cron run shouldn't
+  // silently inherit a stale local checkout or a feature branch.
   const fetch: ExecResult = runRaw("git", ["fetch", "origin", "main"], { cwd: root });
   if (fetch.code !== 0) {
     fatal(`git fetch origin main failed: ${fetch.stderr.trim()}`);
   }
 
-  // A prior attempt at this version keeps its branch around on purpose (so a
-  // retry preserves whatever progress was made). Reuse it via a plain
-  // checkout instead of `-b`, which fatals on "branch already exists".
-  const args: string[] = branchExists(root, branch)
-    ? ["worktree", "add", path, branch]
-    : ["worktree", "add", path, "-b", branch, "origin/main"];
-
-  const r: ExecResult = runRaw("git", args, { cwd: root });
+  // `-B` (re)creates `branch` pointing at origin/main even if it already
+  // exists from a prior attempt — a previous run may have committed a
+  // partial SDK bump before failing/timing out (SKILL.md Stage 7 commits
+  // even on a blocked run), and reusing that content as-is would leave
+  // package.json already bumped, which breaks installDeps()'s "matches
+  // origin/main" baseline assumption below (Stage 0's node_modules
+  // type-snapshot would already be the *new* version, so Stage 1 would think
+  // there's nothing to do and skip the rest of the work). Nothing here
+  // relies on resuming mid-progress across separate opencode invocations —
+  // each run reads the skill from scratch — so a clean, reproducible start
+  // point matters more than preserving a stuck attempt's partial commits.
+  const r: ExecResult = runRaw(
+    "git",
+    ["worktree", "add", "-B", branch, path, "origin/main"],
+    { cwd: root },
+  );
   if (r.code !== 0) {
     fatal(`git worktree add failed: ${r.stderr.trim()}`);
   }
@@ -325,13 +326,20 @@ function removeWorktree(root: string, path: string): void {
  * `node_modules/@fiberai/sdk/dist/index.d.ts` as the "old version" baseline that
  * Stage 2's whole breaking-change detection depends on, and that file doesn't
  * exist until this runs.
+ *
+ * Returns false (rather than calling `fatal`/`process.exit`) on failure so the
+ * caller's try/finally still runs `removeWorktree` and records the attempt in
+ * state.json — a hard exit here would skip both, leaving the worktree stuck
+ * on disk and every subsequent run failing the same way in `addWorktree`.
  */
-function installDeps(projectDir: string): void {
+function installDeps(projectDir: string): boolean {
   log(`Installing dependencies in ${projectDir} (npm ci)...`);
   const r: ExecResult = runRaw("npm", ["ci"], { cwd: projectDir });
   if (r.code !== 0) {
-    fatal(`npm ci failed in ${projectDir}: ${r.stderr.trim()}`);
+    log(`npm ci failed in ${projectDir}: ${r.stderr.trim()}`);
+    return false;
   }
+  return true;
 }
 
 /**
@@ -499,19 +507,23 @@ async function main(): Promise<void> {
   try {
     const projectDir: string = worktreeProjectDir(worktreePath);
     ensureEnvFiles(worktreePath);
-    // Install with the *old* SDK version still pinned (package.json here
-    // matches origin/main) so Stage 0's node_modules type-snapshot baseline
-    // exists before the skill bumps it in Stage 1.
-    installDeps(projectDir);
-    log(`Running /${OPENCODE_COMMAND} in ${projectDir} (headless, --auto).`);
-    const result: { code: number; timedOut: boolean } = await runOpencode(
-      projectDir,
-      latest,
-    );
-    outcome = result.code === 0 && !result.timedOut ? "success" : "failure";
-    log(
-      `/${OPENCODE_COMMAND} finished: ${result.timedOut ? "TIMEOUT" : `exit ${result.code}`} -> ${outcome}.`,
-    );
+    // Install with the *old* SDK version still pinned (addWorktree always
+    // resets the branch to origin/main, so package.json here matches it) so
+    // Stage 0's node_modules type-snapshot baseline exists before the skill
+    // bumps it in Stage 1.
+    if (!installDeps(projectDir)) {
+      log("Skipping opencode run — dependency install failed.");
+    } else {
+      log(`Running /${OPENCODE_COMMAND} in ${projectDir} (headless, --auto).`);
+      const result: { code: number; timedOut: boolean } = await runOpencode(
+        projectDir,
+        latest,
+      );
+      outcome = result.code === 0 && !result.timedOut ? "success" : "failure";
+      log(
+        `/${OPENCODE_COMMAND} finished: ${result.timedOut ? "TIMEOUT" : `exit ${result.code}`} -> ${outcome}.`,
+      );
+    }
   } finally {
     removeWorktree(root, worktreePath);
     log(`Worktree removed (branch "${branch}" kept locally).`);
