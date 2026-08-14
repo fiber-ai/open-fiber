@@ -84,6 +84,10 @@ nextjs/playwright-report/
 nextjs/test-results/
 nextjs/blob-report/
 
+# tmp/ folders anywhere (includes nextjs/tmp/openfiber-update/ state/logs from
+# nextjs/scripts/openfiber-update-check.mts)
+tmp/
+
 # Nuxt.js build / generate output
 .nuxt
 dist
