@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { EmptyState } from "@/components/shared/empty-state";
 import { FiberAvatar } from "@/components/shared/fiber-avatar";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Mode = "people" | "companies";
 type Row = Record<string, unknown>;
@@ -56,10 +57,14 @@ export default function QuickResolvePage() {
         <div className="mx-auto max-w-3xl space-y-6">
           <Card>
             <CardContent className="pt-6 space-y-4">
-              <div className="flex gap-2">
-                <Button variant={mode === "people" ? "default" : "outline"} size="sm" onClick={() => setMode("people")}>People</Button>
-                <Button variant={mode === "companies" ? "default" : "outline"} size="sm" onClick={() => setMode("companies")}>Companies</Button>
-              </div>
+              <ToggleButtonGroup
+                options={[
+                  { value: "people", label: "People" },
+                  { value: "companies", label: "Companies" },
+                ]}
+                value={mode}
+                onChange={(v) => setMode(v as Mode)}
+              />
               <div className="space-y-2">
                 <Label>{mode === "people" ? "People" : "Companies"} (one per line, max 100)</Label>
                 <Textarea

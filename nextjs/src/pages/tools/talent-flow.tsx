@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 
 type Row = Record<string, unknown>;
 type Identifier = "linkedinUrl" | "linkedinSlug" | "linkedinOrgId" | "domain";
@@ -30,15 +31,17 @@ function BreakdownCard({ title, rows, labelKeys }: { title: string; rows: Row[];
         {rows.slice(0, 10).map((r, i) => {
           const count = typeof r.count === "number" ? r.count : 0;
           const percent = typeof r.percent === "number" ? r.percent : 0;
-          const label = labelKeys.map((k) => (typeof r[k] === "string" ? (r[k] as string) : undefined)).find(Boolean) ?? "—";
+          const label = [...labelKeys, "label", "name"]
+            .map((k) => (typeof r[k] === "string" ? (r[k] as string) : undefined))
+            .find(Boolean) ?? "—";
           return (
             <div key={i} className="space-y-1">
               <div className="flex justify-between text-xs">
                 <span className="font-medium">{label}</span>
-                <span className="text-muted-foreground">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
+                <span className="text-muted-foreground tabular-nums">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
               </div>
-              <div className="h-2 w-full rounded bg-muted">
-                <div className="h-2 rounded bg-primary" style={{ width: `${(count / max) * 100}%` }} />
+              <div className="h-1.5 w-full rounded-full bg-muted">
+                <div className="h-1.5 rounded-full bg-primary" style={{ width: `${(count / max) * 100}%` }} />
               </div>
             </div>
           );
@@ -73,6 +76,9 @@ export default function TalentFlowPage() {
   const buckets = (out?.companyBuckets ?? []) as Row[];
   const breakdowns = (out?.breakdowns ?? {}) as Row;
   const peopleCount = typeof out?.peopleCount === "number" ? (out.peopleCount as number) : null;
+  // Headings must describe the run that produced the data, not the live toggle —
+  // otherwise flipping Direction retitles joiner results as leavers without a re-run.
+  const resultDirection = mutation.variables?.direction ?? direction;
 
   return (
     <div className="flex h-full flex-col">
@@ -94,14 +100,19 @@ export default function TalentFlowPage() {
               <div className="flex flex-wrap items-end gap-3">
                 <div className="space-y-1.5">
                   <Label className="text-xs">Direction</Label>
-                  <select
-                    value={direction}
-                    onChange={(e) => setDirection(e.target.value as "joiners" | "leavers")}
-                    className="block rounded-md border bg-background px-2 py-1.5 text-sm"
-                  >
-                    <option value="joiners">Joiners — where new hires come from</option>
-                    <option value="leavers">Leavers — where departures go</option>
-                  </select>
+                  <div>
+                    <ToggleButtonGroup
+                      options={[
+                        { value: "joiners", label: "Joiners" },
+                        { value: "leavers", label: "Leavers" },
+                      ]}
+                      value={direction}
+                      onChange={(v) => setDirection(v as "joiners" | "leavers")}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {direction === "joiners" ? "Where new hires come from" : "Where departures go"}
+                  </p>
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs">After (optional)</Label>
@@ -129,9 +140,13 @@ export default function TalentFlowPage() {
               <Card>
                 <CardContent className="pt-6">
                   <p className="text-sm text-muted-foreground">
-                    {direction === "joiners" ? "People who joined" : "People who left"} {(companyInfo?.name as string) ?? company}
+                    {resultDirection === "joiners" ? "Joined" : "Left"} {(companyInfo?.name as string) ?? company}
                   </p>
-                  {peopleCount != null && <p className="text-3xl font-semibold">{peopleCount.toLocaleString()}</p>}
+                  {peopleCount != null && (
+                    <p className="text-3xl font-semibold">
+                      {peopleCount.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">people</span>
+                    </p>
+                  )}
                 </CardContent>
               </Card>
 
@@ -139,7 +154,7 @@ export default function TalentFlowPage() {
                 <Card>
                   <CardHeader>
                     <CardTitle className="text-base">
-                      {direction === "joiners" ? "Top source companies" : "Top destination companies"}
+                      {resultDirection === "joiners" ? "Top source companies" : "Top destination companies"}
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -151,6 +166,7 @@ export default function TalentFlowPage() {
                         <div key={i} className="space-y-1">
                           <div className="flex items-center justify-between text-xs">
                             <span className="flex items-center gap-2 font-medium">
+                              <span className="w-5 shrink-0 text-right text-muted-foreground tabular-nums">{i + 1}.</span>
                               {b.linkedinUrl ? (
                                 <a href={b.linkedinUrl as string} target="_blank" rel="noopener noreferrer" className="hover:underline">
                                   {b.companyName as string}
@@ -160,10 +176,10 @@ export default function TalentFlowPage() {
                               )}
                               {(b.stage as string) && <Badge variant="outline" className="text-[10px]">{b.stage as string}</Badge>}
                             </span>
-                            <span className="text-muted-foreground">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
+                            <span className="text-muted-foreground tabular-nums">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
                           </div>
-                          <div className="h-2 w-full rounded bg-muted">
-                            <div className="h-2 rounded bg-primary" style={{ width: `${(count / max) * 100}%` }} />
+                          <div className="ml-7 h-1.5 rounded-full bg-muted">
+                            <div className="h-1.5 rounded-full bg-primary" style={{ width: `${(count / max) * 100}%` }} />
                           </div>
                         </div>
                       );

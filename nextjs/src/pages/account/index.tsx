@@ -84,6 +84,9 @@ export default function AccountPage() {
 
   const data = credits.data;
   const output = data?.output;
+  const pricedOperations = Object.entries(output?.creditsPerOperation ?? {})
+    .filter(([, v]) => v && v.levels.length > 0)
+    .sort(([a], [b]) => (OPERATION_LABELS[a] ?? a).localeCompare(OPERATION_LABELS[b] ?? b));
 
   return (
     <div className="flex h-full flex-col">
@@ -191,8 +194,8 @@ export default function AccountPage() {
               </Card>
             )}
 
-            {/* Credit Costs Per Operation */}
-            {output.creditsPerOperation && (
+            {/* Credit Costs Per Operation — hidden entirely when no operation has pricing */}
+            {pricedOperations.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle className="text-base">Credit Costs by Operation</CardTitle>
@@ -207,25 +210,18 @@ export default function AccountPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {Object.entries(output.creditsPerOperation)
-                          .filter(([, v]) => v && v.levels.length > 0)
-                          .sort(([a], [b]) => {
-                            const labelA = OPERATION_LABELS[a] ?? a;
-                            const labelB = OPERATION_LABELS[b] ?? b;
-                            return labelA.localeCompare(labelB);
-                          })
-                          .map(([key, value]) => (
-                            <tr key={key} className="border-b">
-                              <td className="px-4 py-2">
-                                {OPERATION_LABELS[key] ?? key}
-                              </td>
-                              <td className="px-4 py-2 text-right">
-                                <Badge variant="secondary" className="text-xs font-mono">
-                                  {getCreditCost(value!)}
-                                </Badge>
-                              </td>
-                            </tr>
-                          ))}
+                        {pricedOperations.map(([key, value]) => (
+                          <tr key={key} className="border-b">
+                            <td className="px-4 py-2">
+                              {OPERATION_LABELS[key] ?? key}
+                            </td>
+                            <td className="px-4 py-2 text-right">
+                              <Badge variant="secondary" className="text-xs font-mono">
+                                {getCreditCost(value!)}
+                              </Badge>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -320,6 +316,15 @@ function BillingSettings() {
 }
 
 /**
+ * Expiration is date-grained: the picker's YYYY-MM-DD is stored as end-of-day
+ * UTC and displayed by UTC date parts, so the day the user picks is the day
+ * shown back — a local-time Date parse would shift it a day in most timezones.
+ */
+function formatExpirationDate(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, { timeZone: "UTC" });
+}
+
+/**
  * API key management. All actions target the key this session is authenticated
  * with (SELF); other keys are listed read-only. Gracefully hides itself if the
  * API-keys endpoints aren't available for this org.
@@ -365,10 +370,37 @@ function ApiKeysSection() {
             <Badge variant="secondary" className="text-xs">current key</Badge>
             {key.isRevoked && <Badge variant="destructive" className="text-xs">revoked</Badge>}
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-            <span>Used: <span className="font-mono">{formatNumber(key.creditsUsed)}</span>{key.maxCredits != null && <> / <span className="font-mono">{formatNumber(key.maxCredits)}</span> credit limit</>}</span>
-            <span>Expires: {key.expiresAt ? new Date(key.expiresAt).toLocaleDateString() : "never"}</span>
-            <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
+          <div className="space-y-1">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-medium">Key usage</span>
+              <span className="text-muted-foreground tabular-nums">
+                {formatNumber(key.creditsUsed)}{key.maxCredits != null && <> / {formatNumber(key.maxCredits)}</>} credits
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full bg-primary transition-all duration-500"
+                style={{
+                  width: key.maxCredits != null && key.maxCredits > 0
+                    ? `${Math.min((key.creditsUsed / key.maxCredits) * 100, 100)}%`
+                    : "0%",
+                }}
+              />
+            </div>
+            {key.maxCredits == null && (
+              <p className="text-xs text-muted-foreground">No credit limit set on this key</p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-x-8 gap-y-1">
+            <div>
+              <p className="text-xs text-muted-foreground">Expires</p>
+              <p className="text-sm">{key.expiresAt ? formatExpirationDate(key.expiresAt) : "Never"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">Created</p>
+              <p className="text-sm">{new Date(key.createdAt).toLocaleDateString()}</p>
+            </div>
           </div>
 
           <Separator />
@@ -412,7 +444,7 @@ function ApiKeysSection() {
                 <Button
                   variant="outline" size="sm"
                   disabled={!expiresInput || anyMutationPending}
-                  onClick={() => { updateExpiration.mutate({ operation: "set", expiresAt: new Date(expiresInput).toISOString() }); setExpiresInput(""); }}
+                  onClick={() => { updateExpiration.mutate({ operation: "set", expiresAt: `${expiresInput}T23:59:59.999Z` }); setExpiresInput(""); }}
                 >
                   Set
                 </Button>
@@ -427,6 +459,8 @@ function ApiKeysSection() {
               </div>
             </div>
           </div>
+
+          <Separator />
 
           <div className="flex flex-wrap gap-2">
             <ConfirmDialog
@@ -479,7 +513,7 @@ function ApiKeysSection() {
                     <td className="px-4 py-2 font-mono text-xs">{k.prefix}…</td>
                     <td className="px-4 py-2 text-right font-mono text-xs">{formatNumber(k.creditsUsed)}</td>
                     <td className="px-4 py-2 text-right font-mono text-xs">{k.maxCredits != null ? formatNumber(k.maxCredits) : "—"}</td>
-                    <td className="px-4 py-2 text-right text-xs">{k.expiresAt ? new Date(k.expiresAt).toLocaleDateString() : "never"}</td>
+                    <td className="px-4 py-2 text-right text-xs">{k.expiresAt ? formatExpirationDate(k.expiresAt) : "never"}</td>
                   </tr>
                 ))}
               </tbody>
