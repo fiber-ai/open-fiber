@@ -1,12 +1,16 @@
-import { CreditCard, ExternalLink, Calendar, TrendingUp, AlertTriangle, Settings } from "lucide-react";
+import { useState } from "react";
+import { CreditCard, ExternalLink, Calendar, TrendingUp, AlertTriangle, Settings, KeyRound, Loader2, RotateCcw, Ban } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorDisplay } from "@/components/shared/error-display";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { formatNumber } from "@/lib/utils";
 
 interface OperationLevel {
@@ -60,6 +64,11 @@ const OPERATION_LABELS: Record<string, string> = {
   salesNavPersonScrape: "Sales Nav Person",
   geolocation: "Geolocation",
   localBusinessResearchAgent: "Local Business Research",
+  financialInstrumentLookup: "Finance Instrument Lookup",
+  talentFlow: "Talent Flow",
+  emailToLinkedinMiss: "Email → LinkedIn (Miss)",
+  leadListFromDomain: "Lead List from Domain",
+  fetchCompanyEmployee: "Fetch Company Employees",
 };
 
 function getCreditCost(op: { levels: OperationLevel[] }): string {
@@ -227,6 +236,9 @@ export default function AccountPage() {
             {/* Billing Settings */}
             <BillingSettings />
 
+            {/* API Key Management */}
+            <ApiKeysSection />
+
             {/* Manage Link */}
             <div className="flex justify-center">
               <a
@@ -298,6 +310,184 @@ function BillingSettings() {
         )}
         <p className="text-xs text-muted-foreground">
           Manage auto top-up settings on{" "}
+          <a href="https://fiber.ai/app/api" target="_blank" rel="noopener noreferrer" className="text-primary underline">
+            fiber.ai
+          </a>
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+/**
+ * API key management. All actions target the key this session is authenticated
+ * with (SELF); other keys are listed read-only. Gracefully hides itself if the
+ * API-keys endpoints aren't available for this org.
+ */
+function ApiKeysSection() {
+  const utils = trpc.useUtils();
+  const currentKey = trpc.apiKeys.getCurrent.useQuery(undefined, { retry: false, staleTime: 30_000 });
+  const allKeys = trpc.apiKeys.getAll.useQuery({ includeRevoked: false }, { retry: false, staleTime: 30_000 });
+
+  const invalidate = () => {
+    utils.apiKeys.invalidate();
+  };
+  const resetUsage = trpc.apiKeys.resetUsage.useMutation({ onSuccess: invalidate });
+  const revoke = trpc.apiKeys.revokeCurrent.useMutation({ onSuccess: invalidate });
+  const updateLimit = trpc.apiKeys.updateLimit.useMutation({ onSuccess: invalidate });
+  const updateExpiration = trpc.apiKeys.updateExpiration.useMutation({ onSuccess: invalidate });
+
+  const [limitInput, setLimitInput] = useState("");
+  const [expiresInput, setExpiresInput] = useState("");
+
+  if (currentKey.isError || currentKey.isLoading) return null;
+  const key = currentKey.data?.output;
+  if (!key) return null;
+
+  const keys = allKeys.data?.output.apiKeys ?? [];
+  const anyMutationPending = resetUsage.isPending || revoke.isPending || updateLimit.isPending || updateExpiration.isPending;
+  const mutationError = resetUsage.error ?? revoke.error ?? updateLimit.error ?? updateExpiration.error;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base flex items-center gap-2">
+          <KeyRound className="h-4 w-4" />
+          API Keys
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Current key */}
+        <div className="rounded-md border p-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium">{key.name}</span>
+            <Badge variant="outline" className="font-mono text-xs">{key.prefix}…</Badge>
+            <Badge variant="secondary" className="text-xs">current key</Badge>
+            {key.isRevoked && <Badge variant="destructive" className="text-xs">revoked</Badge>}
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
+            <span>Used: <span className="font-mono">{formatNumber(key.creditsUsed)}</span>{key.maxCredits != null && <> / <span className="font-mono">{formatNumber(key.maxCredits)}</span> credit limit</>}</span>
+            <span>Expires: {key.expiresAt ? new Date(key.expiresAt).toLocaleDateString() : "never"}</span>
+            <span>Created: {new Date(key.createdAt).toLocaleDateString()}</span>
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Credit limit</Label>
+              <div className="flex gap-2">
+                <Input
+                  className="w-32" type="number" min={0}
+                  placeholder={key.maxCredits != null ? String(key.maxCredits) : "none"}
+                  value={limitInput}
+                  onChange={(e) => setLimitInput(e.target.value)}
+                />
+                <Button
+                  variant="outline" size="sm"
+                  disabled={!limitInput || anyMutationPending}
+                  onClick={() => { updateLimit.mutate({ operation: "set", credits: Number(limitInput) }); setLimitInput(""); }}
+                >
+                  Set
+                </Button>
+                {key.maxCredits != null && (
+                  <Button
+                    variant="ghost" size="sm" disabled={anyMutationPending}
+                    onClick={() => updateLimit.mutate({ operation: "remove" })}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs">Expiration</Label>
+              <div className="flex gap-2">
+                <Input
+                  className="w-40" type="date"
+                  value={expiresInput}
+                  onChange={(e) => setExpiresInput(e.target.value)}
+                />
+                <Button
+                  variant="outline" size="sm"
+                  disabled={!expiresInput || anyMutationPending}
+                  onClick={() => { updateExpiration.mutate({ operation: "set", expiresAt: new Date(expiresInput).toISOString() }); setExpiresInput(""); }}
+                >
+                  Set
+                </Button>
+                {key.expiresAt && (
+                  <Button
+                    variant="ghost" size="sm" disabled={anyMutationPending}
+                    onClick={() => updateExpiration.mutate({ operation: "remove" })}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <ConfirmDialog
+              trigger={
+                <Button variant="outline" size="sm" disabled={anyMutationPending}>
+                  {resetUsage.isPending ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <RotateCcw className="mr-2 h-3 w-3" />}
+                  Reset usage counter
+                </Button>
+              }
+              title="Reset usage counter?"
+              description="Resets this key's credits-used counter to zero. This does not refund credits at the organization level."
+              confirmLabel="Reset"
+              variant="default"
+              onConfirm={() => resetUsage.mutate()}
+            />
+            <ConfirmDialog
+              trigger={
+                <Button variant="destructive" size="sm" disabled={anyMutationPending}>
+                  {revoke.isPending ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : <Ban className="mr-2 h-3 w-3" />}
+                  Revoke this key
+                </Button>
+              }
+              title="Revoke the current API key?"
+              description="This permanently revokes the key OpenFiber is using right now. Every subsequent request from this app will fail until you configure a new key."
+              confirmLabel="Revoke key"
+              onConfirm={() => revoke.mutate()}
+            />
+          </div>
+
+          {mutationError && <p className="text-xs text-destructive">{mutationError.message}</p>}
+        </div>
+
+        {/* Other keys (read-only) */}
+        {keys.length > 1 && (
+          <div className="rounded-md border">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50">
+                  <th className="px-4 py-2 text-left font-medium">Name</th>
+                  <th className="px-4 py-2 text-left font-medium">Prefix</th>
+                  <th className="px-4 py-2 text-right font-medium">Used</th>
+                  <th className="px-4 py-2 text-right font-medium">Limit</th>
+                  <th className="px-4 py-2 text-right font-medium">Expires</th>
+                </tr>
+              </thead>
+              <tbody>
+                {keys.filter((k) => k.id !== key.id).map((k) => (
+                  <tr key={k.id} className="border-b last:border-0">
+                    <td className="px-4 py-2">{k.name}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{k.prefix}…</td>
+                    <td className="px-4 py-2 text-right font-mono text-xs">{formatNumber(k.creditsUsed)}</td>
+                    <td className="px-4 py-2 text-right font-mono text-xs">{k.maxCredits != null ? formatNumber(k.maxCredits) : "—"}</td>
+                    <td className="px-4 py-2 text-right text-xs">{k.expiresAt ? new Date(k.expiresAt).toLocaleDateString() : "never"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground">
+          Actions apply to the key OpenFiber is configured with. Create additional keys on{" "}
           <a href="https://fiber.ai/app/api" target="_blank" rel="noopener noreferrer" className="text-primary underline">
             fiber.ai
           </a>

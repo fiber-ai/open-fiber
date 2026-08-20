@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCreditCosts } from "@/hooks/use-credit-costs";
+import { PATIENCE_LEVELS, type Patience } from "@/lib/schemas/enrichment";
 
 interface EnrichmentFormProps {
-  onSubmit: (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant) => void;
+  onSubmit: (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant, patience: Patience | null) => void;
   isLoading: boolean;
 }
 
@@ -33,6 +34,7 @@ export type RevealVariant = typeof REVEAL_VARIANTS[number]["id"];
 export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [variant, setVariant] = useState<RevealVariant>("standard");
+  const [patience, setPatience] = useState<Patience | "">("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [options, setOptions] = useState<EnrichmentOptions>({
     getWorkEmails: true,
@@ -43,7 +45,7 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (linkedinUrl.trim()) onSubmit(linkedinUrl.trim(), options, variant);
+    if (linkedinUrl.trim()) onSubmit(linkedinUrl.trim(), options, variant, patience || null);
   };
 
   return (
@@ -98,6 +100,24 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
             </select>
             {variant === "exhaustive" && (
               <p className="text-xs text-amber-600">Exhaustive reveal runs asynchronously and may take longer.</p>
+            )}
+            {variant !== "exhaustive" && (
+              <>
+                <Label className="text-xs font-medium">Email Validation Patience</Label>
+                <select
+                  value={patience}
+                  onChange={(e) => setPatience(e.target.value as Patience | "")}
+                  className="w-full rounded-md border bg-background px-2 py-1.5 text-sm"
+                >
+                  <option value="">Default</option>
+                  {PATIENCE_LEVELS.map((p) => (
+                    <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-muted-foreground">
+                  How long to wait for email deliverability validation. Higher patience is slower but more accurate.
+                </p>
+              </>
             )}
           </div>
         )}

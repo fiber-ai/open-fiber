@@ -23,6 +23,8 @@ import { mediaRouter } from "./media";
 import { flightsRouter } from "./flights";
 import { realEstateRouter } from "./real-estate";
 import { trackerRouter } from "./tracker";
+import { financeRouter } from "./finance";
+import { apiKeysRouter } from "./api-keys";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -49,6 +51,8 @@ export const appRouter = createTRPCRouter({
   flights: flightsRouter,
   realEstate: realEstateRouter,
   tracker: trackerRouter,
+  finance: financeRouter,
+  apiKeys: apiKeysRouter,
 });
 
 export type AppRouter = typeof appRouter;

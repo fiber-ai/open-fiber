@@ -83,6 +83,9 @@ export default function DepthChartPage() {
   const functionStats = (report?.functionStats ?? []) as Row[];
   const seniorityStats = (report?.seniorityStats ?? []) as Row[];
   const totalEmployees = typeof report?.totalEmployees === "number" ? (report.totalEmployees as number) : null;
+  // v0.0.48: totalEmployees is now official headcount; classifiedEmployees is what the buckets sum to.
+  const classifiedEmployees = typeof report?.classifiedEmployees === "number" ? (report.classifiedEmployees as number) : null;
+  const categorizationNote = typeof report?.categorizationNote === "string" ? (report.categorizationNote as string) : null;
 
   return (
     <div className="flex h-full flex-col">
@@ -112,8 +115,19 @@ export default function DepthChartPage() {
             {totalEmployees != null && (
               <Card>
                 <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">Total employees</p>
-                  <p className="text-3xl font-semibold">{totalEmployees.toLocaleString()}</p>
+                  <div className="flex gap-8">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total employees</p>
+                      <p className="text-3xl font-semibold">{totalEmployees.toLocaleString()}</p>
+                    </div>
+                    {classifiedEmployees != null && classifiedEmployees !== totalEmployees && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Categorized</p>
+                        <p className="text-3xl font-semibold">{classifiedEmployees.toLocaleString()}</p>
+                      </div>
+                    )}
+                  </div>
+                  {categorizationNote && <p className="mt-2 text-xs text-muted-foreground">{categorizationNote}</p>}
                 </CardContent>
               </Card>
             )}
