@@ -33,6 +33,10 @@ import {
   Upload,
   Link2,
   BookmarkCheck,
+  Fingerprint,
+  PieChart,
+  ArrowRightLeft,
+  LineChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -86,6 +90,7 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Flights", href: "/market/flights", icon: Plane },
       { label: "Real Estate", href: "/market/real-estate", icon: Home },
+      { label: "Finance", href: "/market/finance", icon: LineChart },
     ],
   },
   {
@@ -100,6 +105,9 @@ const navGroups: NavGroup[] = [
     items: [
       { label: "Google Maps", href: "/tools/google-maps", icon: MapPin },
       { label: "Depth Chart", href: "/tools/depth-chart", icon: BarChart3 },
+      { label: "Department Size", href: "/tools/department-size", icon: PieChart },
+      { label: "Talent Flow", href: "/tools/talent-flow", icon: ArrowRightLeft },
+      { label: "Quick Resolve", href: "/tools/quick-resolve", icon: Fingerprint },
       { label: "Company Logos", href: "/tools/logos", icon: Image },
       { label: "Webpage Screenshot", href: "/tools/screenshot", icon: Camera },
       { label: "Domain Lookup", href: "/tools/domain-lookup", icon: Globe },

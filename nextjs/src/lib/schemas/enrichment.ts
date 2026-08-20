@@ -6,6 +6,15 @@ export const enrichmentTypeSchema = z.object({
   getPhoneNumbers: z.boolean().default(false),
 });
 
+/**
+ * Email deliverability validation patience. Higher patience waits longer for
+ * bounce-detection after a contact is found, improving accuracy.
+ * Replaces the deprecated `validateEmails` boolean (false ≈ MINIMUM).
+ */
+export const PATIENCE_LEVELS = ["MINIMUM", "LOW", "MEDIUM", "HIGH", "EXTREME", "MAXIMUM"] as const;
+export const patienceSchema = z.enum(PATIENCE_LEVELS).nullable().optional();
+export type Patience = (typeof PATIENCE_LEVELS)[number];
+
 export const singleEnrichmentSchema = z.object({
   linkedinUrl: z.string().min(1, "LinkedIn URL is required"),
   enrichmentType: enrichmentTypeSchema,

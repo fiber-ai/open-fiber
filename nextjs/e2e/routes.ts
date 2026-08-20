@@ -3,8 +3,8 @@
  * sidebar.tsx at test time) so the route list is easy to scan/diff in review and
  * doesn't silently change if sidebar.tsx's navGroups shape changes.
  *
- * Cross-checked against src/pages/**\/*.tsx during planning (46 page files total:
- * 42 static + 4 dynamic). `/` and `/setup` are intentionally excluded from
+ * Cross-checked against src/pages/**\/*.tsx during planning (50 page files total:
+ * 46 static + 4 dynamic). `/` and `/setup` are intentionally excluded from
  * STATIC_ROUTES below — they're covered by dedicated specs (account-credits.spec.ts's
  * root-gate assertion, and auth.spec.ts's login flow) since they don't behave like
  * ordinary content pages.
@@ -38,6 +38,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
   // Market Intelligence
   { path: "/market/flights", label: "Flights" },
   { path: "/market/real-estate", label: "Real Estate" },
+  { path: "/market/finance", label: "Finance" },
 
   // Trackers
   { path: "/trackers/companies", label: "Company Trackers" },
@@ -46,6 +47,9 @@ export const STATIC_ROUTES: StaticRoute[] = [
   // Tools
   { path: "/tools/google-maps", label: "Google Maps" },
   { path: "/tools/depth-chart", label: "Depth Chart" },
+  { path: "/tools/department-size", label: "Department Size" },
+  { path: "/tools/talent-flow", label: "Talent Flow" },
+  { path: "/tools/quick-resolve", label: "Quick Resolve" },
   { path: "/tools/logos", label: "Company Logos" },
   { path: "/tools/screenshot", label: "Webpage Screenshot" },
   { path: "/tools/domain-lookup", label: "Domain Lookup" },

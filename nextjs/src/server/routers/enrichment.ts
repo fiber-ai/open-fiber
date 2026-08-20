@@ -6,7 +6,7 @@ import {
   triggerExhaustiveContactEnrichment, pollExhaustiveContactEnrichmentResult,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
-import { enrichmentTypeSchema } from "@/lib/schemas/enrichment";
+import { enrichmentTypeSchema, patienceSchema } from "@/lib/schemas/enrichment";
 
 const emailSchema = z.object({
   email: z.string(), type: z.string(), status: z.string().nullable().optional(),
@@ -74,21 +74,21 @@ export const enrichmentRouter = createTRPCRouter({
 
   /** Default (Standard) reveal. SDK: syncQuickContactReveal (POST /v1/contact-details/single) */
   syncStandardReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
+    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema, patience: patienceSchema }))
     .output(syncEnrichResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        syncQuickContactReveal({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
+        syncQuickContactReveal({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType, patience: input.patience ?? undefined } })
       );
     }),
 
   /** Premium/Turbo reveal — widest first-pass waterfall. SDK: syncTurboContactEnrichment */
   syncPremiumReveal: protectedProcedure
-    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema }))
+    .input(z.object({ linkedinUrl: z.string(), enrichmentType: enrichmentTypeSchema, patience: patienceSchema }))
     .output(syncEnrichResultSchema)
     .mutation(async ({ ctx, input }) => {
       return callFiber(() =>
-        syncTurboContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType } })
+        syncTurboContactEnrichment({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, enrichmentType: input.enrichmentType, patience: input.patience ?? undefined } })
       );
     }),
 

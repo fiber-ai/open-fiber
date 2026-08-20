@@ -3,6 +3,7 @@ import { Mail, User, Search, Loader2 } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { EnrichmentForm, type EnrichmentOptions, type RevealVariant } from "@/components/enrichment/enrichment-form";
+import { type Patience } from "@/lib/schemas/enrichment";
 import { PollingIndicator } from "@/components/shared/polling-indicator";
 import { EnrichmentResultCard } from "@/components/enrichment/enrichment-result-card";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -50,7 +51,7 @@ export default function SingleEnrichmentPage() {
     exhaustive: exhaustiveTrigger, // trigger only, polling is separate
   } as const;
 
-  const handleLinkedInSubmit = (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant) => {
+  const handleLinkedInSubmit = (linkedinUrl: string, options: EnrichmentOptions, variant: RevealVariant, patience: Patience | null) => {
     setActiveLinkedInVariant(variant);
     // Reset exhaustive polling state
     setExhaustiveTaskId(null);
@@ -65,7 +66,7 @@ export default function SingleEnrichmentPage() {
         }
       );
     } else {
-      syncMutations[variant].mutate({ linkedinUrl, enrichmentType: options });
+      syncMutations[variant].mutate({ linkedinUrl, enrichmentType: options, patience });
     }
   };
 

@@ -16,6 +16,10 @@ import {
   socialMediaLookupBatchTrigger,
   socialMediaLookupBatchPolling,
   webpageScreenshot,
+  quickPersonResolve,
+  quickCompanyResolve,
+  getDepartmentSize,
+  getTalentFlow,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
@@ -336,6 +340,113 @@ export const toolsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return callFiber(() => socialMediaLookupBatchPolling({
         body: { apiKey: ctx.apiKey, runId: input.runId, nextPageToken: input.nextPageToken ?? undefined, pageSize: input.pageSize },
+      }));
+    }),
+
+  // --- Quick Resolve (cheap identifier → full profile lookups) ---
+  quickResolvePeople: protectedProcedure
+    .input(z.object({
+      people: z.array(z.object({
+        identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinUserId", "entityUrn"]),
+        value: z.string().min(1),
+      })).min(1).max(100),
+    }))
+    .output(z.object({
+      output: z.object({
+        data: z.array(z.object({
+          identifier: z.string(),
+          value: z.string(),
+          found: z.boolean(),
+          person: z.record(z.unknown()).nullable().optional(),
+        }).passthrough()),
+      }).passthrough(),
+    }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => quickPersonResolve({
+        body: { apiKey: ctx.apiKey, people: input.people },
+      }));
+    }),
+
+  quickResolveCompanies: protectedProcedure
+    .input(z.object({
+      companies: z.array(z.object({
+        identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"]),
+        value: z.string().min(1),
+      })).min(1).max(100),
+    }))
+    .output(z.object({
+      output: z.object({
+        data: z.array(z.object({
+          identifier: z.string(),
+          value: z.string(),
+          found: z.boolean(),
+          company: z.record(z.unknown()).nullable().optional(),
+        }).passthrough()),
+      }).passthrough(),
+    }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => quickCompanyResolve({
+        body: { apiKey: ctx.apiKey, companies: input.companies },
+      }));
+    }),
+
+  // --- Department Size ---
+  getDepartmentSize: protectedProcedure
+    .input(z.object({
+      identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"]),
+      value: z.string().min(1),
+      departments: z.array(z.object({
+        name: z.string().min(1),
+        includeTitles: z.array(z.string().min(1)).min(1),
+        excludeTitles: z.array(z.string().min(1)).optional(),
+      })).min(1),
+    }))
+    .output(z.object({
+      output: z.object({
+        company: z.record(z.unknown()),
+        headcount: z.number(),
+        departments: z.array(z.object({
+          name: z.string(),
+          count: z.number(),
+          percentOfHeadcount: z.number(),
+        }).passthrough()),
+      }).passthrough(),
+    }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => getDepartmentSize({
+        body: {
+          apiKey: ctx.apiKey,
+          company: { identifier: input.identifier, value: input.value },
+          departments: input.departments.map((d) => ({
+            name: d.name,
+            titles: {
+              type: "manual" as const,
+              include: { titles: d.includeTitles },
+              ...(d.excludeTitles?.length ? { exclude: { titles: d.excludeTitles } } : {}),
+            },
+          })),
+        },
+      }));
+    }),
+
+  // --- Talent Flow (where joiners come from / leavers go) ---
+  getTalentFlow: protectedProcedure
+    .input(z.object({
+      identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"]),
+      value: z.string().min(1),
+      direction: z.enum(["joiners", "leavers"]),
+      after: z.string().nullable().optional(),
+      before: z.string().nullable().optional(),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => getTalentFlow({
+        body: {
+          apiKey: ctx.apiKey,
+          company: { identifier: input.identifier, value: input.value },
+          direction: input.direction,
+          dateRange: { lowerBound: input.after ?? null, upperBound: input.before ?? null },
+        },
       }));
     }),
 
