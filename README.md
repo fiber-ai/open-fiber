@@ -2,6 +2,8 @@
 
 An open-source reference frontend for [Fiber AI](https://fiber.ai) — build your own prospecting UI on top of Fiber's APIs.
 
+**Try it live at [open.fiber.ai](https://open.fiber.ai)** · [Docs](https://docs.fiber.ai/build/openfiber) · [API reference](https://api.fiber.ai/docs/)
+
 OpenFiber lets you drop a fully-featured sales prospecting interface into your own application. It demonstrates how Fiber's APIs work together end-to-end: searching companies, finding prospects, enriching contacts, managing audiences, and exporting data — all through a clean, modern stack you can extend or embed.
 
 ## Why OpenFiber?
@@ -9,6 +11,21 @@ OpenFiber lets you drop a fully-featured sales prospecting interface into your o
 - **Drop-in UI for your app** — Fork it, restyle it, ship it. If you're a Fiber customer building internal tools or customer-facing prospecting features, start here instead of from scratch.
 - **API reference by example** — See how every Fiber API endpoint is used in practice: search filters, pagination, async enrichment polling, CSV exports, and more.
 - **Clean architecture** — Strongly-typed from database to UI. No shortcuts, no tech debt. A disciplined codebase you can learn from.
+
+## Building an AI sales, recruiting, or GTM agent?
+
+If you're building an AI agent on top of Fiber's APIs, whether through the [SDKs](https://docs.fiber.ai/build/sdks) or [MCP](https://docs.fiber.ai/build/mcp), you don't need to build the frontend from scratch. OpenFiber is an open-source UI already wired to those same APIs, covering search, enrichment, audiences, trackers, and exports.
+
+- **See it running:** [open.fiber.ai](https://open.fiber.ai)
+- **Get the code:** [github.com/fiber-ai/open-fiber](https://github.com/fiber-ai/open-fiber)
+- **Make it yours:** It's MIT-licensed, so feel free to white-label it and drop it into your product. Your agent handles the logic, OpenFiber gives your users the screens, and you get to market faster.
+
+| Fiber surface      | What it gives you                                                           | Docs                                                                   |
+| ------------------ | --------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| **TypeScript SDK** | `npm install @fiberai/sdk` (what OpenFiber uses)                            | [docs.fiber.ai/build/sdks](https://docs.fiber.ai/build/sdks)           |
+| **Python SDK**     | `pip install fiberai`                                                       | [docs.fiber.ai/build/sdks](https://docs.fiber.ai/build/sdks)           |
+| **MCP server**     | `https://mcp.fiber.ai/mcp/v2` for Claude, Cursor, ChatGPT, and other agents | [docs.fiber.ai/build/mcp](https://docs.fiber.ai/build/mcp)             |
+| **OpenFiber**      | A ready-made, white-label UI on top of all of the above                     | [docs.fiber.ai/build/openfiber](https://docs.fiber.ai/build/openfiber) |
 
 ## What you need
 
