@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator";
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
-import { formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/lib/utils";
+import { UsagePeriodsCard } from "@/components/account/usage-periods-card";
 
 interface OperationLevel {
   limit?: number | null;
@@ -146,11 +147,7 @@ export default function AccountPage() {
                 </CardHeader>
                 <CardContent>
                   <p data-testid="credits-resets-on" className="text-xl font-bold">
-                    {new Date(output.usagePeriodResetsOn).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
+                    {formatDate(output.usagePeriodResetsOn)}
                   </p>
                 </CardContent>
               </Card>
@@ -193,6 +190,9 @@ export default function AccountPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Per-subscription usage periods */}
+            <UsagePeriodsCard periods={output.periods} />
 
             {/* Credit Costs Per Operation — hidden entirely when no operation has pricing */}
             {pricedOperations.length > 0 && (
