@@ -91,4 +91,54 @@ test.describe("account & credits (FIB-18599 / FIB-18660 regression coverage)", (
     expect(typeof output.used).toBe("number");
     expect(typeof output.max).toBe("number");
   });
+
+  test("HTTP-level contract check: utility.getUsagePeriods lists per-subscription periods (FIB-15819)", async () => {
+    const apiKey = process.env.E2E_FIBER_API_KEY;
+    test.skip(!apiKey, "E2E_FIBER_API_KEY is not set");
+
+    const port = process.env.PORT ?? "3000";
+    const client = createTRPCClient<AppRouter>({
+      links: [
+        httpBatchLink({
+          url: `http://localhost:${port}/api/trpc`,
+          transformer: superjson,
+          headers: () => ({ Cookie: `fiber-api-key=${encodeURIComponent(apiKey!)}` }),
+        }),
+      ],
+    });
+
+    const [periodsResult, creditsResult] = await Promise.all([
+      client.utility.getUsagePeriods.query(),
+      client.utility.getCredits.query(),
+    ]);
+    const periods = periodsResult.output.periods;
+
+    expect(Array.isArray(periods)).toBe(true);
+    for (const p of periods) {
+      expect(typeof p.subscriptionId).toBe("string");
+      expect(Number.isFinite(p.used)).toBe(true);
+      expect(Number.isFinite(p.max)).toBe(true);
+      expect(Number.isNaN(new Date(p.usagePeriodResetsOn).getTime())).toBe(false);
+    }
+    // Sorted soonest reset first.
+    const resets = periods.map((p) => p.usagePeriodResetsOn);
+    expect(resets).toEqual([...resets].sort());
+    // The per-period rows must add up to the aggregate the summary cards show.
+    expect(periods.reduce((sum, p) => sum + p.used, 0)).toBe(creditsResult.output.used);
+    expect(periods.reduce((sum, p) => sum + p.max, 0)).toBe(creditsResult.output.max);
+  });
+
+  test("/account shows a usage-period row per subscription with a valid reset date (FIB-15819)", async ({
+    page,
+    consoleErrors,
+  }) => {
+    await page.goto("/account");
+    const card = page.getByTestId("usage-periods");
+    await expect(card).toBeVisible({ timeout: 15_000 });
+    const rows = card.getByTestId("usage-period-row");
+    expect(await rows.count()).toBeGreaterThan(0);
+    await expect(card).not.toContainText("Invalid Date");
+    await expect(card).not.toContainText("NaN");
+    expect(consoleErrors, `console errors:\n${consoleErrors.join("\n")}`).toEqual([]);
+  });
 });

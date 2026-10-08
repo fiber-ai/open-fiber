@@ -12,6 +12,7 @@ import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { formatNumber } from "@/lib/utils";
+import { UsagePeriodsCard } from "@/components/account/usage-periods-card";
 
 interface OperationLevel {
   limit?: number | null;
@@ -193,6 +194,9 @@ export default function AccountPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Per-subscription usage periods */}
+            <UsagePeriodsCard />
 
             {/* Credit Costs Per Operation — hidden entirely when no operation has pricing */}
             {pricedOperations.length > 0 && (

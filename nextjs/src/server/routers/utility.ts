@@ -110,14 +110,51 @@ function aggregateUsagePeriods(periods: UsagePeriod[]) {
   };
 }
 
+// Per-subscription view of the org's current usage periods. `creditsPerOperation` is
+// dropped here — it's pricing, not usage, and getCredits already exposes it.
+const usagePeriodSummarySchema = z.object({
+  subscriptionId: z.string(),
+  max: z.number(),
+  used: z.number(),
+  available: z.number(),
+  usagePeriodResetsOn: z.string(),
+});
+
+const usagePeriodsOutputSchema = z.object({
+  output: z.object({
+    periods: z.array(usagePeriodSummarySchema),
+  }),
+});
+
+async function fetchUsagePeriods(apiKey: string): Promise<UsagePeriod[]> {
+  const raw = rawCreditsResponseSchema.parse(
+    await callFiber(() => getOrgCredits({ query: { apiKey } }))
+  );
+  return raw.output;
+}
+
 export const utilityRouter = createTRPCRouter({
   getCredits: protectedProcedure
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
-      const raw = rawCreditsResponseSchema.parse(
-        await callFiber(() => getOrgCredits({ query: { apiKey: ctx.apiKey } }))
-      );
-      return { output: aggregateUsagePeriods(raw.output) };
+      return { output: aggregateUsagePeriods(await fetchUsagePeriods(ctx.apiKey)) };
+    }),
+
+  /**
+   * The org's current usage periods, one per active subscription, soonest reset first.
+   * The public API only exposes the *current* period for each subscription — there is
+   * no endpoint for past periods yet (FIB-15819).
+   */
+  getUsagePeriods: protectedProcedure
+    .output(usagePeriodsOutputSchema)
+    .query(async ({ ctx }) => {
+      const periods = (await fetchUsagePeriods(ctx.apiKey))
+        .map(({ subscriptionId, max, used, available, usagePeriodResetsOn }) => ({
+          subscriptionId, max, used, available, usagePeriodResetsOn,
+        }))
+        // ISO 8601 date strings sort chronologically as plain strings.
+        .sort((a, b) => a.usagePeriodResetsOn.localeCompare(b.usagePeriodResetsOn));
+      return { output: { periods } };
     }),
 
   getRegions: protectedProcedure.query(async ({ ctx }) => {
