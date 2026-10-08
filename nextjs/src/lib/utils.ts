@@ -9,6 +9,15 @@ export function formatNumber(n: number): string {
   return new Intl.NumberFormat("en-US").format(n);
 }
 
+/** Formats an ISO date string as e.g. "Oct 8, 2026". */
+export function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
 export function formatCredits(n: number): string {
   n = Math.round(n);
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;

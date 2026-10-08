@@ -17,17 +17,6 @@ const creditsPerOperationSchema = z
   .nullable()
   .optional();
 
-const creditsOutputSchema = z.object({
-  output: z.object({
-    organizationId: z.string(),
-    max: z.number(),
-    used: z.number(),
-    available: z.number(),
-    usagePeriodResetsOn: z.string(),
-    creditsPerOperation: creditsPerOperationSchema,
-  }).passthrough(),
-}).passthrough();
-
 // GET /v1/get-org-credits returns `output` as an array — one entry per active subscription
 // (backend commit d5363339b6, "New billing - v1"). Validated at runtime as a safety net
 // around the generated SDK types, then flattened into a single aggregate view below.
@@ -46,6 +35,30 @@ const rawCreditsResponseSchema = z.object({
 }).passthrough();
 
 type UsagePeriod = z.infer<typeof usagePeriodSchema>;
+
+// Per-subscription view of a usage period, as returned in getCredits' `periods`.
+// `creditsPerOperation` is pricing, not usage, and is already exposed at the top level.
+const usagePeriodSummarySchema = usagePeriodSchema.pick({
+  subscriptionId: true,
+  max: true,
+  used: true,
+  available: true,
+  usagePeriodResetsOn: true,
+});
+
+const creditsOutputSchema = z.object({
+  output: z.object({
+    organizationId: z.string(),
+    max: z.number(),
+    used: z.number(),
+    available: z.number(),
+    usagePeriodResetsOn: z.string(),
+    creditsPerOperation: creditsPerOperationSchema,
+    // The org's current usage periods, one per active subscription, soonest reset first.
+    // The public API only exposes the *current* period — no history yet (FIB-15819).
+    periods: z.array(usagePeriodSummarySchema),
+  }).passthrough(),
+}).passthrough();
 type CreditsPerOperation = NonNullable<z.infer<typeof creditsPerOperationSchema>>;
 
 // GET /v1/auto-topup/settings returns `output.settings` as an array — one entry per active
@@ -110,22 +123,6 @@ function aggregateUsagePeriods(periods: UsagePeriod[]) {
   };
 }
 
-// Per-subscription view of the org's current usage periods. `creditsPerOperation` is
-// dropped here — it's pricing, not usage, and getCredits already exposes it.
-const usagePeriodSummarySchema = z.object({
-  subscriptionId: z.string(),
-  max: z.number(),
-  used: z.number(),
-  available: z.number(),
-  usagePeriodResetsOn: z.string(),
-});
-
-const usagePeriodsOutputSchema = z.object({
-  output: z.object({
-    periods: z.array(usagePeriodSummarySchema),
-  }),
-});
-
 async function fetchUsagePeriods(apiKey: string): Promise<UsagePeriod[]> {
   const raw = rawCreditsResponseSchema.parse(
     await callFiber(() => getOrgCredits({ query: { apiKey } }))
@@ -137,24 +134,12 @@ export const utilityRouter = createTRPCRouter({
   getCredits: protectedProcedure
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
-      return { output: aggregateUsagePeriods(await fetchUsagePeriods(ctx.apiKey)) };
-    }),
-
-  /**
-   * The org's current usage periods, one per active subscription, soonest reset first.
-   * The public API only exposes the *current* period for each subscription — there is
-   * no endpoint for past periods yet (FIB-15819).
-   */
-  getUsagePeriods: protectedProcedure
-    .output(usagePeriodsOutputSchema)
-    .query(async ({ ctx }) => {
-      const periods = (await fetchUsagePeriods(ctx.apiKey))
-        .map(({ subscriptionId, max, used, available, usagePeriodResetsOn }) => ({
-          subscriptionId, max, used, available, usagePeriodResetsOn,
-        }))
+      const raw = await fetchUsagePeriods(ctx.apiKey);
+      const periods = raw
+        .map((p) => usagePeriodSummarySchema.parse(p))
         // ISO 8601 date strings sort chronologically as plain strings.
         .sort((a, b) => a.usagePeriodResetsOn.localeCompare(b.usagePeriodResetsOn));
-      return { output: { periods } };
+      return { output: { ...aggregateUsagePeriods(raw), periods } };
     }),
 
   getRegions: protectedProcedure.query(async ({ ctx }) => {

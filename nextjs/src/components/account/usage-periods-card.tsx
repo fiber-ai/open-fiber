@@ -1,22 +1,25 @@
 import { CalendarClock } from "lucide-react";
-import { trpc } from "@/lib/trpc";
+import type { inferRouterOutputs } from "@trpc/server";
+import type { AppRouter } from "@/server/routers/_app";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/shared/copy-button";
-import { formatNumber } from "@/lib/utils";
+import { formatDate, formatNumber } from "@/lib/utils";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
-function formatResetDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+type UsagePeriod = inferRouterOutputs<AppRouter>["utility"]["getCredits"]["output"]["periods"][number];
 
-function daysUntil(iso: string): number {
-  return Math.max(0, Math.ceil((new Date(iso).getTime() - Date.now()) / DAY_MS));
+/**
+ * Badge text for a period's reset date. The backend keeps returning a period for a few
+ * days after it ends (its grace window), so a date in the past means "ended, in grace
+ * period" rather than "today".
+ */
+function resetLabel(iso: string): string {
+  const msLeft = new Date(iso).getTime() - Date.now();
+  if (msLeft <= 0) return "ended, in grace period";
+  const days = Math.ceil(msLeft / DAY_MS);
+  return days === 1 ? "in 1 day" : `in ${days} days`;
 }
 
 function shortId(id: string): string {
@@ -27,16 +30,9 @@ function shortId(id: string): string {
  * Lists the org's current usage periods — one per active subscription — with the
  * credits used in each and when it resets. The Fiber public API only exposes the
  * current period, so past periods aren't shown yet (FIB-15819).
- * Hides itself if the request fails; the summary cards above already surface errors.
+ * Periods come from the page's getCredits query, so there's no second API call.
  */
-export function UsagePeriodsCard() {
-  const usagePeriods = trpc.utility.getUsagePeriods.useQuery(undefined, {
-    retry: false,
-    staleTime: 10_000,
-  });
-
-  if (usagePeriods.isLoading || usagePeriods.isError) return null;
-  const periods = usagePeriods.data?.output.periods ?? [];
+export function UsagePeriodsCard({ periods }: { periods: UsagePeriod[] }) {
   if (periods.length === 0) return null;
 
   return (
@@ -66,7 +62,6 @@ export function UsagePeriodsCard() {
             <tbody>
               {periods.map((p) => {
                 const pct = p.max > 0 ? Math.min((p.used / p.max) * 100, 100) : 0;
-                const days = daysUntil(p.usagePeriodResetsOn);
                 return (
                   <tr key={p.subscriptionId} data-testid="usage-period-row" className="border-b last:border-0">
                     <td className="px-4 py-2">
@@ -91,9 +86,9 @@ export function UsagePeriodsCard() {
                     </td>
                     <td className="px-4 py-2 text-right font-mono text-xs">{formatNumber(p.available)}</td>
                     <td className="px-4 py-2 text-right">
-                      <div className="text-sm">{formatResetDate(p.usagePeriodResetsOn)}</div>
+                      <div className="text-sm">{formatDate(p.usagePeriodResetsOn)}</div>
                       <Badge variant="secondary" className="mt-0.5 text-[10px]">
-                        {days === 0 ? "today" : days === 1 ? "in 1 day" : `in ${days} days`}
+                        {resetLabel(p.usagePeriodResetsOn)}
                       </Badge>
                     </td>
                   </tr>

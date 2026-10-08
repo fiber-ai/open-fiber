@@ -92,7 +92,7 @@ test.describe("account & credits (FIB-18599 / FIB-18660 regression coverage)", (
     expect(typeof output.max).toBe("number");
   });
 
-  test("HTTP-level contract check: utility.getUsagePeriods lists per-subscription periods (FIB-15819)", async () => {
+  test("HTTP-level contract check: utility.getCredits lists per-subscription periods (FIB-15819)", async () => {
     const apiKey = process.env.E2E_FIBER_API_KEY;
     test.skip(!apiKey, "E2E_FIBER_API_KEY is not set");
 
@@ -107,11 +107,8 @@ test.describe("account & credits (FIB-18599 / FIB-18660 regression coverage)", (
       ],
     });
 
-    const [periodsResult, creditsResult] = await Promise.all([
-      client.utility.getUsagePeriods.query(),
-      client.utility.getCredits.query(),
-    ]);
-    const periods = periodsResult.output.periods;
+    const creditsResult = await client.utility.getCredits.query();
+    const periods = creditsResult.output.periods;
 
     expect(Array.isArray(periods)).toBe(true);
     for (const p of periods) {
