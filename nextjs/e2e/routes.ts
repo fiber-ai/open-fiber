@@ -62,9 +62,6 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/tools/social-media", label: "Social Media" },
   { path: "/tools/company-import", label: "Company Import" },
   { path: "/tools/url-repair", label: "URL Repair" },
-  // Not in sidebar nav (found during route inventory) but a real, reachable page —
-  // included in coverage regardless of nav visibility. See plan section 6.
-  { path: "/tools/sales-navigator", label: "Sales Navigator" },
 
   // Social
   { path: "/tools/twitter", label: "Twitter / X" },
