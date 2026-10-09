@@ -12,7 +12,6 @@ import { exportsRouter } from "./exports";
 import { journeymanRouter } from "./journeyman";
 import { twitterRouter } from "./twitter";
 import { youtubeRouter } from "./youtube";
-import { salesNavRouter } from "./sales-nav";
 import { redditRouter } from "./reddit";
 import { instagramRouter } from "./instagram";
 import { tiktokRouter } from "./tiktok";
@@ -40,7 +39,6 @@ export const appRouter = createTRPCRouter({
   journeyman: journeymanRouter,
   twitter: twitterRouter,
   youtube: youtubeRouter,
-  salesNav: salesNavRouter,
   reddit: redditRouter,
   instagram: instagramRouter,
   tiktok: tiktokRouter,
