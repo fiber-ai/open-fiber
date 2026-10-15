@@ -66,6 +66,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/tools/social-media", label: "Social Media" },
   { path: "/tools/company-import", label: "Company Import" },
   { path: "/tools/url-repair", label: "URL Repair" },
+  { path: "/tools/mosaic", label: "Mosaic" },
 
   // Social
   { path: "/tools/twitter", label: "Twitter / X" },

@@ -37,6 +37,7 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  Sparkles,
   ScanSearch,
   Contact,
   BedDouble,
@@ -130,6 +131,7 @@ const navGroups: NavGroup[] = [
       { label: "Social Media", href: "/tools/social-media", icon: Share2 },
       { label: "Company Import", href: "/tools/company-import", icon: Upload },
       { label: "URL Repair", href: "/tools/url-repair", icon: Link2 },
+      { label: "Mosaic", href: "/tools/mosaic", icon: Sparkles },
     ],
   },
   {

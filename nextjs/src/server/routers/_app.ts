@@ -6,6 +6,7 @@ import { linkedinRouter } from "./linkedin";
 import { audienceRouter } from "./audiences";
 import { savedSearchRouter } from "./saved-searches";
 import { toolsRouter } from "./tools";
+import { mosaicRouter } from "./mosaic";
 import { reverseLookupRouter } from "./reverse-lookup";
 import { googleMapsRouter } from "./google-maps";
 import { validationRouter } from "./validation";
@@ -39,6 +40,7 @@ export const appRouter = createTRPCRouter({
   audiences: audienceRouter,
   savedSearches: savedSearchRouter,
   tools: toolsRouter,
+  mosaic: mosaicRouter,
   reverseLookup: reverseLookupRouter,
   googleMaps: googleMapsRouter,
   validation: validationRouter,
