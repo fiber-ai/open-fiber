@@ -54,7 +54,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/tools/department-size", label: "Department Size" },
   { path: "/tools/talent-flow", label: "Talent Flow" },
   { path: "/tools/quick-resolve", label: "Quick Resolve" },
-  { path: "/tools/logos", label: "Company Logos" },
+  { path: "/tools/logos", label: "Logos & Photos" },
   { path: "/tools/screenshot", label: "Webpage Screenshot" },
   { path: "/tools/domain-lookup", label: "Domain Lookup" },
   { path: "/tools/reverse-lookup", label: "Reverse Lookup" },

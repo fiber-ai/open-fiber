@@ -1,8 +1,16 @@
 import { z } from "zod";
-import { bulkCompanyLogos, bulkProfilePic } from "@fiberai/sdk";
+import { bulkCompanyLogos, bulkProfilePic, companyLogo } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
 export const mediaRouter = createTRPCRouter({
+  /** Single logo; the API auto-detects LinkedIn URL / slug / org ID / domain. */
+  companyLogo: protectedProcedure
+    .input(z.object({ identifier: z.string().trim().min(1) }))
+    .output(z.object({ output: z.object({ logoUrl: z.string().nullable().optional() }).passthrough() }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => companyLogo({ body: { apiKey: ctx.apiKey, identifier: input.identifier } }));
+    }),
+
   companyLogos: protectedProcedure
     .input(z.object({
       type: z.enum(["domains", "linkedinUrls", "liOrgIds"]),

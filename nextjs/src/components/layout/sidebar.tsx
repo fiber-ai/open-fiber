@@ -120,7 +120,7 @@ const navGroups: NavGroup[] = [
       { label: "Department Size", href: "/tools/department-size", icon: PieChart },
       { label: "Talent Flow", href: "/tools/talent-flow", icon: ArrowRightLeft },
       { label: "Quick Resolve", href: "/tools/quick-resolve", icon: Fingerprint },
-      { label: "Company Logos", href: "/tools/logos", icon: Image },
+      { label: "Logos & Photos", href: "/tools/logos", icon: Image },
       { label: "Webpage Screenshot", href: "/tools/screenshot", icon: Camera },
       { label: "Domain Lookup", href: "/tools/domain-lookup", icon: Globe },
       { label: "Reverse Lookup", href: "/tools/reverse-lookup", icon: ScanSearch },
