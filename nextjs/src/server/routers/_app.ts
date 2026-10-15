@@ -25,6 +25,7 @@ import { trackerRouter } from "./tracker";
 import { financeRouter } from "./finance";
 import { apiKeysRouter } from "./api-keys";
 import { webhooksRouter } from "./webhooks";
+import { apiRequestsRouter } from "./api-requests";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -53,6 +54,7 @@ export const appRouter = createTRPCRouter({
   finance: financeRouter,
   apiKeys: apiKeysRouter,
   webhooks: webhooksRouter,
+  apiRequests: apiRequestsRouter,
 });
 
 export type AppRouter = typeof appRouter;
