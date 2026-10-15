@@ -37,6 +37,7 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  Webhook,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,7 @@ const navGroups: NavGroup[] = [
     label: "Account",
     items: [
       { label: "Usage & Credits", href: "/account", icon: CreditCard },
+      { label: "Webhooks", href: "/account/webhooks", icon: Webhook },
     ],
   },
 ];

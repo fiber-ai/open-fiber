@@ -76,6 +76,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Account
   { path: "/account", label: "Usage & Credits" },
+  { path: "/account/webhooks", label: "Webhooks" },
 ];
 
 export interface DynamicRouteDescriptor {
