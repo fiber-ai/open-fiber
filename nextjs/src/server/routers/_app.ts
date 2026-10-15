@@ -6,6 +6,7 @@ import { linkedinRouter } from "./linkedin";
 import { audienceRouter } from "./audiences";
 import { savedSearchRouter } from "./saved-searches";
 import { toolsRouter } from "./tools";
+import { reverseLookupRouter } from "./reverse-lookup";
 import { googleMapsRouter } from "./google-maps";
 import { validationRouter } from "./validation";
 import { exclusionListRouter } from "./exclusion-lists";
@@ -38,6 +39,7 @@ export const appRouter = createTRPCRouter({
   audiences: audienceRouter,
   savedSearches: savedSearchRouter,
   tools: toolsRouter,
+  reverseLookup: reverseLookupRouter,
   googleMaps: googleMapsRouter,
   validation: validationRouter,
   exclusionLists: exclusionListRouter,
