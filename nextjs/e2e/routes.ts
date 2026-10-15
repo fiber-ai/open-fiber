@@ -37,6 +37,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Market Intelligence
   { path: "/market/flights", label: "Flights" },
+  { path: "/market/hotels", label: "Hotels" },
   { path: "/market/real-estate", label: "Real Estate" },
   { path: "/market/finance", label: "Finance" },
 

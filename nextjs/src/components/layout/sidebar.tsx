@@ -37,6 +37,7 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  BedDouble,
   Webhook,
   History,
   Utensils,
@@ -92,6 +93,7 @@ const navGroups: NavGroup[] = [
     label: "Market Intelligence",
     items: [
       { label: "Flights", href: "/market/flights", icon: Plane },
+      { label: "Hotels", href: "/market/hotels", icon: BedDouble },
       { label: "Real Estate", href: "/market/real-estate", icon: Home },
       { label: "Finance", href: "/market/finance", icon: LineChart },
     ],

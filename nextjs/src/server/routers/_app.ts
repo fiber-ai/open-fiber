@@ -20,6 +20,7 @@ import { stealthRouter } from "./stealth";
 import { blueCollarRouter } from "./blue-collar";
 import { mediaRouter } from "./media";
 import { flightsRouter } from "./flights";
+import { hotelsRouter } from "./hotels";
 import { realEstateRouter } from "./real-estate";
 import { trackerRouter } from "./tracker";
 import { financeRouter } from "./finance";
@@ -50,6 +51,7 @@ export const appRouter = createTRPCRouter({
   blueCollar: blueCollarRouter,
   media: mediaRouter,
   flights: flightsRouter,
+  hotels: hotelsRouter,
   realEstate: realEstateRouter,
   tracker: trackerRouter,
   finance: financeRouter,
