@@ -39,6 +39,7 @@ import {
   LineChart,
   Webhook,
   History,
+  Utensils,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -106,6 +107,7 @@ const navGroups: NavGroup[] = [
     label: "Tools",
     items: [
       { label: "Google Maps", href: "/tools/google-maps", icon: MapPin },
+      { label: "Yelp", href: "/tools/yelp", icon: Utensils },
       { label: "Depth Chart", href: "/tools/depth-chart", icon: BarChart3 },
       { label: "Department Size", href: "/tools/department-size", icon: PieChart },
       { label: "Talent Flow", href: "/tools/talent-flow", icon: ArrowRightLeft },

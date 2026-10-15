@@ -26,6 +26,7 @@ import { financeRouter } from "./finance";
 import { apiKeysRouter } from "./api-keys";
 import { webhooksRouter } from "./webhooks";
 import { apiRequestsRouter } from "./api-requests";
+import { yelpRouter } from "./yelp";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -55,6 +56,7 @@ export const appRouter = createTRPCRouter({
   apiKeys: apiKeysRouter,
   webhooks: webhooksRouter,
   apiRequests: apiRequestsRouter,
+  yelp: yelpRouter,
 });
 
 export type AppRouter = typeof appRouter;

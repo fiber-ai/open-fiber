@@ -46,6 +46,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Tools
   { path: "/tools/google-maps", label: "Google Maps" },
+  { path: "/tools/yelp", label: "Yelp" },
   { path: "/tools/depth-chart", label: "Depth Chart" },
   { path: "/tools/department-size", label: "Department Size" },
   { path: "/tools/talent-flow", label: "Talent Flow" },
