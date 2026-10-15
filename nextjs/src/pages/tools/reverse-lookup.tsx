@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ScanSearch, Mail, Phone, Loader2, Search } from "lucide-react";
+import { ScanSearch, Mail, Phone, Loader2, Search, Hash } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -10,9 +10,10 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
 import { PersonProfileCard, CompanyProfileCard } from "@/components/shared/profile-cards";
+import { HemLookup } from "@/components/reverse-lookup/hem-lookup";
 
 type Row = Record<string, unknown>;
-type Tab = "email" | "phone";
+type Tab = "email" | "phone" | "hashed";
 
 function EmailLookup() {
   const [email, setEmail] = useState("");
@@ -67,11 +68,11 @@ export default function ReverseLookupPage() {
   const [tab, setTab] = useState<Tab>("email");
   return (
     <div className="flex h-full flex-col">
-      <Header icon={ScanSearch} title="Reverse Lookup" description="Turn an email or phone number into the person (or company) behind it">
-        <ToggleButtonGroup<Tab> value={tab} onChange={setTab} options={[{ value: "email", label: "Email", icon: Mail }, { value: "phone", label: "Phone", icon: Phone }]} />
+      <Header icon={ScanSearch} title="Reverse Lookup" description="Turn an email, phone number or hashed email into the person (or company) behind it">
+        <ToggleButtonGroup<Tab> value={tab} onChange={setTab} options={[{ value: "email", label: "Email", icon: Mail }, { value: "phone", label: "Phone", icon: Phone }, { value: "hashed", label: "Hashed email", icon: Hash }]} />
       </Header>
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-5xl">{tab === "email" ? <EmailLookup /> : <PhoneLookup />}</div>
+        <div className="mx-auto max-w-5xl">{tab === "email" ? <EmailLookup /> : tab === "phone" ? <PhoneLookup /> : <HemLookup />}</div>
       </div>
     </div>
   );
