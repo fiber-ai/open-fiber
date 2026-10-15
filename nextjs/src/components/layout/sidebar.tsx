@@ -37,6 +37,7 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  Trophy,
   Sparkles,
   ScanSearch,
   Contact,
@@ -100,6 +101,7 @@ const navGroups: NavGroup[] = [
       { label: "Hotels", href: "/market/hotels", icon: BedDouble },
       { label: "Real Estate", href: "/market/real-estate", icon: Home },
       { label: "Finance", href: "/market/finance", icon: LineChart },
+      { label: "Company Rankings", href: "/market/rankings", icon: Trophy },
     ],
   },
   {

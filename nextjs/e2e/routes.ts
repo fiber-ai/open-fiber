@@ -41,6 +41,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/market/hotels", label: "Hotels" },
   { path: "/market/real-estate", label: "Real Estate" },
   { path: "/market/finance", label: "Finance" },
+  { path: "/market/rankings", label: "Company Rankings" },
 
   // Trackers
   { path: "/trackers/companies", label: "Company Trackers" },
