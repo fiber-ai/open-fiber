@@ -37,6 +37,7 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  Contact,
   BedDouble,
   Webhook,
   History,
@@ -77,6 +78,7 @@ const navGroups: NavGroup[] = [
     label: "Enrichment",
     items: [
       { label: "Single Lookup", href: "/enrichment/single", icon: Mail },
+      { label: "Contact Reveal", href: "/enrichment/contact-reveal", icon: Contact },
       { label: "Batch Enrichment", href: "/enrichment/batch", icon: Users },
       { label: "LinkedIn Live", href: "/enrichment/linkedin-live", icon: Globe },
       { label: "Bulk Enrich", href: "/enrichment/bulk", icon: Users },

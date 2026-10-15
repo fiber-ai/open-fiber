@@ -4,6 +4,7 @@ import {
   syncQuickContactReveal, syncTurboContactEnrichment,
   startBatchContactDetails, pollBatchContactDetails,
   triggerExhaustiveContactEnrichment, pollExhaustiveContactEnrichmentResult,
+  instantContactReveal, liteContactReveal, basicWorkEmailReveal, premiumPhoneReveal,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 import { enrichmentTypeSchema, patienceSchema } from "@/lib/schemas/enrichment";
@@ -69,7 +70,51 @@ const batchPollResultSchema = z.object({
   }).passthrough(),
 }).passthrough();
 
+const passthrough = z.object({ output: z.record(z.unknown()) }).passthrough();
+
+/** Instant + lite accept either a LinkedIn identifier or a full name + company domain. */
+const personInput = z.discriminatedUnion("mode", [
+  z.object({ mode: z.literal("linkedin"), linkedinIdentifier: z.string().trim().min(1) }),
+  z.object({ mode: z.literal("name-domain"), fullName: z.string().trim().min(1), companyDomain: z.string().trim().min(3) }),
+]);
+
 export const enrichmentRouter = createTRPCRouter({
+  // --- Cheaper / specialised stacks (Contact Reveal page) ---
+
+  /** Instant: only what's already on file, no live discovery. SDK: instantContactReveal */
+  instantReveal: protectedProcedure
+    .input(z.object({ input: personInput, enrichmentType: enrichmentTypeSchema }))
+    .output(passthrough)
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => instantContactReveal({ body: { apiKey: ctx.apiKey, input: input.input, enrichmentType: input.enrichmentType } }));
+    }),
+
+  /** Lite: low-cost, lower-yield discovery. SDK: liteContactReveal */
+  liteReveal: protectedProcedure
+    .input(z.object({ input: personInput, enrichmentType: enrichmentTypeSchema, patience: patienceSchema }))
+    .output(passthrough)
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => liteContactReveal({ body: { apiKey: ctx.apiKey, input: input.input, enrichmentType: input.enrichmentType, patience: input.patience ?? null } }));
+    }),
+
+  /** Work email from name + company, no LinkedIn needed. SDK: basicWorkEmailReveal */
+  basicWorkEmail: protectedProcedure
+    .input(z.object({ fullName: z.string().trim().min(1), companyDomain: z.string().trim().min(3) }))
+    .output(passthrough)
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => basicWorkEmailReveal({
+        body: { apiKey: ctx.apiKey, name: { mode: "fullName", fullName: input.fullName }, company: { mode: "domain", domain: input.companyDomain } },
+      }));
+    }),
+
+  /** Phone numbers verified against caller ID. SDK: premiumPhoneReveal */
+  premiumPhone: protectedProcedure
+    .input(z.object({ linkedinUrl: z.string().trim().min(1), patience: patienceSchema }))
+    .output(passthrough)
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => premiumPhoneReveal({ body: { apiKey: ctx.apiKey, linkedinUrl: input.linkedinUrl, patience: input.patience ?? null } }));
+    }),
+
   // --- Reveal Variants ---
 
   /** Default (Standard) reveal. SDK: syncQuickContactReveal (POST /v1/contact-details/single) */

@@ -27,6 +27,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Enrichment
   { path: "/enrichment/single", label: "Single Lookup" },
+  { path: "/enrichment/contact-reveal", label: "Contact Reveal" },
   { path: "/enrichment/batch", label: "Batch Enrichment" },
   { path: "/enrichment/linkedin-live", label: "LinkedIn Live" },
   { path: "/enrichment/bulk", label: "Bulk Enrich" },
