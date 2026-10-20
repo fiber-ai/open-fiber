@@ -153,7 +153,7 @@ export default function MosaicPage() {
     <div className="flex h-full flex-col">
       <Header icon={Sparkles} title="Mosaic" description="Heal and enrich a messy spreadsheet of people: fix LinkedIn URLs, fill gaps, add contacts" />
       <div className="flex min-h-0 flex-1">
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r p-3 lg:block">
+        <div className="hidden w-64 shrink-0 overflow-y-auto border-r p-3 lg:block">
           <p className="mb-2 flex items-center gap-1.5 px-1 text-xs font-medium uppercase tracking-wider text-muted-foreground"><History className="h-3 w-3" />Runs</p>
           <button type="button" onClick={() => setActive(null)} className={cn("mb-1 w-full rounded-md px-2 py-1.5 text-left text-sm", active === null ? "bg-accent font-medium" : "hover:bg-muted")}>+ New run</button>
           {runs.map((r) => (
@@ -165,7 +165,7 @@ export default function MosaicPage() {
               <button type="button" onClick={() => removeRun(r.runId)} className="mr-1 hidden rounded p-1 text-muted-foreground hover:text-destructive group-hover:block" aria-label="Forget run"><Trash2 className="h-3 w-3" /></button>
             </div>
           ))}
-        </aside>
+        </div>
         <div className="flex-1 overflow-y-auto p-6">
           <div className="mx-auto max-w-4xl space-y-6">
             {active ? <RunView key={active} runId={active} /> : (
