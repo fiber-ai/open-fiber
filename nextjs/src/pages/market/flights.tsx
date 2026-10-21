@@ -232,8 +232,8 @@ function SearchTab() {
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
           <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">From</Label><Input placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
           <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">To</Label><Input placeholder="JFK" value={to} onChange={(e) => setTo(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Depart</Label><Input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-40" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Return (optional)</Label><Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-40" /></div>
+          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Depart</Label><Input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-36" /></div>
+          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Return</Label><Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-36" /></div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Class</Label>
             <select value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-background px-2 text-sm">
@@ -348,7 +348,7 @@ function DealsTab() {
               <Card key={i} className="overflow-hidden">
                 <div className="relative h-36 bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  {d.destination.thumbnailUrl && <img src={d.destination.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" />}
+                  {d.destination.thumbnailUrl ? <img src={d.destination.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center"><Plane className="h-8 w-8 text-muted-foreground/50" /></div>}
                   {pct != null && pct > 0 && <Badge className="absolute left-2 top-2 bg-emerald-600 hover:bg-emerald-600"><TrendingDown className="mr-1 h-3 w-3" />{pct}% below typical</Badge>}
                 </div>
                 <CardHeader className="pb-1 pt-3">

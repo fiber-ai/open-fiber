@@ -159,7 +159,7 @@ export default function TalentFlowPage() {
                 {mode === "flow" ? (
                   <div className="flex flex-col gap-1.5">
                     <Label className="text-xs font-medium">Direction</Label>
-                    <ToggleButtonGroup options={[{ value: "joiners", label: "Joiners" }, { value: "leavers", label: "Leavers" }]} value={direction} onChange={(v) => setDirection(v as "joiners" | "leavers")} />
+                    <ToggleButtonGroup className="h-10" options={[{ value: "joiners", label: "Joiners" }, { value: "leavers", label: "Leavers" }]} value={direction} onChange={(v) => setDirection(v as "joiners" | "leavers")} />
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1.5">

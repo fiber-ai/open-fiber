@@ -96,7 +96,7 @@ function AddRuleDialog({ open, onOpenChange, entityType, rules, onAdd, adding }:
           {picked ? (
             <div className="space-y-3">
               <div>
-                <p className="flex items-center gap-2 font-medium">{picked.readableName}{picked.isPremium && <Badge variant="outline" className="border-amber-500/50 text-[10px] text-amber-600"><Crown className="mr-1 h-3 w-3" />Premium</Badge>}</p>
+                <div className="flex items-center gap-2 font-medium">{picked.readableName}{picked.isPremium && <Badge variant="outline" className="border-amber-500/50 text-[10px] text-amber-600"><Crown className="mr-1 h-3 w-3" />Premium</Badge>}</div>
                 <p className="text-sm text-muted-foreground">{picked.description}</p>
                 <p className="mt-1 text-xs text-muted-foreground"><span className="font-medium text-foreground">Use it for:</span> {picked.useCase}</p>
                 {picked.isPremium && <p className="mt-1 text-xs text-amber-600">Premium rules watch news and LinkedIn activity too. A list with any premium rule bills a minimum per entity per refresh.</p>}
@@ -167,11 +167,11 @@ export function RulesPanel({ entityType, listId, rules: current, onChanged }: { 
           return (
             <div key={id} className="flex items-start gap-2 rounded-md border px-3 py-2">
               <div className="min-w-0 flex-1">
-                <p className="flex flex-wrap items-center gap-1.5 text-sm font-medium">
+                <div className="flex flex-wrap items-center gap-1.5 text-sm font-medium">
                   {nameOf(r.type as string)}
                   {premium(r.type as string) && <Crown className="h-3 w-3 text-amber-500" />}
                   {dummy && <Badge variant="outline" className="h-4 px-1 text-[10px]"><FlaskConical className="mr-0.5 h-2.5 w-2.5" />test</Badge>}
-                </p>
+                </div>
                 <p className="truncate text-xs text-muted-foreground">{configSummary(r) || "default settings"}</p>
               </div>
               <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" disabled={update.isPending} title={dummy ? "Make this a real rule" : "Turn into a test-only rule that fires on demand"}
@@ -179,7 +179,7 @@ export function RulesPanel({ entityType, listId, rules: current, onChanged }: { 
                 {dummy ? "Make live" : "Make test"}
               </Button>
               <ConfirmDialog
-                trigger={<Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></Button>}
+                trigger={<Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" aria-label="Remove rule"><Trash2 className="h-3.5 w-3.5" /></Button>}
                 title="Remove this rule?"
                 description={`${nameOf(r.type as string)} will stop producing signals for this list.`}
                 confirmLabel="Remove"

@@ -225,8 +225,8 @@ export default function YelpPage() {
 
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (location.trim().length >= 2) run(false).catch(() => {}); }}>
-          <div className="space-y-1.5"><Label className="text-xs font-medium">Location</Label><Input placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
-          <div className="space-y-1.5"><Label className="text-xs font-medium">Categories (comma-separated)</Label><Input placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
+          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Location</Label><Input placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
+          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Categories (comma-separated)</Label><Input placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Sort</Label>
             <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-background px-2 text-sm">

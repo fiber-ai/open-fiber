@@ -195,12 +195,13 @@ export default function ApiRequestsPage() {
           <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Time range</Label>
             <ToggleButtonGroup<Range>
+              className="h-10"
               value={range}
               onChange={setRange}
               options={[{ value: "1h", label: "1h" }, { value: "24h", label: "24h" }, { value: "7d", label: "7d" }, { value: "14d", label: "14d" }]}
             />
           </div>
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Route</Label>
             <Input placeholder="/v1/people-search" value={routePath} onChange={(e) => setRoutePath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-56 font-mono text-xs" />
           </div>
@@ -211,11 +212,11 @@ export default function ApiRequestsPage() {
               {["GET", "POST", "PUT", "PATCH", "DELETE"].map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Status</Label>
             <Input placeholder="429" inputMode="numeric" value={statusCode} onChange={(e) => setStatusCode(e.target.value.replace(/\D/g, "").slice(0, 3))} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-20" />
           </div>
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label className="text-xs font-medium">Error code</Label>
             <Input placeholder="INSUFFICIENT_CREDITS" value={errorCode} onChange={(e) => setErrorCode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-52 font-mono text-xs" />
           </div>

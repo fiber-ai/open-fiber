@@ -23,7 +23,7 @@ export function PersonProfileCard({ p }: { p: Row }) {
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-2 font-semibold">
               {str(p.name) ?? [p.first_name, p.last_name].filter(Boolean).join(" ")}
-              {url && <a href={url} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground"><ExternalLink className="h-3.5 w-3.5" /></a>}
+              {url && <a href={url} target="_blank" rel="noreferrer" aria-label="Open LinkedIn profile" className="text-muted-foreground hover:text-foreground"><ExternalLink className="h-3.5 w-3.5" /></a>}
             </p>
             {str(p.headline) && <p className="text-sm text-muted-foreground">{str(p.headline)}</p>}
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
@@ -78,7 +78,7 @@ export function CompanyProfileCard({ c }: { c: Row }) {
           <div className="min-w-0 flex-1">
             <p className="flex items-center gap-2 font-semibold">
               {str(c.name)}
-              {str(c.linkedin_url) && <a href={str(c.linkedin_url)!} target="_blank" rel="noreferrer" className="text-muted-foreground hover:text-foreground"><ExternalLink className="h-3.5 w-3.5" /></a>}
+              {str(c.linkedin_url) && <a href={str(c.linkedin_url)!} target="_blank" rel="noreferrer" aria-label="Open LinkedIn company page" className="text-muted-foreground hover:text-foreground"><ExternalLink className="h-3.5 w-3.5" /></a>}
             </p>
             {str(c.headline) && <p className="text-sm text-muted-foreground">{str(c.headline)}</p>}
             <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-muted-foreground">

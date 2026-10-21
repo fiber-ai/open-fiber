@@ -422,7 +422,7 @@ export default function TikTokPage() {
                 {((songs.data.output.songs ?? []) as Row[]).map((s, i) => {
                   const u = songUrlOf(s);
                   return (
-                    <button key={str(s, "id") ?? i} type="button" disabled={!u} onClick={() => u && goSong(u)} className="flex w-full items-center gap-2 rounded-md p-1.5 text-left hover:bg-muted">
+                    <button key={`${str(s, "id") ?? ""}-${i}`} type="button" disabled={!u} onClick={() => u && goSong(u)} className="flex w-full items-center gap-2 rounded-md p-1.5 text-left hover:bg-muted">
                       <span className="w-5 text-right text-xs tabular-nums text-muted-foreground">{i + 1}</span>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       {str(s, "coverImageUrl") ? <img src={str(s, "coverImageUrl")} alt="" className="h-9 w-9 rounded object-cover" /> : <div className="flex h-9 w-9 items-center justify-center rounded bg-muted"><Disc3 className="h-4 w-4 text-muted-foreground" /></div>}

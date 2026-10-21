@@ -26,7 +26,7 @@ function EmailLookup() {
         <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Email address</Label><Input type="email" placeholder="jane@acme.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-80" /></div>
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Depth</Label>
-          <ToggleButtonGroup<"std" | "lite"> value={lite ? "lite" : "std"} onChange={(v) => setLite(v === "lite")} options={[{ value: "std", label: "Standard · 2 cr" }, { value: "lite", label: "Lite · 1 cr" }]} />
+          <ToggleButtonGroup<"std" | "lite"> className="h-10" value={lite ? "lite" : "std"} onChange={(v) => setLite(v === "lite")} options={[{ value: "std", label: "Standard · 2 cr" }, { value: "lite", label: "Lite · 1 cr" }]} />
         </div>
         <Button type="submit" disabled={m.isPending || !email.trim()}>{m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Find person</Button>
       </form>

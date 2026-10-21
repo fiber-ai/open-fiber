@@ -197,11 +197,11 @@ function GoogleDetail({ token, stay }: { token: string; stay: { checkInDate: str
             {offers.slice(0, 8).map((o, i) => (
               <a key={i} href={o.url ?? undefined} target="_blank" rel="noreferrer" className={cn("flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm hover:bg-muted/50", o.nightly === cheapest && "border-emerald-500/60 bg-emerald-500/5")}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                {o.logoUrl ? <img src={o.logoUrl} alt="" className="h-5 w-5 rounded object-contain" /> : <span className="h-5 w-5" />}
-                <span className="flex-1 truncate">{o.sourceName}</span>
-                {o.isOfficial === true && <Badge variant="outline" className="text-[10px]">Official</Badge>}
-                {o.nightly === cheapest && <Badge className="bg-emerald-600 text-[10px] hover:bg-emerald-600">Lowest</Badge>}
-                <span className="font-medium tabular-nums">{money(o.nightly, o.cur)}</span>
+                {o.logoUrl ? <img src={o.logoUrl} alt="" className="h-5 w-5 shrink-0 rounded object-contain" /> : <span className="h-5 w-5 shrink-0" />}
+                <span className="min-w-0 flex-1 break-words leading-tight">{o.sourceName}</span>
+                {o.isOfficial === true && <Badge variant="outline" className="shrink-0 text-[10px]">Official</Badge>}
+                {o.nightly === cheapest && <Badge className="shrink-0 bg-emerald-600 text-[10px] hover:bg-emerald-600">Lowest</Badge>}
+                <span className="shrink-0 font-medium tabular-nums">{money(o.nightly, o.cur)}</span>
               </a>
             ))}
             {range?.lowerBound != null && range.upperBound != null && nightly != null && (
