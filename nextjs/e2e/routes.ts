@@ -27,6 +27,8 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Enrichment
   { path: "/enrichment/single", label: "Single Lookup" },
+  { path: "/enrichment/contact-reveal", label: "Contact Reveal" },
+  { path: "/enrichment/kitchen-sink", label: "Kitchen Sink" },
   { path: "/enrichment/batch", label: "Batch Enrichment" },
   { path: "/enrichment/linkedin-live", label: "LinkedIn Live" },
   { path: "/enrichment/bulk", label: "Bulk Enrich" },
@@ -37,8 +39,10 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Market Intelligence
   { path: "/market/flights", label: "Flights" },
+  { path: "/market/hotels", label: "Hotels" },
   { path: "/market/real-estate", label: "Real Estate" },
   { path: "/market/finance", label: "Finance" },
+  { path: "/market/rankings", label: "Company Rankings" },
 
   // Trackers
   { path: "/trackers/companies", label: "Company Trackers" },
@@ -46,13 +50,15 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Tools
   { path: "/tools/google-maps", label: "Google Maps" },
+  { path: "/tools/yelp", label: "Yelp" },
   { path: "/tools/depth-chart", label: "Depth Chart" },
   { path: "/tools/department-size", label: "Department Size" },
   { path: "/tools/talent-flow", label: "Talent Flow" },
   { path: "/tools/quick-resolve", label: "Quick Resolve" },
-  { path: "/tools/logos", label: "Company Logos" },
+  { path: "/tools/logos", label: "Logos & Photos" },
   { path: "/tools/screenshot", label: "Webpage Screenshot" },
   { path: "/tools/domain-lookup", label: "Domain Lookup" },
+  { path: "/tools/reverse-lookup", label: "Reverse Lookup" },
   { path: "/tools/email-validation", label: "Email Validation" },
   { path: "/tools/phone-validation", label: "Phone Validation" },
   { path: "/tools/github-lookups", label: "GitHub Lookups" },
@@ -62,6 +68,7 @@ export const STATIC_ROUTES: StaticRoute[] = [
   { path: "/tools/social-media", label: "Social Media" },
   { path: "/tools/company-import", label: "Company Import" },
   { path: "/tools/url-repair", label: "URL Repair" },
+  { path: "/tools/mosaic", label: "Mosaic" },
 
   // Social
   { path: "/tools/twitter", label: "Twitter / X" },
@@ -76,6 +83,8 @@ export const STATIC_ROUTES: StaticRoute[] = [
 
   // Account
   { path: "/account", label: "Usage & Credits" },
+  { path: "/account/webhooks", label: "Webhooks" },
+  { path: "/account/api-requests", label: "API Request Log" },
 ];
 
 export interface DynamicRouteDescriptor {

@@ -20,6 +20,7 @@ import {
   quickCompanyResolve,
   getDepartmentSize,
   getTalentFlow,
+  getTalentFlowRivals,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
@@ -430,6 +431,27 @@ export const toolsRouter = createTRPCRouter({
     }),
 
   // --- Talent Flow (where joiners come from / leavers go) ---
+  /** Two-way head-to-head: who a company gains talent from and loses it to. Can take a few minutes. */
+  getTalentFlowRivals: protectedProcedure
+    .input(z.object({
+      identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"]),
+      value: z.string().min(1),
+      after: z.string().nullable().optional(),
+      before: z.string().nullable().optional(),
+      numCompaniesPerSide: z.number().int().min(1).max(50).default(10),
+    }))
+    .output(z.object({ output: z.record(z.unknown()) }).passthrough())
+    .mutation(async ({ ctx, input }) => {
+      return callFiber(() => getTalentFlowRivals({
+        body: {
+          apiKey: ctx.apiKey,
+          company: { identifier: input.identifier, value: input.value },
+          dateRange: { lowerBound: input.after ?? null, upperBound: input.before ?? null },
+          numCompaniesPerSide: input.numCompaniesPerSide,
+        },
+      }));
+    }),
+
   getTalentFlow: protectedProcedure
     .input(z.object({
       identifier: z.enum(["linkedinUrl", "linkedinSlug", "linkedinOrgId", "domain"]),

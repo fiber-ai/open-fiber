@@ -37,6 +37,15 @@ import {
   PieChart,
   ArrowRightLeft,
   LineChart,
+  CookingPot,
+  Trophy,
+  Sparkles,
+  ScanSearch,
+  Contact,
+  BedDouble,
+  Webhook,
+  History,
+  Utensils,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -73,6 +82,8 @@ const navGroups: NavGroup[] = [
     label: "Enrichment",
     items: [
       { label: "Single Lookup", href: "/enrichment/single", icon: Mail },
+      { label: "Contact Reveal", href: "/enrichment/contact-reveal", icon: Contact },
+      { label: "Kitchen Sink", href: "/enrichment/kitchen-sink", icon: CookingPot },
       { label: "Batch Enrichment", href: "/enrichment/batch", icon: Users },
       { label: "LinkedIn Live", href: "/enrichment/linkedin-live", icon: Globe },
       { label: "Bulk Enrich", href: "/enrichment/bulk", icon: Users },
@@ -89,8 +100,10 @@ const navGroups: NavGroup[] = [
     label: "Market Intelligence",
     items: [
       { label: "Flights", href: "/market/flights", icon: Plane },
+      { label: "Hotels", href: "/market/hotels", icon: BedDouble },
       { label: "Real Estate", href: "/market/real-estate", icon: Home },
       { label: "Finance", href: "/market/finance", icon: LineChart },
+      { label: "Company Rankings", href: "/market/rankings", icon: Trophy },
     ],
   },
   {
@@ -104,13 +117,15 @@ const navGroups: NavGroup[] = [
     label: "Tools",
     items: [
       { label: "Google Maps", href: "/tools/google-maps", icon: MapPin },
+      { label: "Yelp", href: "/tools/yelp", icon: Utensils },
       { label: "Depth Chart", href: "/tools/depth-chart", icon: BarChart3 },
       { label: "Department Size", href: "/tools/department-size", icon: PieChart },
       { label: "Talent Flow", href: "/tools/talent-flow", icon: ArrowRightLeft },
       { label: "Quick Resolve", href: "/tools/quick-resolve", icon: Fingerprint },
-      { label: "Company Logos", href: "/tools/logos", icon: Image },
+      { label: "Logos & Photos", href: "/tools/logos", icon: Image },
       { label: "Webpage Screenshot", href: "/tools/screenshot", icon: Camera },
       { label: "Domain Lookup", href: "/tools/domain-lookup", icon: Globe },
+      { label: "Reverse Lookup", href: "/tools/reverse-lookup", icon: ScanSearch },
       { label: "Email Validation", href: "/tools/email-validation", icon: ShieldCheck },
       { label: "Phone Validation", href: "/tools/phone-validation", icon: ShieldCheck },
       { label: "GitHub Lookups", href: "/tools/github-lookups", icon: GitBranch },
@@ -120,6 +135,7 @@ const navGroups: NavGroup[] = [
       { label: "Social Media", href: "/tools/social-media", icon: Share2 },
       { label: "Company Import", href: "/tools/company-import", icon: Upload },
       { label: "URL Repair", href: "/tools/url-repair", icon: Link2 },
+      { label: "Mosaic", href: "/tools/mosaic", icon: Sparkles },
     ],
   },
   {
@@ -143,6 +159,8 @@ const navGroups: NavGroup[] = [
     label: "Account",
     items: [
       { label: "Usage & Credits", href: "/account", icon: CreditCard },
+      { label: "Webhooks", href: "/account/webhooks", icon: Webhook },
+      { label: "API Request Log", href: "/account/api-requests", icon: History },
     ],
   },
 ];

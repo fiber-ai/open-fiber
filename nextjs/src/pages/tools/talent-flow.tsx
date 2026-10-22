@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { ArrowRightLeft, Loader2 } from "lucide-react";
+import { ArrowRightLeft, Loader2, Swords, Waypoints } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
+import { Markdown } from "@/components/shared/markdown";
+import { FlowDiagram, BoxPlot, RivalsButterfly } from "@/components/talent-flow/charts";
 
 type Row = Record<string, unknown>;
 type Identifier = "linkedinUrl" | "linkedinSlug" | "linkedinOrgId" | "domain";
+type Mode = "flow" | "rivals";
 
 function detectIdentifier(v: string): Identifier {
   if (v.includes("linkedin.com")) return "linkedinUrl";
@@ -26,23 +28,19 @@ function BreakdownCard({ title, rows, labelKeys }: { title: string; rows: Row[];
   const max = Math.max(1, ...rows.map((r) => (typeof r.count === "number" ? r.count : 0)));
   return (
     <Card>
-      <CardHeader><CardTitle className="text-base">{title}</CardTitle></CardHeader>
+      <CardHeader className="pb-2"><CardTitle className="text-sm">{title}</CardTitle></CardHeader>
       <CardContent className="space-y-2">
-        {rows.slice(0, 10).map((r, i) => {
+        {rows.slice(0, 8).map((r, i) => {
           const count = typeof r.count === "number" ? r.count : 0;
           const percent = typeof r.percent === "number" ? r.percent : 0;
-          const label = [...labelKeys, "label", "name"]
-            .map((k) => (typeof r[k] === "string" ? (r[k] as string) : undefined))
-            .find(Boolean) ?? "—";
+          const label = [...labelKeys, "label", "name"].map((k) => (typeof r[k] === "string" ? (r[k] as string) : undefined)).find(Boolean) ?? "—";
           return (
             <div key={i} className="space-y-1">
               <div className="flex justify-between text-xs">
                 <span className="font-medium">{label}</span>
-                <span className="text-muted-foreground tabular-nums">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
+                <span className="tabular-nums text-muted-foreground">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
               </div>
-              <div className="h-1.5 w-full rounded-full bg-muted">
-                <div className="h-1.5 rounded-full bg-primary" style={{ width: `${(count / max) * 100}%` }} />
-              </div>
+              <div className="h-1.5 w-full rounded-full bg-muted"><div className="h-1.5 rounded-full bg-primary" style={{ width: `${(count / max) * 100}%` }} /></div>
             </div>
           );
         })}
@@ -51,163 +49,147 @@ function BreakdownCard({ title, rows, labelKeys }: { title: string; rows: Row[];
   );
 }
 
+function SummaryCard({ md }: { md?: unknown }) {
+  if (typeof md !== "string" || !md.trim()) return null;
+  return (
+    <Card>
+      <CardHeader className="pb-2"><CardTitle className="text-sm">Summary</CardTitle></CardHeader>
+      <CardContent><Markdown>{md}</Markdown></CardContent>
+    </Card>
+  );
+}
+
+function FlowResults({ out, direction, fallbackName }: { out: Row; direction: "joiners" | "leavers"; fallbackName: string }) {
+  const company = out.company as Row | undefined;
+  const name = (company?.name as string) ?? fallbackName;
+  const buckets = (out.companyBuckets ?? []) as Row[];
+  const b = (out.breakdowns ?? {}) as Row;
+  const peopleCount = typeof out.peopleCount === "number" ? out.peopleCount : 0;
+  const win = out.window as { after?: string | null; before?: string | null } | undefined;
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader className="pb-1">
+          <CardTitle className="text-sm">
+            {peopleCount.toLocaleString()} people {direction === "joiners" ? `joined ${name}` : `left ${name}`}
+            {(win?.after || win?.before) && <span className="font-normal text-muted-foreground"> · {win?.after ?? "…"} → {win?.before ?? "now"}</span>}
+          </CardTitle>
+          <p className="text-xs text-muted-foreground">{direction === "joiners" ? "Where they came from" : "Where they went"}. Hover a company to trace its flow.</p>
+        </CardHeader>
+        <CardContent><FlowDiagram companyName={name} buckets={buckets} direction={direction} total={peopleCount} /></CardContent>
+      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card><CardContent className="pt-5"><BoxPlot label="Years of experience" d={out.yearsOfExperience as never} unit="yrs" /></CardContent></Card>
+        <Card><CardContent className="pt-5"><BoxPlot label={direction === "joiners" ? "Tenure at previous company" : `Tenure at ${name}`} d={out.tenureMonths as never} unit="mo" fmt={(v) => Math.round(v).toString()} /></CardContent></Card>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <BreakdownCard title="By seniority" rows={(b.bySeniority ?? []) as Row[]} labelKeys={["seniority"]} />
+        <BreakdownCard title="By job function" rows={(b.byJobFunction ?? []) as Row[]} labelKeys={["jobFunction"]} />
+        <BreakdownCard title="By experience" rows={(b.byYearsOfExperience ?? []) as Row[]} labelKeys={["label"]} />
+        <BreakdownCard title="By metro" rows={(b.byMetro ?? []) as Row[]} labelKeys={["name"]} />
+        <BreakdownCard title="By country" rows={(b.byCountry ?? []) as Row[]} labelKeys={["countryName"]} />
+        <BreakdownCard title="By school" rows={(b.bySchool ?? []) as Row[]} labelKeys={["school"]} />
+      </div>
+      <SummaryCard md={out.markdownSummary} />
+    </div>
+  );
+}
+
+function RivalsResults({ out, fallbackName }: { out: Row; fallbackName: string }) {
+  const name = ((out.company as Row | undefined)?.name as string) ?? fallbackName;
+  const joiners = (out.joinersCount as number) ?? 0, leavers = (out.leaversCount as number) ?? 0;
+  const net = joiners - leavers;
+  const rivals = [...((out.rivals ?? []) as Row[])].sort((a, b) => ((b.totalMovesCount as number) ?? 0) - ((a.totalMovesCount as number) ?? 0));
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-3">
+        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Joined {name}</p><p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{joiners.toLocaleString()}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Left {name}</p><p className="text-2xl font-semibold tabular-nums text-red-600 dark:text-red-400">{leavers.toLocaleString()}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Net talent</p><p className="text-2xl font-semibold tabular-nums">{net > 0 ? "+" : ""}{net.toLocaleString()}</p></CardContent></Card>
+      </div>
+      {rivals.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2"><CardTitle className="text-sm">Head-to-head with talent rivals</CardTitle></CardHeader>
+          <CardContent><RivalsButterfly rivals={rivals} /></CardContent>
+        </Card>
+      )}
+      <SummaryCard md={out.markdownSummary} />
+    </div>
+  );
+}
+
 export default function TalentFlowPage() {
+  const [mode, setMode] = useState<Mode>("flow");
   const [company, setCompany] = useState("");
   const [direction, setDirection] = useState<"joiners" | "leavers">("joiners");
   const [after, setAfter] = useState("");
   const [before, setBefore] = useState("");
+  const [perSide, setPerSide] = useState(10);
 
-  const mutation = trpc.tools.getTalentFlow.useMutation();
+  const flow = trpc.tools.getTalentFlow.useMutation();
+  const rivals = trpc.tools.getTalentFlowRivals.useMutation();
+  const active = mode === "flow" ? flow : rivals;
 
   const handleSubmit = () => {
     const v = company.trim();
     if (!v) return;
-    mutation.mutate({
-      identifier: detectIdentifier(v),
-      value: v,
-      direction,
-      after: after || null,
-      before: before || null,
-    });
+    const base = { identifier: detectIdentifier(v), value: v, after: after || null, before: before || null };
+    if (mode === "flow") flow.mutate({ ...base, direction });
+    else rivals.mutate({ ...base, numCompaniesPerSide: perSide });
   };
 
-  const out = mutation.data?.output as Row | undefined;
-  const companyInfo = out?.company as Row | undefined;
-  const buckets = (out?.companyBuckets ?? []) as Row[];
-  const breakdowns = (out?.breakdowns ?? {}) as Row;
-  const peopleCount = typeof out?.peopleCount === "number" ? (out.peopleCount as number) : null;
-  // Headings must describe the run that produced the data, not the live toggle —
-  // otherwise flipping Direction retitles joiner results as leavers without a re-run.
-  const resultDirection = mutation.variables?.direction ?? direction;
+  // Headings describe the run that produced the data, not the live toggle.
+  const resultDirection = flow.variables?.direction ?? direction;
 
   return (
     <div className="flex h-full flex-col">
-      <Header icon={ArrowRightLeft} title="Talent Flow" description="See where a company's joiners come from — or where its leavers go" />
+      <Header icon={ArrowRightLeft} title="Talent Flow" description="Where a company hires from, where its people go, and who it trades talent with">
+        <ToggleButtonGroup<Mode> value={mode} onChange={setMode} options={[{ value: "flow", label: "Joiners / leavers", icon: Waypoints }, { value: "rivals", label: "Rivals", icon: Swords }]} />
+      </Header>
 
       <div className="flex-1 overflow-y-auto p-6">
-        <div className="mx-auto max-w-3xl space-y-6">
+        <div className="mx-auto max-w-5xl space-y-6">
           <Card>
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-2">
-                <Label>Company</Label>
-                <Input
-                  placeholder="e.g. stripe.com, LinkedIn company URL, slug, or org ID"
-                  value={company}
-                  onChange={(e) => setCompany(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-                />
-              </div>
+            <CardContent className="space-y-4 pt-6">
               <div className="flex flex-wrap items-end gap-3">
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Direction</Label>
-                  <div>
-                    <ToggleButtonGroup
-                      options={[
-                        { value: "joiners", label: "Joiners" },
-                        { value: "leavers", label: "Leavers" },
-                      ]}
-                      value={direction}
-                      onChange={(v) => setDirection(v as "joiners" | "leavers")}
-                    />
+                <div className="flex min-w-[18rem] flex-1 flex-col gap-1.5">
+                  <Label className="text-xs font-medium">Company</Label>
+                  <Input placeholder="stripe.com, LinkedIn company URL, slug, or org ID" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} />
+                </div>
+                {mode === "flow" ? (
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium">Direction</Label>
+                    <ToggleButtonGroup className="h-10" options={[{ value: "joiners", label: "Joiners" }, { value: "leavers", label: "Leavers" }]} value={direction} onChange={(v) => setDirection(v as "joiners" | "leavers")} />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {direction === "joiners" ? "Where new hires come from" : "Where departures go"}
-                  </p>
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">After (optional)</Label>
-                  <Input type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" />
-                </div>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Before (optional)</Label>
-                  <Input type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" />
-                </div>
+                ) : (
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium">Rivals per side</Label>
+                    <Input type="number" min={1} max={50} value={perSide} onChange={(e) => setPerSide(Math.min(50, Math.max(1, Number(e.target.value) || 10)))} className="w-24" />
+                  </div>
+                )}
+                <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">After (optional)</Label><Input type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" /></div>
+                <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Before (optional)</Label><Input type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" /></div>
+                <Button onClick={handleSubmit} disabled={!company.trim() || active.isPending}>
+                  {active.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}Analyze · 5 cr
+                </Button>
               </div>
-              <Button onClick={handleSubmit} disabled={!company.trim() || mutation.isPending}>
-                {mutation.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}
-                Analyze
-              </Button>
-              {mutation.isPending && (
-                <p className="text-xs text-muted-foreground">Analyzing employment transitions — this can take a minute...</p>
+              {active.isPending && (
+                <p className="text-xs text-muted-foreground">
+                  Analyzing up to 10,000 career moves{mode === "rivals" ? " in both directions. Big companies can take up to four minutes." : ". Big companies can take up to two minutes."}
+                </p>
               )}
             </CardContent>
           </Card>
 
-          {mutation.isError && <ErrorDisplay message={mutation.error.message} />}
-
-          {out && (
-            <div className="space-y-4">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="text-sm text-muted-foreground">
-                    {resultDirection === "joiners" ? "Joined" : "Left"} {(companyInfo?.name as string) ?? company}
-                  </p>
-                  {peopleCount != null && (
-                    <p className="text-3xl font-semibold">
-                      {peopleCount.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">people</span>
-                    </p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {buckets.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">
-                      {resultDirection === "joiners" ? "Top source companies" : "Top destination companies"}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {buckets.slice(0, 15).map((b, i) => {
-                      const count = typeof b.count === "number" ? (b.count as number) : 0;
-                      const percent = typeof b.percent === "number" ? (b.percent as number) : 0;
-                      const max = Math.max(1, ...buckets.map((x) => (typeof x.count === "number" ? (x.count as number) : 0)));
-                      return (
-                        <div key={i} className="space-y-1">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="flex items-center gap-2 font-medium">
-                              <span className="w-5 shrink-0 text-right text-muted-foreground tabular-nums">{i + 1}.</span>
-                              {b.linkedinUrl ? (
-                                <a href={b.linkedinUrl as string} target="_blank" rel="noopener noreferrer" className="hover:underline">
-                                  {b.companyName as string}
-                                </a>
-                              ) : (
-                                (b.companyName as string)
-                              )}
-                              {(b.stage as string) && <Badge variant="outline" className="text-[10px]">{b.stage as string}</Badge>}
-                            </span>
-                            <span className="text-muted-foreground tabular-nums">{count.toLocaleString()} ({percent.toFixed(1)}%)</span>
-                          </div>
-                          <div className="ml-7 h-1.5 rounded-full bg-muted">
-                            <div className="h-1.5 rounded-full bg-primary" style={{ width: `${(count / max) * 100}%` }} />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </CardContent>
-                </Card>
-              )}
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <BreakdownCard title="By seniority" rows={(breakdowns.bySeniority ?? []) as Row[]} labelKeys={["seniority"]} />
-                <BreakdownCard title="By job function" rows={(breakdowns.byJobFunction ?? []) as Row[]} labelKeys={["jobFunction"]} />
-                <BreakdownCard title="By country" rows={(breakdowns.byCountry ?? []) as Row[]} labelKeys={["countryName"]} />
-                <BreakdownCard title="By school" rows={(breakdowns.bySchool ?? []) as Row[]} labelKeys={["school"]} />
-              </div>
-
-              {(out.markdownSummary as string) && (
-                <Card>
-                  <CardHeader><CardTitle className="text-base">Summary</CardTitle></CardHeader>
-                  <CardContent>
-                    <p className="text-sm whitespace-pre-wrap">{out.markdownSummary as string}</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          )}
-
-          {!mutation.data && !mutation.isPending && !mutation.isError && (
-            <EmptyState icon={ArrowRightLeft} title="Track talent movement" description="Enter a company to analyze where its talent comes from and goes." />
+          {active.isError && <ErrorDisplay message={active.error.message} />}
+          {mode === "flow" && flow.data && <FlowResults out={flow.data.output as Row} direction={resultDirection} fallbackName={company} />}
+          {mode === "rivals" && rivals.data && <RivalsResults out={rivals.data.output as Row} fallbackName={company} />}
+          {!active.data && !active.isPending && !active.isError && (
+            <EmptyState
+              icon={mode === "flow" ? ArrowRightLeft : Swords}
+              title={mode === "flow" ? "Track talent movement" : "Find talent rivals"}
+              description={mode === "flow" ? "See where a company's new hires come from, or where its alumni end up." : "See which companies a firm wins talent from and loses talent to, head to head."}
+            />
           )}
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, ExternalLink, Globe, Star, DollarSign, History, Trash2, Search } from "lucide-react";
+import { MapPin, ExternalLink, Globe, Star, DollarSign, History, Trash2, Search, Zap, Layers } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { ErrorDisplay } from "@/components/shared/error-display";
 import { CopyButton } from "@/components/shared/copy-button";
 import { useCreditCosts } from "@/hooks/use-credit-costs";
+import { ToggleButtonGroup } from "@/components/shared/toggle-button-group";
+import { QuickSearch } from "@/components/google-maps/quick-search";
 
 interface MapsResult {
   placeId: string;
@@ -63,7 +65,7 @@ const PRICE_LABELS: Record<string, string> = {
   PRICE_LEVEL_VERY_EXPENSIVE: "$$$$",
 };
 
-export default function GoogleMapsPage() {
+function BulkExtract() {
   const [query, setQuery] = useState("");
   const [searchID, setSearchID] = useState<string | null>(null);
   const [pageSize] = useState(25);
@@ -138,20 +140,16 @@ export default function GoogleMapsPage() {
   const isPolling = !!searchID && !isComplete && checkData?.output?.status !== "FAILED";
 
   return (
-    <div className="flex h-full flex-col">
-      <Header title="Google Maps" description={`Extract local business listings (${costs.googleMaps} credits/result)`}>
-        <Button
-          variant={showHistory ? "default" : "outline"}
-          size="sm"
-          onClick={() => setShowHistory(!showHistory)}
-        >
-          <History className="mr-2 h-4 w-4" />
-          History ({projects.length})
-        </Button>
-      </Header>
-
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex-1 overflow-y-auto p-6">
         <div className="mx-auto max-w-5xl space-y-6">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">Extract every matching business across the US in the background ({costs.googleMaps} credits/result).</p>
+            <Button variant={showHistory ? "default" : "outline"} size="sm" onClick={() => setShowHistory(!showHistory)}>
+              <History className="mr-2 h-4 w-4" />
+              History ({projects.length})
+            </Button>
+          </div>
           {/* Project History */}
           {showHistory && (
             <Card>
@@ -290,6 +288,22 @@ export default function GoogleMapsPage() {
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function GoogleMapsPage() {
+  const [mode, setMode] = useState<"quick" | "bulk">("quick");
+  return (
+    <div className="flex h-full flex-col">
+      <Header icon={MapPin} title="Google Maps" description="Look up places with hours, highlights and reviews, or bulk-extract listings">
+        <ToggleButtonGroup<"quick" | "bulk">
+          value={mode}
+          onChange={setMode}
+          options={[{ value: "quick", label: "Quick search", icon: Zap }, { value: "bulk", label: "Bulk extract", icon: Layers }]}
+        />
+      </Header>
+      {mode === "quick" ? <QuickSearch /> : <BulkExtract />}
     </div>
   );
 }

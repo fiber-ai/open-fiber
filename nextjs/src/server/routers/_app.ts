@@ -6,6 +6,11 @@ import { linkedinRouter } from "./linkedin";
 import { audienceRouter } from "./audiences";
 import { savedSearchRouter } from "./saved-searches";
 import { toolsRouter } from "./tools";
+import { kitchenSinkRouter } from "./kitchen-sink";
+import { companyRankingsRouter } from "./company-rankings";
+import { mosaicRouter } from "./mosaic";
+import { reverseLookupRouter } from "./reverse-lookup";
+import { googleMapsRouter } from "./google-maps";
 import { validationRouter } from "./validation";
 import { exclusionListRouter } from "./exclusion-lists";
 import { exportsRouter } from "./exports";
@@ -20,10 +25,14 @@ import { stealthRouter } from "./stealth";
 import { blueCollarRouter } from "./blue-collar";
 import { mediaRouter } from "./media";
 import { flightsRouter } from "./flights";
+import { hotelsRouter } from "./hotels";
 import { realEstateRouter } from "./real-estate";
 import { trackerRouter } from "./tracker";
 import { financeRouter } from "./finance";
 import { apiKeysRouter } from "./api-keys";
+import { webhooksRouter } from "./webhooks";
+import { apiRequestsRouter } from "./api-requests";
+import { yelpRouter } from "./yelp";
 
 export const appRouter = createTRPCRouter({
   utility: utilityRouter,
@@ -33,6 +42,11 @@ export const appRouter = createTRPCRouter({
   audiences: audienceRouter,
   savedSearches: savedSearchRouter,
   tools: toolsRouter,
+  kitchenSink: kitchenSinkRouter,
+  companyRankings: companyRankingsRouter,
+  mosaic: mosaicRouter,
+  reverseLookup: reverseLookupRouter,
+  googleMaps: googleMapsRouter,
   validation: validationRouter,
   exclusionLists: exclusionListRouter,
   exports: exportsRouter,
@@ -47,10 +61,14 @@ export const appRouter = createTRPCRouter({
   blueCollar: blueCollarRouter,
   media: mediaRouter,
   flights: flightsRouter,
+  hotels: hotelsRouter,
   realEstate: realEstateRouter,
   tracker: trackerRouter,
   finance: financeRouter,
   apiKeys: apiKeysRouter,
+  webhooks: webhooksRouter,
+  apiRequests: apiRequestsRouter,
+  yelp: yelpRouter,
 });
 
 export type AppRouter = typeof appRouter;
