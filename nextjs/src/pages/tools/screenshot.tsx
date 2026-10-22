@@ -36,7 +36,7 @@ export default function ScreenshotPage() {
           </div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Format</Label>
-            <select value={format} onChange={(e) => setFormat(e.target.value as "desktop" | "mobile")} className="rounded-md border bg-background px-2 py-1.5 text-sm h-9">
+            <select value={format} onChange={(e) => setFormat(e.target.value as "desktop" | "mobile")} className="rounded-md border bg-card px-2 py-1.5 text-sm h-9">
               <option value="desktop">Desktop</option>
               <option value="mobile">Mobile</option>
             </select>

@@ -35,7 +35,7 @@ export function PaginationControls({
           <select
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="rounded-md border bg-background px-2 py-1 text-sm"
+            className="rounded-md border bg-card px-2 py-1 text-sm"
           >
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
@@ -51,6 +51,7 @@ export function PaginationControls({
             className="h-8 w-8"
             disabled={!hasPrevPage}
             onClick={onPrev}
+            aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -60,6 +61,7 @@ export function PaginationControls({
             className="h-8 w-8"
             disabled={!hasNextPage}
             onClick={onNext}
+            aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

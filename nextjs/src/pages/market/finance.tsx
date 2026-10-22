@@ -100,7 +100,7 @@ export default function FinancePage() {
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as InstrumentType)}
-                    className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                    className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                   >
                     <option value="stockOrEtf">Stock / ETF</option>
                     <option value="index">Index</option>
@@ -128,7 +128,7 @@ export default function FinancePage() {
                     <select
                       value={index}
                       onChange={(e) => setIndex(e.target.value as typeof index)}
-                      className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                      className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                     >
                       {INDICES.map((i) => <option key={i.value} value={i.value}>{i.label}</option>)}
                     </select>
@@ -158,7 +158,7 @@ export default function FinancePage() {
                   <select
                     value={window}
                     onChange={(e) => setWindow(e.target.value as typeof window)}
-                    className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                    className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                   >
                     {WINDOWS.map((w) => <option key={w} value={w}>{w}</option>)}
                   </select>
@@ -191,7 +191,7 @@ export default function FinancePage() {
                           {(quote.price as number).toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{quote.currency as string}</span>
                         </p>
                         {priceChange && typeof priceChange.amount === "number" && (
-                          <p className={`flex items-center justify-end gap-1 text-sm ${isUp ? "text-emerald-600" : "text-red-600"}`}>
+                          <p className={`flex items-center justify-end gap-1 text-sm ${isUp ? "text-success" : "text-destructive"}`}>
                             {isUp ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                             {(priceChange.amount as number).toLocaleString()}
                             {typeof priceChange.percentage === "number" && ` (${(priceChange.percentage as number).toFixed(2)}%)`}

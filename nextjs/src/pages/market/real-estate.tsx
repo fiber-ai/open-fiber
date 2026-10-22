@@ -55,7 +55,7 @@ export default function RealEstatePage() {
           <div className="flex-1 min-w-[200px] space-y-1.5"><Label className="text-xs font-medium">Location</Label><Input placeholder="e.g. Austin, TX or 78701" value={location} onChange={(e) => setLocation(e.target.value)} /></div>
           <div className="space-y-1.5">
             <Label className="text-xs font-medium">Status</Label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-md border bg-background px-2 py-1.5 text-sm h-9">
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-md border bg-card px-2 py-1.5 text-sm h-9">
               <option value="forSale">For sale</option>
               <option value="forRent">For rent</option>
               <option value="sold">Sold</option>

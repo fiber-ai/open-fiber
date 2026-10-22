@@ -111,7 +111,7 @@ export default function ExclusionListsPage() {
                   <Link href={`/exclusion-lists/${list.id}?type=${activeTab}`} className="text-sm font-medium hover:underline">{list.name}</Link>
                   <ConfirmDialog
                     trigger={
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" aria-label={`Delete ${list.name}`}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     }

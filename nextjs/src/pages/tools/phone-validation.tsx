@@ -12,10 +12,10 @@ import { ErrorDisplay } from "@/components/shared/error-display";
 import { useCreditCosts } from "@/hooks/use-credit-costs";
 
 const STATUS_COLORS: Record<string, string> = {
-  valid_reachable: "bg-green-100 text-green-800",
-  valid_not_reachable: "bg-yellow-100 text-yellow-800",
-  invalid: "bg-red-100 text-red-800",
-  unknown: "bg-gray-100 text-gray-800",
+  valid_reachable: "bg-success-muted text-success",
+  valid_not_reachable: "bg-warning-muted text-warning",
+  invalid: "bg-destructive-muted text-destructive-muted-foreground",
+  unknown: "bg-muted text-muted-foreground",
 };
 
 interface PhoneResult {

@@ -93,6 +93,7 @@ export default function DepartmentSizePage() {
                       />
                       <Button
                         variant="ghost" size="icon" className="ml-auto h-8 w-8 shrink-0"
+                        aria-label="Remove department"
                         onClick={() => setDepartments((prev) => prev.filter((_, j) => j !== i))}
                         disabled={departments.length === 1}
                       >

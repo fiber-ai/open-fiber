@@ -41,7 +41,7 @@ export function BatchProgress({ stats, done, results }: BatchProgressProps) {
           <div className="flex items-center justify-between text-sm">
             <span className="font-medium">
               {done ? (
-                <span className="flex items-center gap-1 text-green-600">
+                <span className="flex items-center gap-1 text-success">
                   <CheckCircle className="h-4 w-4" />
                   Complete
                 </span>

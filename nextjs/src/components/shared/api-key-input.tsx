@@ -36,7 +36,8 @@ export function ApiKeyInput({ onSubmit, isLoading, error }: ApiKeyInputProps) {
           <button
             type="button"
             onClick={() => setVisible(!visible)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            aria-label={visible ? "Hide API key" : "Show API key"}
+            className="absolute right-1 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </button>

@@ -114,7 +114,7 @@ export default function LinkedInPostsPage() {
               </div>
               <div className="w-40 space-y-1.5">
                 <Label className="text-xs font-medium">Recency</Label>
-                <select className="w-full rounded-md border bg-background px-2 py-2 text-sm" value={recency} onChange={(e) => setRecency(e.target.value)}>
+                <select className="w-full rounded-md border bg-card px-2 py-2 text-sm" value={recency} onChange={(e) => setRecency(e.target.value)}>
                   <option value="Day">Past Day</option>
                   <option value="Week">Past Week</option>
                   <option value="Month">Past Month</option>

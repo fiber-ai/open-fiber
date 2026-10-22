@@ -389,14 +389,14 @@ export default function ExportsPage() {
 
           {/* Success Result */}
           {exportResult.isSuccess && resultData?.output && (
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-success/30 bg-success-muted">
               <CardContent className="flex items-center gap-3 pt-6">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+                <CheckCircle className="h-5 w-5 text-success" />
                 <div>
-                  <p className="text-sm font-medium text-green-900">
+                  <p className="text-sm font-medium text-foreground">
                     Export started
                   </p>
-                  <p className="text-xs text-green-700">
+                  <p className="text-xs text-success">
                     {resultData.output.message ??
                       `Estimated ${resultData.output.estimatedRows ?? "?"} rows`}
                   </p>

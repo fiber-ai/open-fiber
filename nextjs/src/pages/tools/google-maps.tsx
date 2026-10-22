@@ -173,6 +173,7 @@ function BulkExtract() {
                         </button>
                         <Button
                           variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete project"
                           onClick={() => handleDeleteProject(p.searchID)}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -249,7 +250,7 @@ function BulkExtract() {
                       <td className="px-4 py-2">
                         {r.rating != null ? (
                           <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-3 w-3 fill-warning text-warning" />
                             <span>{r.rating}</span>
                             {r.numReviews != null && <span className="text-xs text-muted-foreground">({r.numReviews})</span>}
                           </div>

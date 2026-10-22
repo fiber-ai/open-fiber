@@ -12,10 +12,10 @@ import { ErrorDisplay } from "@/components/shared/error-display";
 import { useCreditCosts } from "@/hooks/use-credit-costs";
 
 const VERDICT_COLORS: Record<string, string> = {
-  ok: "bg-green-100 text-green-800",
-  undeliverable: "bg-red-100 text-red-800",
-  risky: "bg-yellow-100 text-yellow-800",
-  inconclusive: "bg-gray-100 text-gray-800",
+  ok: "bg-success-muted text-success",
+  undeliverable: "bg-destructive-muted text-destructive-muted-foreground",
+  risky: "bg-warning-muted text-warning",
+  inconclusive: "bg-muted text-muted-foreground",
 };
 
 
