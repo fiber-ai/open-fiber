@@ -52,6 +52,19 @@
     --info: 224 76.3% 48%; /* #1D4ED8 */
     --info-foreground: 0 0% 100%;
     --info-muted: 214 100% 96.9%;
+    --rating: 38 92% 50%; /* star ratings */
+
+    /* categorical data (charts) — brand violet first */
+    --chart-1: 253 73.5% 58.6%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 0 84% 60%;
+    --chart-6: 330 81% 60%;
+    --chart-7: 173 80% 40%;
+    --chart-8: 239 84% 67%;
+    --chart-9: 84 81% 44%;
+    --chart-10: 25 95% 53%;
 
     /* lines */
     --border: 0 0% 91%; /* #E8E8E8 */
@@ -93,6 +106,17 @@
     --info: 212 96.4% 78.4%;
     --info-foreground: 220 60% 10%;
     --info-muted: 220 60% 15.7%;
+    --rating: 43 96% 56%;
+    --chart-1: 260 88% 74%;
+    --chart-2: 199 89% 60%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 160 70% 50%;
+    --chart-5: 0 90% 70%;
+    --chart-6: 330 81% 70%;
+    --chart-7: 173 70% 50%;
+    --chart-8: 239 84% 75%;
+    --chart-9: 84 70% 55%;
+    --chart-10: 25 95% 62%;
 
     --border: 263 13.7% 18.6%;
     --input: 263 13.7% 22%;

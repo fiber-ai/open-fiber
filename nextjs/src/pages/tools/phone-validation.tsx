@@ -55,8 +55,8 @@ export default function PhoneValidationPage() {
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Phone Number</Label>
-                  <Input
+                  <Label htmlFor="phone-validation-phone-number">Phone Number</Label>
+                  <Input id="phone-validation-phone-number"
                     placeholder="+14155551234"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}

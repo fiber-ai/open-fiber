@@ -79,8 +79,8 @@ export default function CombinedSearchPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Countries</Label>
-            <Input
+            <Label htmlFor="combined-countries" className="text-xs font-medium">Countries</Label>
+            <Input id="combined-countries"
               placeholder="e.g. USA, GBR"
               value={countries}
               onChange={(e) => setCountries(e.target.value)}
@@ -97,8 +97,8 @@ export default function CombinedSearchPage() {
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Job Titles</Label>
-            <Input
+            <Label htmlFor="combined-job-titles" className="text-xs font-medium">Job Titles</Label>
+            <Input id="combined-job-titles"
               placeholder="e.g. CEO, CTO"
               value={jobTitles}
               onChange={(e) => setJobTitles(e.target.value)}

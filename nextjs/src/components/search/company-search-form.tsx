@@ -134,8 +134,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Company Identity */}
         <FilterSection title="Company Identity" defaultOpen>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Company Name</Label>
-            <Input
+            <Label htmlFor="company-search-form-company-name" className="text-xs font-medium">Company Name</Label>
+            <Input id="company-search-form-company-name"
               placeholder="Search by name..."
               value={params.nameLike?.anyOf?.[0] ?? ""}
               onChange={(e) => {
@@ -146,8 +146,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Domain</Label>
-            <Input
+            <Label htmlFor="company-search-form-domain" className="text-xs font-medium">Domain</Label>
+            <Input id="company-search-form-domain"
               placeholder="e.g. stripe.com"
               value={params.domains?.[0] ?? ""}
               onChange={(e) => {
@@ -162,8 +162,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Location */}
         <FilterSection title="Location">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Country</Label>
-            <Input
+            <Label htmlFor="company-search-form-country" className="text-xs font-medium">Country</Label>
+            <Input id="company-search-form-country"
               placeholder="e.g. USA, GBR, DEU"
               value={countryInput}
               onChange={(e) => {
@@ -179,8 +179,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <p className="text-xs text-muted-foreground">Comma-separated country codes</p>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">State / Region</Label>
-            <Input
+            <Label htmlFor="company-search-form-state-region" className="text-xs font-medium">State / Region</Label>
+            <Input id="company-search-form-state-region"
               placeholder="e.g. California, New York"
               value={stateInput}
               onChange={(e) => {
@@ -273,8 +273,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Keywords</Label>
-            <Input
+            <Label htmlFor="company-search-form-keywords" className="text-xs font-medium">Keywords</Label>
+            <Input id="company-search-form-keywords"
               placeholder="e.g. AI, machine learning, SaaS"
               value={keywordsInput}
               onChange={(e) => {
@@ -329,8 +329,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Technologies */}
         <FilterSection title="Tech Stack">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Technologies</Label>
-            <Input
+            <Label htmlFor="company-search-form-technologies" className="text-xs font-medium">Technologies</Label>
+            <Input id="company-search-form-technologies"
               placeholder="e.g. React, Python, AWS"
               value={techInput}
               onChange={(e) => {

@@ -65,7 +65,7 @@ function PlaceDetail({ placeId, onClose }: { placeId: string; onClose: () => voi
           {place.isLoading ? <div className="h-6 w-48 animate-pulse rounded bg-muted" /> : (
             <h2 className="flex items-center gap-2 text-xl font-semibold">
               {p?.name}
-              {p?.isClaimed && <span title="Claimed by owner"><BadgeCheck className="h-4 w-4 text-sky-500" /></span>}
+              {p?.isClaimed && <span title="Claimed by owner"><BadgeCheck className="h-4 w-4 text-info" /></span>}
             </h2>
           )}
           {p && (
@@ -136,7 +136,7 @@ function PlaceDetail({ placeId, onClose }: { placeId: string; onClose: () => voi
           <h3 className="text-sm font-semibold">Reviews{totalReviews != null && <span className="font-normal text-muted-foreground"> · {totalReviews.toLocaleString()} total</span>}</h3>
           <div className="flex flex-wrap items-center gap-2">
             <Input placeholder="Keyword, e.g. brunch" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && setAppliedKeyword(keyword.trim())} className="h-8 w-44 text-xs" />
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as ReviewSort)} className="h-8 rounded-md border bg-background px-2 text-xs">
+            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as ReviewSort)} className="h-8 rounded-md border bg-card px-2 text-xs">
               <option value="relevance">Most relevant</option>
               <option value="newestFirst">Newest</option>
               <option value="oldestFirst">Oldest</option>
@@ -159,7 +159,7 @@ function PlaceDetail({ placeId, onClose }: { placeId: string; onClose: () => voi
               <div key={i} className="space-y-1.5 border-b pb-3 last:border-0">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <span className="font-medium">{r.authorName ?? "Anonymous"}</span>
-                  {r.authorIsElite && <Badge className="h-5 bg-red-600 px-1.5 text-[10px] hover:bg-red-600"><Award className="mr-0.5 h-3 w-3" />Elite</Badge>}
+                  {r.authorIsElite && <Badge className="h-5 bg-destructive px-1.5 text-[10px] hover:bg-destructive"><Award className="mr-0.5 h-3 w-3" />Elite</Badge>}
                   {r.authorLocation && <span className="text-xs text-muted-foreground">{r.authorLocation}</span>}
                 </div>
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -225,11 +225,11 @@ export default function YelpPage() {
 
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (location.trim().length >= 2) run(false).catch(() => {}); }}>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Location</Label><Input placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Categories (comma-separated)</Label><Input placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="yelp-location" className="text-xs font-medium">Location</Label><Input id="yelp-location" placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="yelp-categories-comma-separated" className="text-xs font-medium">Categories (comma-separated)</Label><Input id="yelp-categories-comma-separated" placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Sort</Label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="yelp-sort" className="text-xs font-medium">Sort</Label>
+            <select id="yelp-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="relevance">Relevance</option>
               <option value="highestRated">Highest rated</option>
               <option value="mostReviewed">Most reviewed</option>

@@ -72,8 +72,8 @@ export default function DepartmentSizePage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label>Company</Label>
-                <Input
+                <Label htmlFor="department-size-company">Company</Label>
+                <Input id="department-size-company"
                   placeholder="e.g. stripe.com, LinkedIn company URL, slug, or org ID"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
@@ -87,6 +87,7 @@ export default function DepartmentSizePage() {
                     <div className="flex items-center gap-2">
                       <Input
                         className="max-w-[200px]"
+                        aria-label={`Department ${i + 1} name`}
                         placeholder="Department name"
                         value={d.name}
                         onChange={(e) => updateDept(i, { name: e.target.value })}
@@ -101,11 +102,13 @@ export default function DepartmentSizePage() {
                       </Button>
                     </div>
                     <Input
+                      aria-label={`Department ${i + 1} titles to include`}
                       placeholder="Include titles (comma-separated), e.g. engineer, developer"
                       value={d.includeTitles}
                       onChange={(e) => updateDept(i, { includeTitles: e.target.value })}
                     />
                     <Input
+                      aria-label={`Department ${i + 1} titles to exclude`}
                       placeholder="Exclude titles (optional, comma-separated)"
                       value={d.excludeTitles}
                       onChange={(e) => updateDept(i, { excludeTitles: e.target.value })}

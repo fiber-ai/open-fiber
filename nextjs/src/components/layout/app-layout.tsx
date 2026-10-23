@@ -62,7 +62,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           >
             <Menu className="h-5 w-5" />
           </Button>
-          <Link href="/" className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
+          <Link href="/" className="flex items-center gap-2 text-base font-semibold tracking-tight">
             <FiberMark className="h-6 w-6" />
             OpenFiber
           </Link>

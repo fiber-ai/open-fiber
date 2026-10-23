@@ -190,8 +190,8 @@ function BulkExtract() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label>Search Query</Label>
-                <Input
+                <Label htmlFor="google-maps-search-query">Search Query</Label>
+                <Input id="google-maps-search-query"
                   placeholder='e.g. "coffee shops", "real estate agents", "plumbers"'
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
@@ -250,7 +250,7 @@ function BulkExtract() {
                       <td className="px-4 py-2">
                         {r.rating != null ? (
                           <div className="flex items-center gap-1">
-                            <Star className="h-3 w-3 fill-warning text-warning" />
+                            <Star className="h-3 w-3 fill-rating text-rating" />
                             <span>{r.rating}</span>
                             {r.numReviews != null && <span className="text-xs text-muted-foreground">({r.numReviews})</span>}
                           </div>

@@ -269,6 +269,7 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
         type="file"
         accept=".csv,.txt"
         className="hidden"
+        aria-label="Upload CSV file"
         onChange={handleFileInput}
       />
 

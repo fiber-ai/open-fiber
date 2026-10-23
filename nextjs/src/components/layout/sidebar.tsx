@@ -210,7 +210,7 @@ export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", 
         {!collapsed && (
           <Link
             href="/"
-            className="flex items-center gap-2 rounded-md px-1 text-[15px] font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex items-center gap-2 rounded-md px-1 text-base font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <FiberMark className="h-6 w-6" />
             OpenFiber

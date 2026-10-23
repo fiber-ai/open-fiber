@@ -43,8 +43,8 @@ export function AddPeopleDialog({ onSubmit, isLoading }: AddPeopleDialogProps) {
             <DialogTitle>Add People to Track</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-2">
-            <Label>LinkedIn URLs (one per line)</Label>
-            <Textarea
+            <Label htmlFor="add-people-dialog-linkedin-urls-one-per-line">LinkedIn URLs (one per line)</Label>
+            <Textarea id="add-people-dialog-linkedin-urls-one-per-line"
               className="min-h-[160px] font-mono text-xs"
               placeholder={"https://www.linkedin.com/in/person-1\nhttps://www.linkedin.com/in/person-2\nhttps://www.linkedin.com/in/person-3"}
               value={input}

@@ -44,12 +44,12 @@ export default function BlueCollarPage() {
       <div className="border-b p-4">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[220px] space-y-1.5">
-            <Label className="text-xs font-medium">Query</Label>
-            <Input placeholder="e.g. forklift operator" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <Label htmlFor="blue-collar-query" className="text-xs font-medium">Query</Label>
+            <Input id="blue-collar-query" placeholder="e.g. forklift operator" value={query} onChange={(e) => setQuery(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Location</Label>
-            <Input placeholder="e.g. Dallas, TX" value={location} onChange={(e) => setLocation(e.target.value)} className="w-48" />
+            <Label htmlFor="blue-collar-location" className="text-xs font-medium">Location</Label>
+            <Input id="blue-collar-location" placeholder="e.g. Dallas, TX" value={location} onChange={(e) => setLocation(e.target.value)} className="w-48" />
           </div>
           <Button onClick={handleSearch} disabled={search.isPending}>
             {search.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}

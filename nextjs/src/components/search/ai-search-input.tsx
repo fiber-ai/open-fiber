@@ -15,10 +15,10 @@ export function AISearchInput({ onSearch, isLoading }: AISearchInputProps) {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="ai-search-input-describe-what-you-apos-re-look" className="text-sm font-medium">
           Describe what you&apos;re looking for
         </Label>
-        <Textarea
+        <Textarea id="ai-search-input-describe-what-you-apos-re-look"
           className="min-h-[120px]"
           placeholder={"e.g. Series A SaaS companies in the US with 50-200 employees that use React\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
           value={query}

@@ -30,9 +30,9 @@ const shortUrl = (u: string) => { try { const x = new URL(u); return x.hostname 
 function Funnel({ stats }: { stats: { inputRows: number; outputRows: number; rowsWhereProfileFound: number; rowsWithContactDetails: number; rowsWithErrors: number } }) {
   const base = Math.max(1, stats.inputRows);
   const steps = [
-    { label: "Input rows", n: stats.inputRows, cls: "bg-slate-400" },
-    { label: "Profile found", n: stats.rowsWhereProfileFound, cls: "bg-sky-500" },
-    { label: "With contact details", n: stats.rowsWithContactDetails, cls: "bg-emerald-500" },
+    { label: "Input rows", n: stats.inputRows, cls: "bg-muted-foreground/50" },
+    { label: "Profile found", n: stats.rowsWhereProfileFound, cls: "bg-info" },
+    { label: "With contact details", n: stats.rowsWithContactDetails, cls: "bg-success" },
   ];
   return (
     <div className="space-y-2">
@@ -43,7 +43,7 @@ function Funnel({ stats }: { stats: { inputRows: number; outputRows: number; row
           <span className="text-right tabular-nums">{s.n.toLocaleString()} <span className="text-xs text-muted-foreground">{Math.round((s.n / base) * 100)}%</span></span>
         </div>
       ))}
-      {stats.rowsWithErrors > 0 && <p className="text-xs text-amber-600">{stats.rowsWithErrors.toLocaleString()} rows had errors</p>}
+      {stats.rowsWithErrors > 0 && <p className="text-xs text-warning">{stats.rowsWithErrors.toLocaleString()} rows had errors</p>}
     </div>
   );
 }
@@ -94,7 +94,7 @@ function RunView({ runId }: { runId: string }) {
       <Card>
         <CardContent className="space-y-4 pt-5">
           <div className="flex flex-wrap items-center gap-2">
-            {run.status === "done" ? <CheckCircle2 className="h-5 w-5 text-emerald-600" /> : run.status === "failed" ? <XCircle className="h-5 w-5 text-destructive" /> : <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+            {run.status === "done" ? <CheckCircle2 className="h-5 w-5 text-success" /> : run.status === "failed" ? <XCircle className="h-5 w-5 text-destructive" /> : <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
             <span className="font-medium capitalize">{run.status === "pending" ? "Queued" : run.status === "running" ? "Healing your file…" : run.status === "done" ? "Done" : "Failed"}</span>
             {run.isFreeTrialRun && <Badge variant="secondary"><Gift className="mr-1 h-3 w-3" />Free trial run</Badge>}
             <span className="ml-auto font-mono text-xs text-muted-foreground">{run.runId}</span>
@@ -173,13 +173,13 @@ export default function MosaicPage() {
                 <CardHeader><CardTitle className="text-base">New Mosaic run</CardTitle></CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium">File link</Label>
-                    <Input placeholder="https://docs.google.com/spreadsheets/d/…" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} />
+                    <Label htmlFor="mosaic-file-link" className="text-xs font-medium">File link</Label>
+                    <Input id="mosaic-file-link" placeholder="https://docs.google.com/spreadsheets/d/…" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} />
                     <p className="text-xs text-muted-foreground">CSV, XLSX, TXT (one LinkedIn URL per line) or a Google Sheet. Google Drive, Dropbox and OneDrive share links work too, as long as anyone with the link can view.</p>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-medium">Extra instructions (optional)</Label>
-                    <Textarea rows={3} placeholder="These are all doctors — get office phones, not home phones." value={instructions} onChange={(e) => setInstructions(e.target.value)} />
+                    <Label htmlFor="mosaic-extra-instructions-optional" className="text-xs font-medium">Extra instructions (optional)</Label>
+                    <Textarea id="mosaic-extra-instructions-optional" rows={3} placeholder="These are all doctors — get office phones, not home phones." value={instructions} onChange={(e) => setInstructions(e.target.value)} />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -196,7 +196,7 @@ export default function MosaicPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
-                    <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Max rows (optional)</Label><Input type="number" min={1} max={20000} placeholder="All (≤20,000)" value={maxRows} onChange={(e) => setMaxRows(e.target.value)} className="w-40" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="mosaic-max-rows-optional" className="text-xs font-medium">Max rows (optional)</Label><Input id="mosaic-max-rows-optional" type="number" min={1} max={20000} placeholder="All (≤20,000)" value={maxRows} onChange={(e) => setMaxRows(e.target.value)} className="w-40" /></div>
                     <Button onClick={submit} disabled={start.isPending || !/^https:\/\/\S+$/.test(sourceUrl.trim())}>
                       {start.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Start healing
                     </Button>

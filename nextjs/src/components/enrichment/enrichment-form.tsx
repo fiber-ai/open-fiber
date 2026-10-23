@@ -88,8 +88,8 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
         </button>
         {showAdvanced && (
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Reveal Variant</Label>
-            <select
+            <Label htmlFor="enrichment-form-reveal-variant" className="text-xs font-medium">Reveal Variant</Label>
+            <select id="enrichment-form-reveal-variant"
               value={variant}
               onChange={(e) => setVariant(e.target.value as RevealVariant)}
               className="w-full rounded-md border bg-card px-2 py-1.5 text-sm"
@@ -103,8 +103,8 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
             )}
             {variant !== "exhaustive" && (
               <>
-                <Label className="text-xs font-medium">Email Validation Patience</Label>
-                <select
+                <Label htmlFor="enrichment-form-email-validation-patience" className="text-xs font-medium">Email Validation Patience</Label>
+                <select id="enrichment-form-email-validation-patience"
                   value={patience}
                   onChange={(e) => setPatience(e.target.value as Patience | "")}
                   className="w-full rounded-md border bg-card px-2 py-1.5 text-sm"

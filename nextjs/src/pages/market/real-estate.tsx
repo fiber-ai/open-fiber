@@ -52,17 +52,17 @@ export default function RealEstatePage() {
 
       <div className="border-b p-4">
         <div className="flex flex-wrap gap-3 items-end">
-          <div className="flex-1 min-w-[200px] space-y-1.5"><Label className="text-xs font-medium">Location</Label><Input placeholder="e.g. Austin, TX or 78701" value={location} onChange={(e) => setLocation(e.target.value)} /></div>
+          <div className="flex-1 min-w-[200px] space-y-1.5"><Label htmlFor="real-estate-location" className="text-xs font-medium">Location</Label><Input id="real-estate-location" placeholder="e.g. Austin, TX or 78701" value={location} onChange={(e) => setLocation(e.target.value)} /></div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Status</Label>
-            <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-md border bg-card px-2 py-1.5 text-sm h-9">
+            <Label htmlFor="real-estate-status" className="text-xs font-medium">Status</Label>
+            <select id="real-estate-status" value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-md border bg-card px-2 py-1.5 text-sm h-9">
               <option value="forSale">For sale</option>
               <option value="forRent">For rent</option>
               <option value="sold">Sold</option>
             </select>
           </div>
-          <div className="space-y-1.5"><Label className="text-xs font-medium">Min beds</Label><Input type="number" min={0} value={minBeds} onChange={(e) => setMinBeds(e.target.value)} className="w-24" /></div>
-          <div className="space-y-1.5"><Label className="text-xs font-medium">Max price</Label><Input type="number" min={0} value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-32" /></div>
+          <div className="space-y-1.5"><Label htmlFor="real-estate-min-beds" className="text-xs font-medium">Min beds</Label><Input id="real-estate-min-beds" type="number" min={0} value={minBeds} onChange={(e) => setMinBeds(e.target.value)} className="w-24" /></div>
+          <div className="space-y-1.5"><Label htmlFor="real-estate-max-price" className="text-xs font-medium">Max price</Label><Input id="real-estate-max-price" type="number" min={0} value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-32" /></div>
           <Button onClick={handleSearch} disabled={!location.trim() || search.isPending}>
             {search.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
             Search

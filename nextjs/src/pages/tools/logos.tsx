@@ -67,7 +67,7 @@ function CompanyLogos({ backdrop }: { backdrop: Backdrop }) {
         <CardContent className="space-y-3 pt-5">
           <Label className="text-xs font-medium">Quick lookup: any domain, LinkedIn URL, slug or org ID</Label>
           <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (quick.trim()) single.mutate({ identifier: quick.trim() }); }}>
-            <Input placeholder="stripe.com" value={quick} onChange={(e) => setQuick(e.target.value)} className="max-w-md" />
+            <Input aria-label="Domain, LinkedIn URL, slug or org ID" placeholder="stripe.com" value={quick} onChange={(e) => setQuick(e.target.value)} className="max-w-md" />
             <Button type="submit" variant="outline" disabled={single.isPending || !quick.trim()}>{single.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Find</Button>
           </form>
           {single.isError && <p className="text-sm text-destructive">{single.error.message}</p>}
@@ -115,8 +115,8 @@ function ProfilePictures({ backdrop }: { backdrop: Backdrop }) {
     <div className="space-y-6">
       <Card>
         <CardContent className="space-y-4 pt-5">
-          <Label className="text-xs font-medium">LinkedIn profile URLs, one per line (up to 10,000)</Label>
-          <Textarea className="min-h-[140px] font-mono text-xs" placeholder={"https://www.linkedin.com/in/janedoe\nhttps://www.linkedin.com/in/rajkumar"} value={input} onChange={(e) => setInput(e.target.value)} />
+          <Label htmlFor="logos-linkedin-profile-urls-one-per-" className="text-xs font-medium">LinkedIn profile URLs, one per line (up to 10,000)</Label>
+          <Textarea id="logos-linkedin-profile-urls-one-per-" className="min-h-[140px] font-mono text-xs" placeholder={"https://www.linkedin.com/in/janedoe\nhttps://www.linkedin.com/in/rajkumar"} value={input} onChange={(e) => setInput(e.target.value)} />
           <Button onClick={() => { const v = lines(input); if (v.length) m.mutate({ linkedinUrls: v }); }} disabled={!input.trim() || m.isPending}>
             {m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserCircle2 className="mr-2 h-4 w-4" />}Fetch {lines(input).length || ""} photos
           </Button>

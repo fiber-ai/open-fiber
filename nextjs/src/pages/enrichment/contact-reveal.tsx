@@ -75,16 +75,16 @@ function normalize(out: Row | undefined): StackResultT {
 }
 
 const STATUS: Record<string, { icon: React.ElementType; cls: string }> = {
-  valid: { icon: CheckCircle2, cls: "text-emerald-600 dark:text-emerald-400" },
-  risky: { icon: AlertTriangle, cls: "text-amber-600 dark:text-amber-400" },
-  invalid: { icon: XCircle, cls: "text-red-600 dark:text-red-400" },
+  valid: { icon: CheckCircle2, cls: "text-success" },
+  risky: { icon: AlertTriangle, cls: "text-warning" },
+  invalid: { icon: XCircle, cls: "text-destructive" },
   unknown: { icon: HelpCircle, cls: "text-muted-foreground" },
 };
 const CALLER_ID: Record<string, string> = {
-  EXACT_MATCH: "bg-emerald-600 hover:bg-emerald-600",
-  PROBABLE_MATCH: "bg-emerald-500/80 hover:bg-emerald-500/80",
-  FAMILY_MEMBER: "bg-amber-500 hover:bg-amber-500",
-  BUSINESS_LINE: "bg-sky-600 hover:bg-sky-600",
+  EXACT_MATCH: "bg-success hover:bg-success",
+  PROBABLE_MATCH: "bg-success/80 hover:bg-success/80",
+  FAMILY_MEMBER: "bg-warning hover:bg-warning",
+  BUSINESS_LINE: "bg-info hover:bg-info",
   INCONCLUSIVE: "bg-muted-foreground hover:bg-muted-foreground",
 };
 
@@ -120,7 +120,7 @@ function ResultBody({ result }: { result: StackResultT }) {
               {e.unmatched && <Badge variant="outline" className="h-4 px-1 text-[10px] font-normal" title="Work email at a company that doesn't match their current role">other company</Badge>}
               {e.score != null && (
                 <span className="ml-auto flex items-center gap-1 text-muted-foreground" title="Deliverability score">
-                  <span className="h-1 w-10 rounded-full bg-muted"><span className="block h-1 rounded-full bg-emerald-500" style={{ width: `${Math.round(e.score * (e.score <= 1 ? 100 : 1))}%` }} /></span>
+                  <span className="h-1 w-10 rounded-full bg-muted"><span className="block h-1 rounded-full bg-success" style={{ width: `${Math.round(e.score * (e.score <= 1 ? 100 : 1))}%` }} /></span>
                   {e.score <= 1 ? Math.round(e.score * 100) : Math.round(e.score)}
                 </span>
               )}
@@ -249,7 +249,7 @@ function Overlap({ results, stacks }: { results: Partial<Record<StackId, StackRe
                 <td className="py-1.5 font-mono">{v.kind === "email" ? <Mail className="mr-1 inline h-3 w-3" /> : <Phone className="mr-1 inline h-3 w-3" />}{k}</td>
                 {stacks.map((s) => (
                   <td key={s.id} className="px-2 text-center">
-                    {results[s.id] === undefined ? <span className="text-muted-foreground">…</span> : v.found.has(s.id) ? <CheckCircle2 className="mx-auto h-3.5 w-3.5 text-emerald-600" /> : <span className="text-muted-foreground">–</span>}
+                    {results[s.id] === undefined ? <span className="text-muted-foreground">…</span> : v.found.has(s.id) ? <CheckCircle2 className="mx-auto h-3.5 w-3.5 text-success" /> : <span className="text-muted-foreground">–</span>}
                   </td>
                 ))}
               </tr>
@@ -300,11 +300,11 @@ export default function ContactRevealPage() {
                   <ToggleButtonGroup<InputMode> value={mode} onChange={setMode} options={[{ value: "linkedin", label: "LinkedIn" }, { value: "name-domain", label: "Name + company" }]} />
                 </div>
                 {mode === "linkedin" ? (
-                  <div className="flex flex-1 flex-col gap-1.5"><Label className="text-xs font-medium">LinkedIn URL or slug</Label><Input placeholder="https://www.linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} /></div>
+                  <div className="flex flex-1 flex-col gap-1.5"><Label htmlFor="contact-reveal-linkedin-url-or-slug" className="text-xs font-medium">LinkedIn URL or slug</Label><Input id="contact-reveal-linkedin-url-or-slug" placeholder="https://www.linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} /></div>
                 ) : (
                   <>
-                    <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Full name</Label><Input placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-56" /></div>
-                    <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Company domain</Label><Input placeholder="acme.com" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-48" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="contact-reveal-full-name" className="text-xs font-medium">Full name</Label><Input id="contact-reveal-full-name" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-56" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="contact-reveal-company-domain" className="text-xs font-medium">Company domain</Label><Input id="contact-reveal-company-domain" placeholder="acme.com" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-48" /></div>
                   </>
                 )}
               </div>
@@ -314,7 +314,7 @@ export default function ContactRevealPage() {
                 <label className="flex items-center gap-2"><Checkbox checked={want.getPhoneNumbers} onCheckedChange={(v) => setWant((w) => ({ ...w, getPhoneNumbers: v === true }))} />Phone</label>
                 <span className="flex items-center gap-2 text-xs text-muted-foreground">
                   Validation patience
-                  <select value={patience} onChange={(e) => setPatience(e.target.value as Patience | "")} className="h-8 rounded-md border bg-background px-2 text-xs">
+                  <select aria-label="Patience" value={patience} onChange={(e) => setPatience(e.target.value as Patience | "")} className="h-8 rounded-md border bg-card px-2 text-xs">
                     <option value="">Default</option>
                     {PATIENCE_LEVELS.map((p) => <option key={p} value={p}>{p.charAt(0) + p.slice(1).toLowerCase()}</option>)}
                   </select>

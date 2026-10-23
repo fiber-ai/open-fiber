@@ -40,6 +40,11 @@ typography:
     fontSize: "0.6875rem"
     fontWeight: 600
     letterSpacing: "0.06em"
+  micro:
+    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.625rem"
+    fontWeight: 500
+    lineHeight: 1.2
 rounded:
   sm: "6px"
   md: "8px"
@@ -131,6 +136,10 @@ A near-neutral system tinted toward Fiber's violet, with one saturated accent.
 - **Amber Ink** (#B45309, `--warning`) on #FFFAEB: risky, low credits, slow operations.
 - **Link Blue** (#1D4ED8, `--info`) on #EFF6FF: hiring, informational chips.
 - **Signal Red** (#D92D20, `--destructive`) and #B42318 on #FEF3F2: errors, invalid, delete.
+- **Rating Gold** (`--rating`): star ratings only.
+
+### Data
+- **Chart series** (`--chart-1` … `--chart-10`): categorical series in charts, brand violet first. Use them through `hsl(var(--chart-n))`; status meaning (good / bad) still uses the status tokens.
 
 ### Named Rules
 **The One Violet Rule.** Violet marks action, location and focus only. If an element is violet and you can't click it, it shouldn't be violet.
@@ -148,6 +157,7 @@ A near-neutral system tinted toward Fiber's violet, with one saturated accent.
 - **Title** (600, 18px): empty and error state headings (`h2`), detail-sheet names.
 - **Body** (400, 14px, 1.43): everything else; descriptions in Slate Violet.
 - **Label** (600, 11px, +0.06em, uppercase): sidebar group labels only.
+- **Micro** (500, 10px): compact meta inside dense badges and chips only (e.g. "Lowest", "Elite", match type, reveal sources). Never for running text.
 
 ### Named Rules
 **The One H1 Rule.** Each page has exactly one `h1` (from `Header`). Sections below it start at `h2`.

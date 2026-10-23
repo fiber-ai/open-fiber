@@ -46,12 +46,12 @@ export function TrackerLists({ entityType }: { entityType: EntityType }) {
         {creating ? (
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[220px] space-y-1.5">
-              <Label className="text-xs font-medium">List name</Label>
-              <Input placeholder="e.g. Target accounts" value={name} onChange={(e) => setName(e.target.value)} />
+              <Label htmlFor="tracker-lists-list-name" className="text-xs font-medium">List name</Label>
+              <Input id="tracker-lists-list-name" placeholder="e.g. Target accounts" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Refresh (days)</Label>
-              <Input type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(Number(e.target.value) || 7)} className="w-28" />
+              <Label htmlFor="tracker-lists-refresh-days" className="text-xs font-medium">Refresh (days)</Label>
+              <Input id="tracker-lists-refresh-days" type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(Number(e.target.value) || 7)} className="w-28" />
             </div>
             <Button onClick={() => createMut.mutate({ name: name.trim(), refreshIntervalDays: interval })} disabled={!name.trim() || createMut.isPending}>
               {createMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}

@@ -36,7 +36,7 @@ function ReviewItem({ r }: { r: Review }) {
     <div className="space-y-1.5 border-b pb-3 last:border-0">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-medium">{r.authorName ?? "Anonymous"}</span>
-        {r.authorIsLocalGuide && <Badge variant="outline" className="h-5 px-1.5 text-[10px]"><Award className="mr-0.5 h-3 w-3 text-amber-500" />Local Guide</Badge>}
+        {r.authorIsLocalGuide && <Badge variant="outline" className="h-5 px-1.5 text-[10px]"><Award className="mr-0.5 h-3 w-3 text-warning" />Local Guide</Badge>}
       </div>
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {r.rating != null && <StarRating value={r.rating} size="h-3 w-3" />}
@@ -147,7 +147,7 @@ export function PlaceDetail({ placeId, onClose }: { placeId: string; onClose: ()
           <div className="flex items-center justify-between gap-3">
             <h3 className="text-sm font-semibold">Reviews</h3>
             {moreReviews && (
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-8 rounded-md border bg-background px-2 text-xs">
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-8 rounded-md border bg-card px-2 text-xs">
                 <option value="relevance">Most relevant</option><option value="newest">Newest</option>
               </select>
             )}
@@ -195,8 +195,8 @@ export function QuickSearch() {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (query.trim()) run(false).catch(() => {}); }}>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">What</Label><Input placeholder="dentists, ramen, coworking" value={query} onChange={(e) => setQuery(e.target.value)} className="w-64" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Where (optional)</Label><Input placeholder="Austin, TX" value={location} onChange={(e) => setLocation(e.target.value)} className="w-56" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="quick-search-what" className="text-xs font-medium">What</Label><Input id="quick-search-what" placeholder="dentists, ramen, coworking" value={query} onChange={(e) => setQuery(e.target.value)} className="w-64" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="quick-search-where-optional" className="text-xs font-medium">Where (optional)</Label><Input id="quick-search-where-optional" placeholder="Austin, TX" value={location} onChange={(e) => setLocation(e.target.value)} className="w-56" /></div>
           <Button type="submit" disabled={search.isPending || !query.trim()}>
             {search.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Search
           </Button>
