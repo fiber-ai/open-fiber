@@ -136,6 +136,14 @@ Open [http://localhost:3000](http://localhost:3000). If your API key is valid, y
 - **Usage dashboard** — Monitor credit balance and operation-level usage
 - **Address Book** — Unified view of all contacts across audiences and lookups
 
+## Theming & design system
+
+OpenFiber ships in Fiber AI's brand, but every colour, radius and font is a CSS variable in [`nextjs/src/styles/globals.css`](nextjs/src/styles/globals.css). To restyle a fork, edit that one block — components never use raw palette colours.
+
+- [`nextjs/DESIGN.md`](nextjs/DESIGN.md) — the design system: tokens, type scale, components, do's and don'ts
+- [`nextjs/PRODUCT.md`](nextjs/PRODUCT.md) — who OpenFiber is for and what it must stay true to
+- The [impeccable](https://impeccable.style) design skill is vendored in `nextjs/.claude/skills/impeccable`. From `nextjs/`, run `/impeccable audit` in Claude Code (or `./.claude/skills/impeccable/scripts/impeccable detect src/`) to check new UI against the system, and `/impeccable hooks on` to scan UI edits automatically.
+
 ## Configuration
 
 The only required configuration is your Fiber API key:
