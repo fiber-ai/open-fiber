@@ -236,6 +236,7 @@ export default function ExclusionListDetailPage() {
                           size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           onClick={() => handleRemove(item)}
+                          aria-label="Remove from list"
                           disabled={isRemovePending}
                         >
                           <Trash2 className="h-3.5 w-3.5" />

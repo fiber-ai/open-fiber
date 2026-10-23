@@ -2,50 +2,125 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * OpenFiber theme — Fiber AI brand tokens.
+ *
+ * Every colour in the app resolves to one of these variables, so restyling a
+ * fork means editing this block only. Values are HSL triplets (shadcn format).
+ *
+ * Brand source: Fiber's Figma palette (purple scale centred on #9D78F0,
+ * canvas #FAF8FE, border #E8E8E8, text #1E1E1E). Primary actions use
+ * purple-700 #6A48E3 because #9D78F0 is only 3.3:1 against white text.
+ */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
+    --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+
+    /* surfaces */
+    --background: 260 75% 98.4%; /* #FAF8FE */
+    --foreground: 0 0% 11.8%; /* #1E1E1E */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
+    --card-foreground: 0 0% 11.8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
+    --popover-foreground: 0 0% 11.8%;
+
+    /* action */
+    --primary: 253 73.5% 58.6%; /* #6A48E3 purple-700 */
+    --primary-foreground: 0 0% 100%;
+    --brand: 258 80% 70.6%; /* #9D78F0 purple-500 — rings, highlights */
+    --secondary: 258 56.5% 95.5%; /* #F1EDFA */
+    --secondary-foreground: 252 59.7% 50.4%; /* #5235CC */
+
+    /* quiet */
+    --muted: 260 30% 96.1%; /* #F4F2F8 */
+    --muted-foreground: 259 8.6% 43.3%; /* #6B6578 — 4.9:1 on accent */
+    --accent: 260 78.9% 96.3%; /* #F3EEFD hover / selected */
+    --accent-foreground: 252 59.7% 50.4%; /* #5235CC */
+
+    /* status */
+    --destructive: 4 74.3% 48.8%; /* #D92D20 */
+    --destructive-foreground: 0 0% 100%;
+    --destructive-muted: 5 85.7% 97.3%;
+    --destructive-muted-foreground: 4 76.5% 40%;
+    --success: 142 71.8% 29.2%; /* #15803D */
+    --success-foreground: 0 0% 100%;
+    --success-muted: 145 81% 95.9%;
+    --warning: 26 90.5% 37.1%; /* #B45309 */
+    --warning-foreground: 0 0% 100%;
+    --warning-muted: 45 100% 96.1%;
+    --info: 224 76.3% 48%; /* #1D4ED8 */
+    --info-foreground: 0 0% 100%;
+    --info-muted: 214 100% 96.9%;
+    --rating: 38 92% 50%; /* star ratings */
+
+    /* categorical data (charts) — brand violet first */
+    --chart-1: 253 73.5% 58.6%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 0 84% 60%;
+    --chart-6: 330 81% 60%;
+    --chart-7: 173 80% 40%;
+    --chart-8: 239 84% 67%;
+    --chart-9: 84 81% 44%;
+    --chart-10: 25 95% 53%;
+
+    /* lines */
+    --border: 0 0% 91%; /* #E8E8E8 */
+    --input: 257 24.3% 85.5%; /* #D6D1E3 */
+    --ring: 258 80% 70.6%;
+
+    --radius: 0.625rem;
   }
 
   .dark {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --background: 266 17.1% 8%;
+    --foreground: 260 30% 96.1%;
+    --card: 267 16.4% 10.8%;
+    --card-foreground: 260 30% 96.1%;
+    --popover: 267 16.4% 10.8%;
+    --popover-foreground: 260 30% 96.1%;
+
+    --primary: 260 88.1% 73.7%; /* #A881F7 */
+    --primary-foreground: 255 48.3% 11.4%;
+    --brand: 260 88.1% 73.7%;
+    --secondary: 262 24.4% 17.6%;
+    --secondary-foreground: 259 88.1% 86.9%;
+
+    --muted: 265 17.1% 13.7%;
+    --muted-foreground: 259 10.7% 65.3%;
+    --accent: 262 24.4% 17.6%;
+    --accent-foreground: 259 88.1% 86.9%;
+
+    --destructive: 4 92.5% 68.8%;
+    --destructive-foreground: 5 52.6% 10%;
+    --destructive-muted: 5 52.6% 14.9%;
+    --destructive-muted-foreground: 4 92.5% 68.8%;
+    --success: 142 69.2% 58%;
+    --success-foreground: 144 47.4% 8%;
+    --success-muted: 144 47.4% 11.2%;
+    --warning: 43 96.4% 56.3%;
+    --warning-foreground: 39 70.4% 8%;
+    --warning-muted: 39 70.4% 10.6%;
+    --info: 212 96.4% 78.4%;
+    --info-foreground: 220 60% 10%;
+    --info-muted: 220 60% 15.7%;
+    --rating: 43 96% 56%;
+    --chart-1: 260 88% 74%;
+    --chart-2: 199 89% 60%;
+    --chart-3: 43 96% 56%;
+    --chart-4: 160 70% 50%;
+    --chart-5: 0 90% 70%;
+    --chart-6: 330 81% 70%;
+    --chart-7: 173 70% 50%;
+    --chart-8: 239 84% 75%;
+    --chart-9: 84 70% 55%;
+    --chart-10: 25 95% 62%;
+
+    --border: 263 13.7% 18.6%;
+    --input: 263 13.7% 22%;
+    --ring: 260 88.1% 73.7%;
   }
 }
 
@@ -53,7 +128,41 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+    caret-color: hsl(var(--primary));
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: hsl(var(--brand) / 0.25);
+    color: hsl(var(--foreground));
+  }
+  /* numbers in data line up */
+  table,
+  [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+  /* browser surfaces carry the theme too */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  :focus-visible {
+    outline-color: hsl(var(--ring));
   }
 }

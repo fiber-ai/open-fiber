@@ -6,5 +6,5 @@
  */
 export function XLogo({ className }: { className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src="/x-logo.png" alt="X" className={className} />;
+  return <img src="/x-logo.png" alt="" aria-hidden="true" className={className} />;
 }

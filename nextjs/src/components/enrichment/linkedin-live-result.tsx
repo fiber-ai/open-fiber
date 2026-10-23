@@ -123,7 +123,7 @@ function ProfileCard({ profile }: { profile: ProfileResult }) {
           )}
         </div>
 
-        {profile.open_to_work && <Badge className="bg-green-600 text-xs">Open to Work</Badge>}
+        {profile.open_to_work && <Badge variant="success" className="text-xs">Open to Work</Badge>}
 
         {profile.experiences && profile.experiences.length > 0 && (
           <>

@@ -88,7 +88,7 @@ function AddRuleDialog({ open, onOpenChange, entityType, rules, onAdd, adding }:
           <div className="max-h-[60vh] space-y-1 overflow-y-auto pr-1">
             {rules.map((r) => (
               <button key={r.name} type="button" onClick={() => pick(r)} className={cn("w-full rounded-md border px-2.5 py-2 text-left text-sm", picked?.name === r.name ? "border-primary bg-primary/5" : "hover:bg-muted/60")}>
-                <span className="flex items-center gap-1.5 font-medium">{r.readableName}{r.isPremium && <Crown className="h-3 w-3 text-amber-500" />}</span>
+                <span className="flex items-center gap-1.5 font-medium">{r.readableName}{r.isPremium && <Crown className="h-3 w-3 text-warning" />}</span>
                 <span className="line-clamp-2 text-xs text-muted-foreground">{r.description}</span>
               </button>
             ))}
@@ -96,21 +96,21 @@ function AddRuleDialog({ open, onOpenChange, entityType, rules, onAdd, adding }:
           {picked ? (
             <div className="space-y-3">
               <div>
-                <div className="flex items-center gap-2 font-medium">{picked.readableName}{picked.isPremium && <Badge variant="outline" className="border-amber-500/50 text-[10px] text-amber-600"><Crown className="mr-1 h-3 w-3" />Premium</Badge>}</div>
+                <div className="flex items-center gap-2 font-medium">{picked.readableName}{picked.isPremium && <Badge variant="outline" className="border-warning/50 text-[10px] text-warning"><Crown className="mr-1 h-3 w-3" />Premium</Badge>}</div>
                 <p className="text-sm text-muted-foreground">{picked.description}</p>
                 <p className="mt-1 text-xs text-muted-foreground"><span className="font-medium text-foreground">Use it for:</span> {picked.useCase}</p>
-                {picked.isPremium && <p className="mt-1 text-xs text-amber-600">Premium rules watch news and LinkedIn activity too. A list with any premium rule bills a minimum per entity per refresh.</p>}
+                {picked.isPremium && <p className="mt-1 text-xs text-warning">Premium rules watch news and LinkedIn activity too. A list with any premium rule bills a minimum per entity per refresh.</p>}
               </div>
               <SchemaHints schema={picked.config.schema} />
               <div className="space-y-1.5">
-                <Label className="text-xs font-medium">Config (JSON)</Label>
-                <Textarea rows={8} className="font-mono text-xs" value={text} onChange={(e) => setText(e.target.value)} />
+                <Label htmlFor="rules-panel-config-json" className="text-xs font-medium">Config (JSON)</Label>
+                <Textarea id="rules-panel-config-json" rows={8} className="font-mono text-xs" value={text} onChange={(e) => setText(e.target.value)} />
                 {!parsed.ok && <p className="text-xs text-destructive">{parsed.error}</p>}
               </div>
               {picked.supportsInitialSignals && (
                 <div className="flex items-center gap-2 text-xs">
                   <Label className="text-xs">Backfill signals from the last</Label>
-                  <input type="number" min={1} max={365} placeholder="—" value={lookback} onChange={(e) => setLookback(e.target.value)} className="h-7 w-16 rounded-md border bg-background px-2" />
+                  <input type="number" min={1} max={365} placeholder="—" value={lookback} onChange={(e) => setLookback(e.target.value)} className="h-7 w-16 rounded-md border bg-card px-2" />
                   <span className="text-muted-foreground">days (optional)</span>
                 </div>
               )}
@@ -169,7 +169,7 @@ export function RulesPanel({ entityType, listId, rules: current, onChanged }: { 
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5 text-sm font-medium">
                   {nameOf(r.type as string)}
-                  {premium(r.type as string) && <Crown className="h-3 w-3 text-amber-500" />}
+                  {premium(r.type as string) && <Crown className="h-3 w-3 text-warning" />}
                   {dummy && <Badge variant="outline" className="h-4 px-1 text-[10px]"><FlaskConical className="mr-0.5 h-2.5 w-2.5" />test</Badge>}
                 </div>
                 <p className="truncate text-xs text-muted-foreground">{configSummary(r) || "default settings"}</p>

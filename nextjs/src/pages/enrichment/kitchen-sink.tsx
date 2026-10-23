@@ -26,7 +26,7 @@ const BULK_MAX = 50;
 const WEIGHTS: Record<string, number> = { linkedin: 5, email: 4, name: 2, companyDomain: 2, companyLinkedin: 2, companyName: 1, title: 1, headline: 1, location: 1, school: 1 };
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">{label}</Label>{children}{hint && <p className="text-[11px] text-muted-foreground">{hint}</p>}</div>;
+  return <label className="flex flex-col gap-1.5"><span className="text-xs font-medium leading-none">{label}</span>{children}{hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}</label>;
 }
 
 function OptionsRow({ opts, setOpts, bulk }: { opts: Opts; setOpts: (o: Opts) => void; bulk?: boolean }) {
@@ -130,7 +130,7 @@ function SingleMatch() {
             <Button onClick={submit} disabled={!strength.any || m.isPending}>{m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Find match</Button>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               Match signal
-              <span className="flex gap-0.5">{Array.from({ length: 8 }).map((_, i) => <span key={i} className={cn("h-2 w-3 rounded-sm", i < strength.score ? (strength.score >= 5 ? "bg-emerald-500" : strength.score >= 3 ? "bg-amber-400" : "bg-red-400") : "bg-muted")} />)}</span>
+              <span className="flex gap-0.5">{Array.from({ length: 8 }).map((_, i) => <span key={i} className={cn("h-2 w-3 rounded-sm", i < strength.score ? (strength.score >= 5 ? "bg-success" : strength.score >= 3 ? "bg-warning" : "bg-destructive") : "bg-muted")} />)}</span>
               <span>{labels[strength.score]}</span>
             </div>
           </div>
@@ -256,7 +256,7 @@ function BulkMatch() {
                   const url = p ? ((p.url as string) ?? (p.primary_slug ? `https://www.linkedin.com/in/${p.primary_slug}` : null)) : null;
                   return (
                     <tr key={i}>
-                      <td className="py-2">{p ? <CheckCircle2 className="h-4 w-4 text-emerald-600" /> : <XCircle className="h-4 w-4 text-muted-foreground" />}</td>
+                      <td className="py-2">{p ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-muted-foreground" />}</td>
                       <td className="py-2 pr-4 text-xs text-muted-foreground">{r.filter(Boolean).join(" · ")}</td>
                       <td className="py-2">
                         {p ? (

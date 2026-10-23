@@ -7,6 +7,7 @@ import { trpc } from "@/lib/trpc";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { AppLayout } from "@/components/layout/app-layout";
+import "@fontsource-variable/hanken-grotesk";
 import "@/styles/globals.css";
 
 export type NextPageWithLayout<P = object, IP = P> = NextPage<P, IP> & {

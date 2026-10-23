@@ -133,8 +133,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Job Title */}
         <FilterSection title="Job Title" defaultOpen>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Job Titles</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-job-titles" className="text-xs font-medium">Job Titles</Label>
+            <Input id="prospect-search-form-job-titles"
               placeholder="e.g. CEO, VP Engineering, Head of Sales"
               value={titleInput}
               onChange={(e) => {
@@ -166,8 +166,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Location */}
         <FilterSection title="Location">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Country</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-country" className="text-xs font-medium">Country</Label>
+            <Input id="prospect-search-form-country"
               placeholder="e.g. USA, GBR, DEU"
               value={countryInput}
               onChange={(e) => {
@@ -183,8 +183,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
             <p className="text-xs text-muted-foreground">Comma-separated country codes</p>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">State / Region</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-state-region" className="text-xs font-medium">State / Region</Label>
+            <Input id="prospect-search-form-state-region"
               placeholder={params.country3LetterCode?.anyOf?.length ? "e.g. California, New York" : "Enter a country code first"}
               value={stateInput}
               disabled={!params.country3LetterCode?.anyOf?.length}
@@ -237,8 +237,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Education */}
         <FilterSection title="Education">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">School Name</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-school-name" className="text-xs font-medium">School Name</Label>
+            <Input id="prospect-search-form-school-name"
               placeholder="e.g. Stanford, MIT, Harvard"
               value={schoolInput}
               onChange={(e) => {
@@ -257,8 +257,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Keywords */}
         <FilterSection title="Keywords">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Keywords</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-keywords" className="text-xs font-medium">Keywords</Label>
+            <Input id="prospect-search-form-keywords"
               placeholder="e.g. machine learning, sales, growth"
               value={keywordsInput}
               onChange={(e) => {
@@ -277,8 +277,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Languages */}
         <FilterSection title="Languages">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Languages Spoken</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-languages-spoken" className="text-xs font-medium">Languages Spoken</Label>
+            <Input id="prospect-search-form-languages-spoken"
               placeholder="e.g. English, Spanish, Mandarin"
               value={languagesInput}
               onChange={(e) => {
@@ -294,8 +294,8 @@ export function ProspectSearchForm({ onSearch, isSearching }: ProspectSearchForm
         {/* Name Search */}
         <FilterSection title="Name Search">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Person Name</Label>
-            <Input
+            <Label htmlFor="prospect-search-form-person-name" className="text-xs font-medium">Person Name</Label>
+            <Input id="prospect-search-form-person-name"
               placeholder="e.g. John Smith"
               value={nameInput}
               onChange={(e) => {

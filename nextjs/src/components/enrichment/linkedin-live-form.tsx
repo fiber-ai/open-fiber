@@ -60,7 +60,7 @@ export function LinkedInLiveForm({
         <Label>
           {lookupType === "profile" ? "LinkedIn Profile URL or Slug" : "LinkedIn Company URL or Slug"}
         </Label>
-        <Input
+        <Input aria-label={lookupType === "profile" ? "LinkedIn profile URL or slug" : "LinkedIn company URL or slug"}
           placeholder={
             lookupType === "profile"
               ? "https://www.linkedin.com/in/username or username"

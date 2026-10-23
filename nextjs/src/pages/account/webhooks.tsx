@@ -85,13 +85,13 @@ function EndpointDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Endpoint URL</Label>
-            <Input placeholder="https://api.example.com/webhooks/fiber" value={url} onChange={(e) => setUrl(e.target.value)} />
+            <Label htmlFor="webhooks-endpoint-url" className="text-xs font-medium">Endpoint URL</Label>
+            <Input id="webhooks-endpoint-url" placeholder="https://api.example.com/webhooks/fiber" value={url} onChange={(e) => setUrl(e.target.value)} />
             {url && !validUrl && <p className="text-xs text-destructive">Must be an https:// URL</p>}
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Description (optional)</Label>
-            <Input placeholder="Production CRM sync" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="webhooks-description-optional" className="text-xs font-medium">Description (optional)</Label>
+            <Input id="webhooks-description-optional" placeholder="Production CRM sync" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-medium">Events ({selected.size} selected)</Label>
@@ -186,7 +186,7 @@ function EndpointCard({ ep, events, onEdit, onSecret }: { ep: Endpoint; events: 
             {ep.description && <CardDescription className="mt-1">{ep.description}</CardDescription>}
           </div>
           <Badge variant={ep.disabled ? "outline" : "secondary"} className="shrink-0">
-            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${ep.disabled ? "bg-muted-foreground" : "bg-green-500"}`} />
+            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${ep.disabled ? "bg-muted-foreground" : "bg-success"}`} />
             {ep.disabled ? "Paused" : "Active"}
           </Badge>
         </div>
@@ -204,7 +204,7 @@ function EndpointCard({ ep, events, onEdit, onSecret }: { ep: Endpoint; events: 
           <select
             value={testEvent}
             onChange={(e) => setTestEvent(e.target.value)}
-            className="h-8 rounded-md border bg-background px-2 text-xs font-mono max-w-[16rem]"
+            className="h-8 rounded-md border bg-card px-2 text-xs font-mono max-w-[16rem]"
             aria-label="Test event type"
           >
             {testOptions.map((t) => <option key={t} value={t}>{t}</option>)}

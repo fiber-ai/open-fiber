@@ -46,12 +46,12 @@ export function TrackerLists({ entityType }: { entityType: EntityType }) {
         {creating ? (
           <div className="flex flex-wrap items-end gap-3">
             <div className="flex-1 min-w-[220px] space-y-1.5">
-              <Label className="text-xs font-medium">List name</Label>
-              <Input placeholder="e.g. Target accounts" value={name} onChange={(e) => setName(e.target.value)} />
+              <Label htmlFor="tracker-lists-list-name" className="text-xs font-medium">List name</Label>
+              <Input id="tracker-lists-list-name" placeholder="e.g. Target accounts" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium">Refresh (days)</Label>
-              <Input type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(Number(e.target.value) || 7)} className="w-28" />
+              <Label htmlFor="tracker-lists-refresh-days" className="text-xs font-medium">Refresh (days)</Label>
+              <Input id="tracker-lists-refresh-days" type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(Number(e.target.value) || 7)} className="w-28" />
             </div>
             <Button onClick={() => createMut.mutate({ name: name.trim(), refreshIntervalDays: interval })} disabled={!name.trim() || createMut.isPending}>
               {createMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
@@ -78,7 +78,7 @@ export function TrackerLists({ entityType }: { entityType: EntityType }) {
               return (
                 <Card key={id} data-testid="list-item-row" className="cursor-pointer hover:bg-accent/50" onClick={() => router.push(`/trackers/${entityType}/${id}`)}>
                   <CardContent className="pt-4 flex items-center gap-3">
-                    {l.isActive === false ? <Circle className="h-4 w-4 text-muted-foreground" /> : <CircleCheck className="h-4 w-4 text-green-600" />}
+                    {l.isActive === false ? <Circle className="h-4 w-4 text-muted-foreground" /> : <CircleCheck className="h-4 w-4 text-success" />}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{(l.name as string) ?? "Untitled list"}</p>
                       <p className="text-xs text-muted-foreground">
@@ -92,6 +92,7 @@ export function TrackerLists({ entityType }: { entityType: EntityType }) {
                       size="icon"
                       className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       title="Delete list"
+                      aria-label="Delete list"
                       onClick={(e) => { e.stopPropagation(); if (id) deleteMut.mutate({ listId: id }); }}
                     >
                       <Trash2 className="h-4 w-4" />

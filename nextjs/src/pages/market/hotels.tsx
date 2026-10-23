@@ -114,7 +114,7 @@ function ValueScatter({ stays, selected, onSelect }: { stays: Stay[]; selected: 
       </CardHeader>
       <CardContent>
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Nightly price versus rating">
-          <rect x={P.l} y={P.t} width={(W - P.l - P.r) / 2} height={(H - P.t - P.b) / 2} className="fill-emerald-500/10" />
+          <rect x={P.l} y={P.t} width={(W - P.l - P.r) / 2} height={(H - P.t - P.b) / 2} className="fill-success/10" />
           {yTicks.map((t) => (
             <g key={t}>
               <line x1={P.l} x2={W - P.r} y1={y(t)} y2={y(t)} className="stroke-border" strokeDasharray="2 3" />
@@ -130,7 +130,7 @@ function ValueScatter({ stays, selected, onSelect }: { stays: Stay[]; selected: 
               cx={x(s.nightly as number)}
               cy={y(ratingOutOf5(s) as number)}
               r={selected === s.id ? 7 : 5}
-              className={cn("cursor-pointer stroke-background transition-all", selected === s.id ? "fill-primary" : "fill-sky-500/70 hover:fill-sky-600")}
+              className={cn("cursor-pointer stroke-background transition-all", selected === s.id ? "fill-primary" : "fill-info/70 hover:fill-info")}
               strokeWidth={1.5}
               onClick={() => onSelect(s.id)}
             >
@@ -195,19 +195,19 @@ function GoogleDetail({ token, stay }: { token: string; stay: { checkInDate: str
           <CardContent className="space-y-1.5">
             {offers.length === 0 && <p className="text-sm text-muted-foreground">No live offers for these dates.</p>}
             {offers.slice(0, 8).map((o, i) => (
-              <a key={i} href={o.url ?? undefined} target="_blank" rel="noreferrer" className={cn("flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm hover:bg-muted/50", o.nightly === cheapest && "border-emerald-500/60 bg-emerald-500/5")}>
+              <a key={i} href={o.url ?? undefined} target="_blank" rel="noreferrer" className={cn("flex items-center gap-2 rounded-md border px-2.5 py-1.5 text-sm hover:bg-muted/50", o.nightly === cheapest && "border-success/60 bg-success/5")}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 {o.logoUrl ? <img src={o.logoUrl} alt="" className="h-5 w-5 shrink-0 rounded object-contain" /> : <span className="h-5 w-5 shrink-0" />}
                 <span className="min-w-0 flex-1 break-words leading-tight">{o.sourceName}</span>
                 {o.isOfficial === true && <Badge variant="outline" className="shrink-0 text-[10px]">Official</Badge>}
-                {o.nightly === cheapest && <Badge className="shrink-0 bg-emerald-600 text-[10px] hover:bg-emerald-600">Lowest</Badge>}
+                {o.nightly === cheapest && <Badge className="shrink-0 bg-success text-[10px] hover:bg-success">Lowest</Badge>}
                 <span className="shrink-0 font-medium tabular-nums">{money(o.nightly, o.cur)}</span>
               </a>
             ))}
             {range?.lowerBound != null && range.upperBound != null && nightly != null && (
               <div className="pt-3">
                 <p className="mb-1 text-xs text-muted-foreground">Typical nightly price for this hotel</p>
-                <div className="relative h-2 rounded-full bg-gradient-to-r from-emerald-400 via-amber-300 to-red-400">
+                <div className="relative h-2 rounded-full bg-gradient-to-r from-success via-warning/60 to-destructive">
                   <span
                     className="absolute -top-1 h-4 w-1 rounded bg-foreground"
                     style={{ left: `${Math.min(100, Math.max(0, ((nightly - range.lowerBound) / Math.max(1, range.upperBound - range.lowerBound)) * 100))}%` }}
@@ -234,9 +234,9 @@ function GoogleDetail({ token, stay }: { token: string; stay: { checkInDate: str
                 <div key={i} className="space-y-1" title={(a.description as string) ?? undefined}>
                   <div className="flex justify-between text-xs"><span className="font-medium">{a.name as string}</span><span className="text-muted-foreground">{Math.round(pos * 100)}% positive</span></div>
                   <div className="flex h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className="bg-emerald-500" style={{ width: `${pos * 100}%` }} />
-                    <div className="bg-amber-300" style={{ width: `${neu * 100}%` }} />
-                    <div className="bg-red-400" style={{ width: `${neg * 100}%` }} />
+                    <div className="bg-success" style={{ width: `${pos * 100}%` }} />
+                    <div className="bg-warning/60" style={{ width: `${neu * 100}%` }} />
+                    <div className="bg-destructive" style={{ width: `${neg * 100}%` }} />
                   </div>
                 </div>
               );
@@ -305,12 +305,12 @@ function BookingDetail({ url }: { url: string }) {
       <div>
         <h2 className="flex items-center gap-2 text-xl font-semibold">
           {p.name as string}
-          {p.isSustainable === true && <span title="Sustainability certified"><Leaf className="h-4 w-4 text-emerald-600" /></span>}
+          {p.isSustainable === true && <span title="Sustainability certified"><Leaf className="h-4 w-4 text-success" /></span>}
         </h2>
         <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           {typeof p.accommodationType === "string" && <span>{p.accommodationType}</span>}
-          {p.hotelStarClass != null && <span className="flex items-center">{Array.from({ length: p.hotelStarClass as number }).map((_, i) => <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />)}</span>}
-          {p.reviewScore != null && <Badge className="bg-blue-800 hover:bg-blue-800">{(p.reviewScore as number).toFixed(1)}</Badge>}
+          {p.hotelStarClass != null && <span className="flex items-center">{Array.from({ length: p.hotelStarClass as number }).map((_, i) => <Star key={i} className="h-3 w-3 fill-rating text-rating" />)}</span>}
+          {p.reviewScore != null && <Badge className="bg-info hover:bg-info">{(p.reviewScore as number).toFixed(1)}</Badge>}
           {p.reviewCount != null && <span>{(p.reviewCount as number).toLocaleString()} reviews</span>}
         </div>
       </div>
@@ -324,7 +324,7 @@ function BookingDetail({ url }: { url: string }) {
               {scores.sort((a, b) => b[1] - a[1]).map(([k, v]) => (
                 <div key={k} className="space-y-1">
                   <div className="flex justify-between text-xs"><span>{SCORE_LABELS[k] ?? k}</span><span className="font-medium tabular-nums">{v.toFixed(1)}</span></div>
-                  <div className="h-1.5 rounded-full bg-muted"><div className={cn("h-1.5 rounded-full", v >= 9 ? "bg-emerald-500" : v >= 8 ? "bg-blue-700" : v >= 7 ? "bg-amber-400" : "bg-red-400")} style={{ width: `${v * 10}%` }} /></div>
+                  <div className="h-1.5 rounded-full bg-muted"><div className={cn("h-1.5 rounded-full", v >= 9 ? "bg-success" : v >= 8 ? "bg-info" : v >= 7 ? "bg-warning" : "bg-destructive")} style={{ width: `${v * 10}%` }} /></div>
                 </div>
               ))}
             </CardContent>
@@ -412,13 +412,13 @@ export default function HotelsPage() {
           options={[{ value: "google", label: "Google Hotels" }, { value: "booking", label: "Booking.com" }]}
         />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (canSearch) run(false).catch(() => {}); }}>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Destination</Label><Input placeholder="Lisbon, Portugal" value={query} onChange={(e) => setQuery(e.target.value)} className="w-60" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Check-in</Label><Input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Check-out {nights > 0 && <span className="font-normal text-muted-foreground">· {nights} night{nights > 1 ? "s" : ""}</span>}</Label><Input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Adults</Label><Input type="number" min={1} max={12} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))} className="w-20" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-destination" className="text-xs font-medium">Destination</Label><Input id="hotels-destination" placeholder="Lisbon, Portugal" value={query} onChange={(e) => setQuery(e.target.value)} className="w-60" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-check-in" className="text-xs font-medium">Check-in</Label><Input id="hotels-check-in" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-check-out" className="text-xs font-medium">Check-out {nights > 0 && <span className="font-normal text-muted-foreground">· {nights} night{nights > 1 ? "s" : ""}</span>}</Label><Input id="hotels-check-out" type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-adults" className="text-xs font-medium">Adults</Label><Input id="hotels-adults" type="number" min={1} max={12} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))} className="w-20" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Sort</Label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="hotels-sort" className="text-xs font-medium">Sort</Label>
+            <select id="hotels-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="relevance">Relevance</option>
               <option value="lowestPrice">Lowest price</option>
               <option value="highestRating">Highest rating</option>
@@ -426,7 +426,7 @@ export default function HotelsPage() {
             </select>
           </div>
           {source === "google" && (
-            <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Max / night</Label><Input type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-24" /></div>
+            <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-max-night" className="text-xs font-medium">Max / night</Label><Input id="hotels-max-night" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-24" /></div>
           )}
           <Button type="submit" disabled={active.isPending || !canSearch}>
             {active.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Search
@@ -471,7 +471,7 @@ export default function HotelsPage() {
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-medium leading-tight">{s.name}</p>
                       {s.rating != null && (
-                        <Badge className={cn("shrink-0 tabular-nums", s.source === "booking" ? "bg-blue-800 hover:bg-blue-800" : "")}>
+                        <Badge className={cn("shrink-0 tabular-nums", s.source === "booking" ? "bg-info hover:bg-info" : "")}>
                           {s.rating.toFixed(1)}{s.source === "google" && "★"}
                         </Badge>
                       )}

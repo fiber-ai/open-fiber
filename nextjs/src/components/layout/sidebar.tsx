@@ -46,6 +46,7 @@ import {
   Webhook,
   History,
   Utensils,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -168,60 +169,100 @@ const navGroups: NavGroup[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Rendered inside the mobile drawer: always expanded, toggle closes the drawer. */
+  variant?: "rail" | "drawer";
+  className?: string;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+function isActivePath(pathname: string, href: string) {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
+export function FiberMark({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
+      <rect width="32" height="32" rx="8" fill="hsl(var(--primary))" />
+      <path
+        d="M8 10h16M8 16h12M8 22h8"
+        stroke="hsl(var(--primary-foreground))"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", className }: SidebarProps) {
   const router = useRouter();
+  const isDrawer = variant === "drawer";
+  const collapsed = isDrawer ? false : collapsedProp;
 
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r bg-card transition-all duration-200",
-        collapsed ? "w-16" : "w-64"
+        "flex h-full flex-col border-r bg-card transition-[width] duration-200 ease-out",
+        isDrawer ? "w-72" : collapsed ? "w-16" : "w-64",
+        className
       )}
     >
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className={cn("flex h-14 shrink-0 items-center px-3", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
-          <Link href="/" className="text-lg font-semibold tracking-tight">
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-md px-1 text-base font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <FiberMark className="h-6 w-6" />
             OpenFiber
           </Link>
         )}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 text-muted-foreground"
           onClick={onToggle}
+          aria-label={isDrawer ? "Close navigation" : collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={isDrawer ? true : !collapsed}
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {isDrawer ? (
+            <X className="h-4 w-4" />
+          ) : collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
       <Separator />
 
-      <nav className="flex-1 overflow-y-auto px-2 py-2">
+      <nav aria-label="Main" className="flex-1 overflow-y-auto px-2 py-3">
         {navGroups.map((group) => (
-          <div key={group.label} className="mb-3">
+          <div key={group.label} className="mb-4 last:mb-0">
             {!collapsed && (
-              <p className="mb-1 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                 {group.label}
               </p>
             )}
             {group.items.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = isActivePath(router.pathname, item.href);
               const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  aria-label={collapsed ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors",
+                    "flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    collapsed && "justify-center",
                     isActive
-                      ? "bg-accent text-accent-foreground font-medium"
+                      ? "bg-accent font-medium text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                   title={collapsed ? item.label : undefined}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className={cn("h-4 w-4 shrink-0", isActive && "text-primary")} />
                   {!collapsed && <span>{item.label}</span>}
                 </Link>
               );

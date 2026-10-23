@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { ApiKeyInput } from "@/components/shared/api-key-input";
 import type { NextPageWithLayout } from "./_app";
 
@@ -37,10 +37,10 @@ const SetupPage: NextPageWithLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome to OpenFiber</CardTitle>
+          <h1 className="text-2xl font-semibold leading-none tracking-tight">Welcome to OpenFiber</h1>
           <CardDescription>
             Connect your Fiber AI API key to get started with prospecting.
           </CardDescription>
@@ -49,7 +49,7 @@ const SetupPage: NextPageWithLayout = () => {
           <ApiKeyInput onSubmit={handleSubmit} isLoading={isLoading} error={error ?? redirectError} />
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 };
 

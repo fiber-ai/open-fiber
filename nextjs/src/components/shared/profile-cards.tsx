@@ -39,7 +39,7 @@ export function PersonProfileCard({ p }: { p: Row }) {
             <ol className="space-y-1.5 border-l pl-3">
               {exps.map((e, i) => (
                 <li key={i} className="relative text-sm">
-                  <span className={`absolute -left-[17px] top-1.5 h-2 w-2 rounded-full ${e.is_current ? "bg-emerald-500" : "bg-muted-foreground/40"}`} />
+                  <span className={`absolute -left-[17px] top-1.5 h-2 w-2 rounded-full ${e.is_current ? "bg-success" : "bg-muted-foreground/40"}`} />
                   <span className="font-medium">{str(e.title) ?? "—"}</span>
                   <span className="text-muted-foreground"> · {str(e.company_name)}</span>
                   <span className="ml-1 text-xs text-muted-foreground">{yr(e.start_date)}–{e.is_current ? "now" : yr(e.end_date)}</span>

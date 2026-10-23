@@ -96,11 +96,11 @@ export default function FinancePage() {
             <CardContent className="pt-6 space-y-4">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Instrument type</Label>
-                  <select
+                  <Label htmlFor="finance-instrument-type" className="text-xs">Instrument type</Label>
+                  <select id="finance-instrument-type"
                     value={type}
                     onChange={(e) => setType(e.target.value as InstrumentType)}
-                    className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                    className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                   >
                     <option value="stockOrEtf">Stock / ETF</option>
                     <option value="index">Index</option>
@@ -112,23 +112,23 @@ export default function FinancePage() {
 
                 {(type === "stockOrEtf" || type === "mutualFund") && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Ticker</Label>
-                    <Input className="w-28" placeholder="AAPL" value={ticker} onChange={(e) => setTicker(e.target.value)} />
+                    <Label htmlFor="finance-ticker" className="text-xs">Ticker</Label>
+                    <Input id="finance-ticker" className="w-28" placeholder="AAPL" value={ticker} onChange={(e) => setTicker(e.target.value)} />
                   </div>
                 )}
                 {type === "stockOrEtf" && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Exchange</Label>
-                    <Input className="w-28" placeholder="NASDAQ" value={exchange} onChange={(e) => setExchange(e.target.value)} />
+                    <Label htmlFor="finance-exchange" className="text-xs">Exchange</Label>
+                    <Input id="finance-exchange" className="w-28" placeholder="NASDAQ" value={exchange} onChange={(e) => setExchange(e.target.value)} />
                   </div>
                 )}
                 {type === "index" && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Index</Label>
-                    <select
+                    <Label htmlFor="finance-index" className="text-xs">Index</Label>
+                    <select id="finance-index"
                       value={index}
                       onChange={(e) => setIndex(e.target.value as typeof index)}
-                      className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                      className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                     >
                       {INDICES.map((i) => <option key={i.value} value={i.value}>{i.label}</option>)}
                     </select>
@@ -137,28 +137,28 @@ export default function FinancePage() {
                 {type === "currencyPair" && (
                   <>
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Base</Label>
-                      <Input className="w-20" placeholder="USD" value={base} onChange={(e) => setBase(e.target.value)} />
+                      <Label htmlFor="finance-base" className="text-xs">Base</Label>
+                      <Input id="finance-base" className="w-20" placeholder="USD" value={base} onChange={(e) => setBase(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
-                      <Label className="text-xs">Quote</Label>
-                      <Input className="w-20" placeholder="EUR" value={quoteCurrency} onChange={(e) => setQuoteCurrency(e.target.value)} />
+                      <Label htmlFor="finance-quote" className="text-xs">Quote</Label>
+                      <Input id="finance-quote" className="w-20" placeholder="EUR" value={quoteCurrency} onChange={(e) => setQuoteCurrency(e.target.value)} />
                     </div>
                   </>
                 )}
                 {type === "customSymbol" && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Symbol</Label>
-                    <Input className="w-40" placeholder="e.g. BTC-USD" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
+                    <Label htmlFor="finance-symbol" className="text-xs">Symbol</Label>
+                    <Input id="finance-symbol" className="w-40" placeholder="e.g. BTC-USD" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
                   </div>
                 )}
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Window</Label>
-                  <select
+                  <Label htmlFor="finance-window" className="text-xs">Window</Label>
+                  <select id="finance-window"
                     value={window}
                     onChange={(e) => setWindow(e.target.value as typeof window)}
-                    className="block rounded-md border bg-background px-2 py-1.5 text-sm"
+                    className="block rounded-md border bg-card px-2 py-1.5 text-sm"
                   >
                     {WINDOWS.map((w) => <option key={w} value={w}>{w}</option>)}
                   </select>
@@ -191,7 +191,7 @@ export default function FinancePage() {
                           {(quote.price as number).toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{quote.currency as string}</span>
                         </p>
                         {priceChange && typeof priceChange.amount === "number" && (
-                          <p className={`flex items-center justify-end gap-1 text-sm ${isUp ? "text-emerald-600" : "text-red-600"}`}>
+                          <p className={`flex items-center justify-end gap-1 text-sm ${isUp ? "text-success" : "text-destructive"}`}>
                             {isUp ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                             {(priceChange.amount as number).toLocaleString()}
                             {typeof priceChange.percentage === "number" && ` (${(priceChange.percentage as number).toFixed(2)}%)`}

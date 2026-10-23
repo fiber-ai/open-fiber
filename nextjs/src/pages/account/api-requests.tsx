@@ -30,9 +30,9 @@ type Range = "1h" | "24h" | "7d" | "14d";
 const RANGE_MS: Record<Range, number> = { "1h": 3600e3, "24h": 86400e3, "7d": 7 * 86400e3, "14d": 14 * 86400e3 };
 
 const statusTone = (s: number) =>
-  s >= 500 ? "bg-red-500" : s >= 400 ? "bg-amber-500" : s >= 300 ? "bg-sky-500" : "bg-emerald-500";
+  s >= 500 ? "bg-destructive" : s >= 400 ? "bg-warning" : s >= 300 ? "bg-info" : "bg-success";
 const statusText = (s: number) =>
-  s >= 500 ? "text-red-600 dark:text-red-400" : s >= 400 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400";
+  s >= 500 ? "text-destructive" : s >= 400 ? "text-warning" : "text-success";
 
 const fmtTime = (iso: string) => {
   try { return new Date(iso).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" }); } catch { return iso; }
@@ -85,7 +85,7 @@ function Summary({ rows }: { rows: ApiRequest[] }) {
   const total = rows.length || 1;
   const errorRate = ((stats.buckets["4xx"] + stats.buckets["5xx"]) / total) * 100;
   const maxRoute = stats.top[0]?.[1].n ?? 1;
-  const tones: Record<string, string> = { "2xx": "bg-emerald-500", "3xx": "bg-sky-500", "4xx": "bg-amber-500", "5xx": "bg-red-500" };
+  const tones: Record<string, string> = { "2xx": "bg-success", "3xx": "bg-info", "4xx": "bg-warning", "5xx": "bg-destructive" };
 
   return (
     <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -93,7 +93,7 @@ function Summary({ rows }: { rows: ApiRequest[] }) {
         <CardContent className="space-y-4 pt-5">
           <div className="grid grid-cols-3 gap-3">
             <div><p className="text-xs text-muted-foreground">Requests loaded</p><p className="text-2xl font-semibold tabular-nums">{rows.length.toLocaleString()}</p></div>
-            <div><p className="text-xs text-muted-foreground">Error rate</p><p className={cn("text-2xl font-semibold tabular-nums", errorRate > 5 && "text-red-600 dark:text-red-400")}>{errorRate.toFixed(1)}%</p></div>
+            <div><p className="text-xs text-muted-foreground">Error rate</p><p className={cn("text-2xl font-semibold tabular-nums", errorRate > 5 && "text-destructive")}>{errorRate.toFixed(1)}%</p></div>
             <div><p className="text-xs text-muted-foreground">Latency p50 / p95</p><p className="text-2xl font-semibold tabular-nums">{fmtMs(stats.p50)}<span className="text-base text-muted-foreground"> / {fmtMs(stats.p95)}</span></p></div>
           </div>
           <div>
@@ -117,11 +117,11 @@ function Summary({ rows }: { rows: ApiRequest[] }) {
             <div key={route} className="space-y-1">
               <div className="flex justify-between gap-2 text-xs">
                 <span className="truncate font-mono">{route}</span>
-                <span className="shrink-0 tabular-nums text-muted-foreground">{n}{errors > 0 && <span className="text-red-600 dark:text-red-400"> · {errors} err</span>}</span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">{n}{errors > 0 && <span className="text-destructive"> · {errors} err</span>}</span>
               </div>
               <div className="flex h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div className="bg-primary" style={{ width: `${((n - errors) / maxRoute) * 100}%` }} />
-                <div className="bg-red-500" style={{ width: `${(errors / maxRoute) * 100}%` }} />
+                <div className="bg-destructive" style={{ width: `${(errors / maxRoute) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -202,23 +202,23 @@ export default function ApiRequestsPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Route</Label>
-            <Input placeholder="/v1/people-search" value={routePath} onChange={(e) => setRoutePath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-56 font-mono text-xs" />
+            <Label htmlFor="api-requests-route" className="text-xs font-medium">Route</Label>
+            <Input id="api-requests-route" placeholder="/v1/people-search" value={routePath} onChange={(e) => setRoutePath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-56 font-mono text-xs" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Method</Label>
-            <select value={method} onChange={(e) => setMethod(e.target.value)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="api-requests-method" className="text-xs font-medium">Method</Label>
+            <select id="api-requests-method" value={method} onChange={(e) => setMethod(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="">Any</option>
               {["GET", "POST", "PUT", "PATCH", "DELETE"].map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Status</Label>
-            <Input placeholder="429" inputMode="numeric" value={statusCode} onChange={(e) => setStatusCode(e.target.value.replace(/\D/g, "").slice(0, 3))} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-20" />
+            <Label htmlFor="api-requests-status" className="text-xs font-medium">Status</Label>
+            <Input id="api-requests-status" placeholder="429" inputMode="numeric" value={statusCode} onChange={(e) => setStatusCode(e.target.value.replace(/\D/g, "").slice(0, 3))} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-20" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Error code</Label>
-            <Input placeholder="INSUFFICIENT_CREDITS" value={errorCode} onChange={(e) => setErrorCode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-52 font-mono text-xs" />
+            <Label htmlFor="api-requests-error-code" className="text-xs font-medium">Error code</Label>
+            <Input id="api-requests-error-code" placeholder="INSUFFICIENT_CREDITS" value={errorCode} onChange={(e) => setErrorCode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-52 font-mono text-xs" />
           </div>
           <Button onClick={apply} disabled={query.isFetching && !query.isFetchingNextPage}>
             {query.isFetching && !query.isFetchingNextPage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
