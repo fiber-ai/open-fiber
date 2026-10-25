@@ -153,8 +153,8 @@ export default function TalentFlowPage() {
             <CardContent className="space-y-4 pt-6">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="flex min-w-[18rem] flex-1 flex-col gap-1.5">
-                  <Label htmlFor="talent-flow-company" className="text-xs font-medium">Company</Label>
-                  <Input id="talent-flow-company" placeholder="stripe.com, LinkedIn company URL, slug, or org ID" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} />
+                  <Label htmlFor="company" className="text-xs font-medium">Company</Label>
+                  <Input id="company" placeholder="stripe.com, LinkedIn company URL, slug, or org ID" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} />
                 </div>
                 {mode === "flow" ? (
                   <div className="flex flex-col gap-1.5">
@@ -163,12 +163,12 @@ export default function TalentFlowPage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="talent-flow-rivals-per-side" className="text-xs font-medium">Rivals per side</Label>
-                    <Input id="talent-flow-rivals-per-side" type="number" min={1} max={50} value={perSide} onChange={(e) => setPerSide(Math.min(50, Math.max(1, Number(e.target.value) || 10)))} className="w-24" />
+                    <Label htmlFor="rivals-per-side" className="text-xs font-medium">Rivals per side</Label>
+                    <Input id="rivals-per-side" type="number" min={1} max={50} value={perSide} onChange={(e) => setPerSide(Math.min(50, Math.max(1, Number(e.target.value) || 10)))} className="w-24" />
                   </div>
                 )}
-                <div className="flex flex-col gap-1.5"><Label htmlFor="talent-flow-after-optional" className="text-xs font-medium">After (optional)</Label><Input id="talent-flow-after-optional" type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" /></div>
-                <div className="flex flex-col gap-1.5"><Label htmlFor="talent-flow-before-optional" className="text-xs font-medium">Before (optional)</Label><Input id="talent-flow-before-optional" type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" /></div>
+                <div className="flex flex-col gap-1.5"><Label htmlFor="after" className="text-xs font-medium">After (optional)</Label><Input id="after" type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" /></div>
+                <div className="flex flex-col gap-1.5"><Label htmlFor="before" className="text-xs font-medium">Before (optional)</Label><Input id="before" type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" /></div>
                 <Button onClick={handleSubmit} disabled={!company.trim() || active.isPending}>
                   {active.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}Analyze · 5 cr
                 </Button>

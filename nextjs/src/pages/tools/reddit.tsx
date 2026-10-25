@@ -65,14 +65,14 @@ export default function RedditPage() {
         <div className="flex flex-wrap gap-3 items-end">
           {mode !== "search" && (
             <div className="space-y-1.5">
-              <Label htmlFor="reddit-subreddit" className="text-xs font-medium">Subreddit</Label>
-              <Input id="reddit-subreddit" placeholder="e.g. startups" value={subreddit} onChange={(e) => setSubreddit(e.target.value)} className="w-48" />
+              <Label htmlFor="subreddit" className="text-xs font-medium">Subreddit</Label>
+              <Input id="subreddit" placeholder="e.g. startups" value={subreddit} onChange={(e) => setSubreddit(e.target.value)} className="w-48" />
             </div>
           )}
           {mode !== "subreddit" && (
             <div className="flex-1 min-w-[240px] space-y-1.5">
-              <Label htmlFor="reddit-query" className="text-xs font-medium">Query</Label>
-              <Input id="reddit-query" placeholder='e.g. "AI sales tools"' value={query} onChange={(e) => setQuery(e.target.value)} />
+              <Label htmlFor="query" className="text-xs font-medium">Query</Label>
+              <Input id="query" placeholder='e.g. "AI sales tools"' value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
           )}
           <Button onClick={handleSubmit} disabled={active.isPending}>

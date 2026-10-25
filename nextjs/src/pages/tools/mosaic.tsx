@@ -173,13 +173,13 @@ export default function MosaicPage() {
                 <CardHeader><CardTitle className="text-base">New Mosaic run</CardTitle></CardHeader>
                 <CardContent className="space-y-5">
                   <div className="space-y-1.5">
-                    <Label htmlFor="mosaic-file-link" className="text-xs font-medium">File link</Label>
-                    <Input id="mosaic-file-link" placeholder="https://docs.google.com/spreadsheets/d/…" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} />
+                    <Label htmlFor="file-link" className="text-xs font-medium">File link</Label>
+                    <Input id="file-link" placeholder="https://docs.google.com/spreadsheets/d/…" value={sourceUrl} onChange={(e) => setSourceUrl(e.target.value)} />
                     <p className="text-xs text-muted-foreground">CSV, XLSX, TXT (one LinkedIn URL per line) or a Google Sheet. Google Drive, Dropbox and OneDrive share links work too, as long as anyone with the link can view.</p>
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="mosaic-extra-instructions-optional" className="text-xs font-medium">Extra instructions (optional)</Label>
-                    <Textarea id="mosaic-extra-instructions-optional" rows={3} placeholder="These are all doctors — get office phones, not home phones." value={instructions} onChange={(e) => setInstructions(e.target.value)} />
+                    <Label htmlFor="extra-instructions" className="text-xs font-medium">Extra instructions (optional)</Label>
+                    <Textarea id="extra-instructions" rows={3} placeholder="These are all doctors — get office phones, not home phones." value={instructions} onChange={(e) => setInstructions(e.target.value)} />
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -196,7 +196,7 @@ export default function MosaicPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap items-end gap-3">
-                    <div className="flex flex-col gap-1.5"><Label htmlFor="mosaic-max-rows-optional" className="text-xs font-medium">Max rows (optional)</Label><Input id="mosaic-max-rows-optional" type="number" min={1} max={20000} placeholder="All (≤20,000)" value={maxRows} onChange={(e) => setMaxRows(e.target.value)} className="w-40" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="max-rows" className="text-xs font-medium">Max rows (optional)</Label><Input id="max-rows" type="number" min={1} max={20000} placeholder="All (≤20,000)" value={maxRows} onChange={(e) => setMaxRows(e.target.value)} className="w-40" /></div>
                     <Button onClick={submit} disabled={start.isPending || !/^https:\/\/\S+$/.test(sourceUrl.trim())}>
                       {start.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Start healing
                     </Button>

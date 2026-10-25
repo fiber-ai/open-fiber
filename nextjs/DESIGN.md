@@ -1,54 +1,49 @@
 ---
 name: OpenFiber
-description: Open-source prospecting UI on Fiber AI's APIs, in Fiber's brand
+description: Plain, neutral prospecting UI on Fiber AI's APIs, with a swappable brand layer
 colors:
-  fiber-violet: "#6A48E3"
-  fiber-lilac: "#9D78F0"
-  deep-violet: "#5235CC"
-  lavender-canvas: "#FAF8FE"
-  paper: "#FFFFFF"
-  violet-wash: "#F3EEFD"
-  quiet-wash: "#F4F2F8"
-  ink: "#1E1E1E"
-  slate-violet: "#6B6578"
-  hairline: "#E8E8E8"
-  field-line: "#D6D1E3"
-  signal-red: "#D92D20"
-  ledger-green: "#15803D"
-  amber-ink: "#B45309"
-  link-blue: "#1D4ED8"
+  brand-primary: "#6A48E3"
+  brand-ring: "#9D78F0"
+  background: "#FFFFFF"
+  foreground: "#0A0A0A"
+  muted: "#F5F5F5"
+  muted-foreground: "#666666"
+  border: "#E5E5E5"
+  destructive: "#DC2626"
+  success: "#15803D"
+  warning: "#B45309"
+  info: "#1D4ED8"
 typography:
   headline:
-    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, sans-serif"
     fontSize: "1.5rem"
     fontWeight: 600
     lineHeight: 1.2
     letterSpacing: "-0.025em"
   title:
-    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, sans-serif"
     fontSize: "1.125rem"
     fontWeight: 600
     lineHeight: 1.3
-    letterSpacing: "-0.025em"
   body:
-    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, sans-serif"
     fontSize: "0.875rem"
     fontWeight: 400
     lineHeight: 1.43
   label:
-    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, sans-serif"
     fontSize: "0.6875rem"
     fontWeight: 600
     letterSpacing: "0.06em"
   micro:
-    fontFamily: "Hanken Grotesk Variable, ui-sans-serif, system-ui, sans-serif"
+    fontFamily: "system-ui, sans-serif"
     fontSize: "0.625rem"
     fontWeight: 500
     lineHeight: 1.2
 rounded:
-  sm: "6px"
-  md: "8px"
-  lg: "10px"
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
   full: "9999px"
 spacing:
   xs: "4px"
@@ -57,39 +52,31 @@ spacing:
   lg: "24px"
 components:
   button-primary:
-    backgroundColor: "{colors.fiber-violet}"
-    textColor: "{colors.paper}"
+    backgroundColor: "{colors.brand-primary}"
+    textColor: "{colors.background}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
     height: "40px"
   button-outline:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.foreground}"
     rounded: "{rounded.md}"
     padding: "8px 16px"
     height: "40px"
-  button-outline-hover:
-    backgroundColor: "{colors.violet-wash}"
-    textColor: "{colors.deep-violet}"
   input:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.foreground}"
     rounded: "{rounded.md}"
     padding: "8px 12px"
     height: "40px"
   nav-item-active:
-    backgroundColor: "{colors.violet-wash}"
-    textColor: "{colors.deep-violet}"
+    backgroundColor: "{colors.muted}"
+    textColor: "{colors.foreground}"
     rounded: "{rounded.md}"
     padding: "6px 8px"
-  badge-success:
-    backgroundColor: "#ECFDF3"
-    textColor: "{colors.ledger-green}"
-    rounded: "{rounded.full}"
-    padding: "2px 10px"
   card:
-    backgroundColor: "{colors.paper}"
-    textColor: "{colors.ink}"
+    backgroundColor: "{colors.background}"
+    textColor: "{colors.foreground}"
     rounded: "{rounded.lg}"
 ---
 
@@ -97,118 +84,83 @@ components:
 
 ## Overview
 
-**Creative North Star: "The Prospector's Bench"**
+**Creative North Star: "The Vanilla Starter"**
 
-OpenFiber is a working tool: filter, search, enrich, export, repeat. The interface is a quiet bench where data does the talking. Surfaces are white paper laid on a faint lavender canvas, text is near-black ink, and Fiber violet appears only where the operator acts, is located or is focused. Everything else stays still.
+OpenFiber is a starting point, not a finished brand. Customers drop it into their own apps or build on it, so the UI is deliberately plain: the stock shadcn/ui look, neutral greys on white, system fonts, no decoration. It should feel like a clean template someone can make their own in minutes.
 
-It is equally reference code. Every colour, radius and typeface resolves to a CSS variable in `src/styles/globals.css`, so a fork re-brands by editing one block. Components never name a raw palette colour.
+Brand lives in one thin, swappable layer:
 
-The brand comes from Fiber AI's Figma palette. Fiber's product face (TWK Lausanne) is licensed and cannot ship open source, so OpenFiber uses Hanken Grotesk, an OFL grotesk of similar temperament, behind `--font-sans`.
+- `src/styles/brand.css`: accent colour, focus-ring tint, font stack, corner radius
+- `src/config/brand.ts`: product name and logo (image in `public/brand/`)
+
+Today that layer carries a light Fiber touch: Fiber purple for primary actions and the Fiber "F" mark. Swap those two files and the app is yours.
 
 **Key Characteristics:**
-- Lavender canvas, white working surfaces, hairline borders
-- One violet for action, selection and focus; nothing decorative
-- Status colour through semantic tokens (success / warning / info / destructive)
-- Dense but legible: 14px body, tabular numerals in tables
-- Desktop rail navigation, off-canvas drawer below 768px
+- Neutral shadcn/ui base: white surfaces, grey borders and muted text
+- One accent colour, used only for primary buttons, links, focus and the active nav icon
+- System font stack, so there's no web font to load
+- Every colour is a token, so components never use raw palette classes or hex
+- Desktop sidebar rail; below 768px, a top bar opens the nav in an accessible drawer
 
 ## Colors
 
-A near-neutral system tinted toward Fiber's violet, with one saturated accent.
+### Brand (from `brand.css`, swap freely)
+- **Brand primary** (#6A48E3, `--brand-primary` → `--primary`): primary buttons, links, caret, active nav icon. Must stay ≥ 4.5:1 against its foreground.
+- **Brand ring** (#9D78F0, `--brand-ring` → `--ring`): focus rings and the text-selection tint.
 
-### Primary
-- **Fiber Violet** (#6A48E3, `--primary`): primary buttons, active nav icon, links, caret. 5.8:1 against white.
-- **Fiber Lilac** (#9D78F0, `--brand`, `--ring`): focus rings and text-selection tint. The brand's signature hue, too light for text on white (3.3:1), so it never carries text.
-- **Deep Violet** (#5235CC, `--accent-foreground`): text on violet washes (active nav item, hovered rows, info chips).
-
-### Neutral
-- **Lavender Canvas** (#FAF8FE, `--background`): app background behind panels.
-- **Paper** (#FFFFFF, `--card`): cards, sidebars, headers, inputs, dialogs, sheets.
-- **Violet Wash** (#F3EEFD, `--accent`): hover and selected states.
-- **Quiet Wash** (#F4F2F8, `--muted`): neutral fills, skeletons, credit badge.
-- **Ink** (#1E1E1E, `--foreground`): body and heading text.
-- **Slate Violet** (#6B6578, `--muted-foreground`): secondary text; ≥4.9:1 on every surface above.
-- **Hairline** (#E8E8E8, `--border`): dividers and card borders.
-- **Field Line** (#D6D1E3, `--input`): input borders, a touch stronger than hairlines.
+### Neutral (shadcn defaults, in `globals.css`)
+- **Background / card** (#FFFFFF), **foreground** (#0A0A0A), **muted / accent** (#F5F5F5), **muted foreground** (#666666, ≥ 4.5:1 on muted), **border / input** (#E5E5E5).
 
 ### Status
-- **Ledger Green** (#15803D, `--success`) on #ECFDF3 (`--success-muted`): valid, verified, open-to-work.
-- **Amber Ink** (#B45309, `--warning`) on #FFFAEB: risky, low credits, slow operations.
-- **Link Blue** (#1D4ED8, `--info`) on #EFF6FF: hiring, informational chips.
-- **Signal Red** (#D92D20, `--destructive`) and #B42318 on #FEF3F2: errors, invalid, delete.
-- **Rating Gold** (`--rating`): star ratings only.
-
-### Data
-- **Chart series** (`--chart-1` … `--chart-10`): categorical series in charts, brand violet first. Use them through `hsl(var(--chart-n))`; status meaning (good / bad) still uses the status tokens.
+- **Success** (#15803D), **warning** (#B45309), **info** (#1D4ED8), **destructive** (#DC2626), each with a `-muted` background for badges and callouts.
+- **Rating** (`--rating`): star ratings only.
+- **Chart series** (`--chart-1` … `--chart-10`): categorical data. `--chart-1` follows the brand.
 
 ### Named Rules
-**The One Violet Rule.** Violet marks action, location and focus only. If an element is violet and you can't click it, it shouldn't be violet.
+**The Two-File Rule.** Rebranding touches `brand.css` and `config/brand.ts` only. If a change needs a third file, the token is missing: add it to the brand layer.
 
-**The Token-Only Rule.** No `bg-green-100`, `text-amber-600` or hex values in components. Add a token first.
+**The Token-Only Rule.** No `bg-green-100`, `text-amber-600` or hex values in components.
 
 ## Typography
 
-**Body Font:** Hanken Grotesk Variable (self-hosted via `@fontsource-variable/hanken-grotesk`), falling back to `system-ui`
-
-**Character:** A plain, slightly warm grotesk, quiet at 14px and firm at 600 weight. It stands in for Fiber's TWK Lausanne.
+**Font:** the system stack (`--font-sans` in `brand.css`). Forks can point it at their own font.
 
 ### Hierarchy
-- **Headline** (600, 24px desktop / 20px mobile, -0.025em): page title in `Header`, one `h1` per page.
-- **Title** (600, 18px): empty and error state headings (`h2`), detail-sheet names.
-- **Body** (400, 14px, 1.43): everything else; descriptions in Slate Violet.
-- **Label** (600, 11px, +0.06em, uppercase): sidebar group labels only.
-- **Micro** (500, 10px): compact meta inside dense badges and chips only (e.g. "Lowest", "Elite", match type, reveal sources). Never for running text.
-
-### Named Rules
-**The One H1 Rule.** Each page has exactly one `h1` (from `Header`). Sections below it start at `h2`.
+- **Headline** (600, 24px desktop / 20px mobile): page title in `Header`, one `h1` per page.
+- **Title** (600, 18px): empty/error state headings (`h2`), detail-sheet names.
+- **Body** (400, 14px): everything else; descriptions in muted foreground.
+- **Label** (600, 11px, uppercase, +0.06em): sidebar group labels only.
+- **Micro** (500, 10px): compact meta inside dense badges and chips only.
 
 ## Layout
 
-App shell is a full-height flex row: a 256px sidebar rail (collapsible to 64px), then the page. Below 768px the rail is replaced by a 56px top bar whose menu button opens the sidebar as a 288px drawer (Escape or backdrop closes it). Search pages put a 320px filter panel beside results on desktop and stack it above results on mobile. Pages pad 16px on mobile and 24px from `md` up. Spacing follows Tailwind's 4px scale; groups use 8–12px, sections 16–24px.
+Full-height app shell: a 256px sidebar rail (collapsible to 64px), then the page. Below 768px a 56px top bar opens the sidebar in a Radix Dialog drawer (focus trapped, Escape and backdrop close it, focus returns to the menu button). Search pages put a 320px filter panel beside results on desktop and stack it above results on mobile. Spacing follows Tailwind's 4px scale.
 
 ## Elevation & Depth
 
-Flat by default: depth comes from paper-on-canvas tonal layering and hairline borders. Shadows appear only on overlays (dialogs, sheets, the mobile drawer, toasts) using Tailwind's `shadow-lg` / `shadow-xl`, over a `black/20–30` scrim.
-
-### Named Rules
-**The Flat-At-Rest Rule.** Cards and panels never carry shadows; only things that float above the page do.
+Flat. Depth comes from borders. Shadows only on things that float: dialogs, sheets, the mobile drawer, toasts.
 
 ## Shapes
 
-Radius `--radius` is 10px (cards), with 8px for buttons, inputs and nav items and 6px for small controls. Badges are pills. Icons are Lucide at 16px, 1.5–2px stroke; no emoji or Unicode glyphs as icons.
+`--radius` 0.5rem (shadcn default): 8px cards, 6px buttons and inputs, pill badges. Lucide icons at 16px.
 
 ## Components
 
-### Buttons
-- **Primary:** Fiber Violet fill, white text, 8px radius, 40px tall; hover at 90% opacity; disabled at 50%.
-- **Outline:** Paper fill, Field Line border; hover Violet Wash with Deep Violet text.
-- **Ghost / icon:** transparent, Slate Violet icon; every icon-only button carries an `aria-label`.
-
-### Badges
-Variants `default`, `secondary`, `success`, `warning`, `info`, `destructive`, `outline`. Status badges use the muted wash with the strong status colour as text.
-
-### Cards / Containers
-Paper on Lavender Canvas, Hairline border, 10px radius, no shadow.
-
-### Inputs / Fields
-Paper fill, Field Line border, 40px tall, Lilac focus ring (2px). Placeholders in Slate Violet.
-
-### Navigation
-Sidebar on Paper. Group labels in uppercase Label style. Items are 14px Slate Violet; hover and active use Violet Wash with Deep Violet text, and the active icon turns Fiber Violet. The active item sets `aria-current="page"` and matches sub-routes (`/audiences/123` highlights Audiences).
-
-### Empty & Error States
-Centred: a violet-wash circle with a Fiber Violet icon, an `h2` title, a Slate Violet description, and an optional action.
+- **Buttons:** shadcn variants. Primary uses the brand colour. Every icon-only button has an `aria-label`.
+- **Badges:** `default`, `secondary`, `success`, `warning`, `info`, `destructive`, `outline`.
+- **Inputs, selects, textareas:** every control has a programmatic label: a `<Label htmlFor>` (with `useId()` in shared components), a wrapping `<label>`, or an `aria-label` when there's no visible label.
+- **Navigation:** exactly one item is active, the longest nav href matching the real URL (`asPath`). It gets `aria-current="page"`.
+- **Empty & error states:** centred muted icon, `h2` title, muted description, optional action.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** add a semantic token before using a new colour anywhere.
-- **Do** label every icon-only control and keep visible focus rings.
+- **Do** keep new UI plain: neutral greys, the brand colour only for the primary action.
+- **Do** add a token before using a new colour.
+- **Do** label every control, including ones that only render after data loads.
 - **Do** check new pages at 390px wide.
-- **Do** use `Badge` variants for status instead of inline colour classes.
 
 ### Don't:
-- **Don't** use Fiber Lilac (#9D78F0) for text or button fills; it fails contrast.
-- **Don't** add gradients, glows, coloured side-stripe borders or decorative shadows.
-- **Don't** load web fonts from third-party CDNs; self-host through `@fontsource`.
-- **Don't** reintroduce Inter or the stock shadcn grayscale theme.
+- **Don't** add brand styling outside `brand.css` / `config/brand.ts`.
+- **Don't** add gradients, glows, tinted canvases or decorative shadows.
+- **Don't** hard-code ids in shared components; use `useId()`.

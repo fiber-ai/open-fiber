@@ -300,11 +300,11 @@ export default function ContactRevealPage() {
                   <ToggleButtonGroup<InputMode> value={mode} onChange={setMode} options={[{ value: "linkedin", label: "LinkedIn" }, { value: "name-domain", label: "Name + company" }]} />
                 </div>
                 {mode === "linkedin" ? (
-                  <div className="flex flex-1 flex-col gap-1.5"><Label htmlFor="contact-reveal-linkedin-url-or-slug" className="text-xs font-medium">LinkedIn URL or slug</Label><Input id="contact-reveal-linkedin-url-or-slug" placeholder="https://www.linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} /></div>
+                  <div className="flex flex-1 flex-col gap-1.5"><Label htmlFor="linkedin-url-slug" className="text-xs font-medium">LinkedIn URL or slug</Label><Input id="linkedin-url-slug" placeholder="https://www.linkedin.com/in/username" value={linkedin} onChange={(e) => setLinkedin(e.target.value)} /></div>
                 ) : (
                   <>
-                    <div className="flex flex-col gap-1.5"><Label htmlFor="contact-reveal-full-name" className="text-xs font-medium">Full name</Label><Input id="contact-reveal-full-name" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-56" /></div>
-                    <div className="flex flex-col gap-1.5"><Label htmlFor="contact-reveal-company-domain" className="text-xs font-medium">Company domain</Label><Input id="contact-reveal-company-domain" placeholder="acme.com" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-48" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="full-name" className="text-xs font-medium">Full name</Label><Input id="full-name" placeholder="Jane Doe" value={fullName} onChange={(e) => setFullName(e.target.value)} className="w-56" /></div>
+                    <div className="flex flex-col gap-1.5"><Label htmlFor="company-domain" className="text-xs font-medium">Company domain</Label><Input id="company-domain" placeholder="acme.com" value={domain} onChange={(e) => setDomain(e.target.value)} className="w-48" /></div>
                   </>
                 )}
               </div>

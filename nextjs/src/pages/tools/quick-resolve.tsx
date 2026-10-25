@@ -66,8 +66,8 @@ export default function QuickResolvePage() {
                 onChange={(v) => setMode(v as Mode)}
               />
               <div className="space-y-2">
-                <Label>{mode === "people" ? "People" : "Companies"} (one per line, max 100)</Label>
-                <Textarea
+                <Label htmlFor="identifiers">{mode === "people" ? "People" : "Companies"} (one per line, max 100)</Label>
+                <Textarea id="identifiers"
                   rows={6}
                   placeholder={mode === "people"
                     ? "https://www.linkedin.com/in/williamhgates\nwilliamhgates\n251749025"

@@ -6,7 +6,9 @@ import {
   ExternalLink,
   Calendar,
   Tag,
-  Languages, X } from "lucide-react";
+  Languages,
+  X,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";

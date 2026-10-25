@@ -52,6 +52,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CreditBadge } from "./credit-badge";
+import { BrandLogo } from "./brand-logo";
+import { brand } from "@/config/brand";
 import { XLogo } from "@/components/icons/x-logo";
 import { RedditLogo } from "@/components/icons/reddit-logo";
 
@@ -169,32 +171,31 @@ const navGroups: NavGroup[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Called when a nav link is chosen (the mobile drawer closes itself). */
+  onNavigate?: () => void;
   /** Rendered inside the mobile drawer: always expanded, toggle closes the drawer. */
   variant?: "rail" | "drawer";
   className?: string;
 }
 
-function isActivePath(pathname: string, href: string) {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
+const allHrefs = navGroups.flatMap((g) => g.items.map((i) => i.href));
+
+/**
+ * The one nav href that owns the current URL: the longest href that equals the
+ * path or is a parent segment of it. Uses the real URL (asPath), not the route
+ * pattern, so /trackers/companies/abc highlights Company Trackers, and
+ * /account/webhooks highlights Webhooks but not Usage & Credits (/account).
+ */
+export function activeNavHref(asPath: string): string | undefined {
+  const path = asPath.split(/[?#]/)[0].replace(/\/$/, "") || "/";
+  return allHrefs
+    .filter((href) => path === href || path.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
 }
 
-export function FiberMark({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" className={className}>
-      <rect width="32" height="32" rx="8" fill="hsl(var(--primary))" />
-      <path
-        d="M8 10h16M8 16h12M8 22h8"
-        stroke="hsl(var(--primary-foreground))"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", className }: SidebarProps) {
+export function Sidebar({ collapsed: collapsedProp, onToggle, onNavigate, variant = "rail", className }: SidebarProps) {
   const router = useRouter();
+  const activeHref = activeNavHref(router.asPath);
   const isDrawer = variant === "drawer";
   const collapsed = isDrawer ? false : collapsedProp;
 
@@ -212,8 +213,8 @@ export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", 
             href="/"
             className="flex items-center gap-2 rounded-md px-1 text-base font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <FiberMark className="h-6 w-6" />
-            OpenFiber
+            <BrandLogo />
+            {brand.name}
           </Link>
         )}
         <Button
@@ -222,7 +223,7 @@ export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", 
           className="h-8 w-8 text-muted-foreground"
           onClick={onToggle}
           aria-label={isDrawer ? "Close navigation" : collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          aria-expanded={isDrawer ? true : !collapsed}
+          aria-expanded={isDrawer ? undefined : !collapsed}
         >
           {isDrawer ? (
             <X className="h-4 w-4" />
@@ -245,13 +246,14 @@ export function Sidebar({ collapsed: collapsedProp, onToggle, variant = "rail", 
               </p>
             )}
             {group.items.map((item) => {
-              const isActive = isActivePath(router.pathname, item.href);
+              const isActive = item.href === activeHref;
               const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
+                  onClick={onNavigate}
                   aria-label={collapsed ? item.label : undefined}
                   className={cn(
                     "flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",

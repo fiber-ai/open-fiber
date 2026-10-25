@@ -407,9 +407,9 @@ function ApiKeysSection() {
 
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Credit limit</Label>
+              <Label htmlFor="key-credit-limit" className="text-xs">Credit limit</Label>
               <div className="flex gap-2">
-                <Input
+                <Input id="key-credit-limit"
                   className="w-32" type="number" min={0}
                   placeholder={key.maxCredits != null ? String(key.maxCredits) : "none"}
                   value={limitInput}
@@ -434,9 +434,9 @@ function ApiKeysSection() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">Expiration</Label>
+              <Label htmlFor="key-expiration" className="text-xs">Expiration</Label>
               <div className="flex gap-2">
-                <Input
+                <Input id="key-expiration"
                   className="w-40" type="date"
                   value={expiresInput}
                   onChange={(e) => setExpiresInput(e.target.value)}

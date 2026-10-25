@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { CookingPot, Loader2, Search, Rows3, User, CheckCircle2, XCircle, Download } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Header } from "@/components/layout/header";
@@ -25,8 +25,19 @@ const BULK_MAX = 50;
 /** Rough guide to match quality: strong identifiers count more than soft hints. */
 const WEIGHTS: Record<string, number> = { linkedin: 5, email: 4, name: 2, companyDomain: 2, companyLinkedin: 2, companyName: 1, title: 1, headline: 1, location: 1, school: 1 };
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
-  return <label className="flex flex-col gap-1.5"><span className="text-xs font-medium leading-none">{label}</span>{children}{hint && <span className="text-[11px] text-muted-foreground">{hint}</span>}</label>;
+type FieldControlProps = { id: string; "aria-describedby"?: string };
+
+/** Label + control + optional hint. The label names the control; the hint describes it. */
+function Field({ label, hint, children }: { label: string; hint?: string; children: (control: FieldControlProps) => React.ReactNode }) {
+  const id = useId();
+  const hintId = `${id}-hint`;
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Label htmlFor={id} className="text-xs font-medium">{label}</Label>
+      {children({ id, "aria-describedby": hint ? hintId : undefined })}
+      {hint && <p id={hintId} className="text-[11px] text-muted-foreground">{hint}</p>}
+    </div>
+  );
 }
 
 function OptionsRow({ opts, setOpts, bulk }: { opts: Opts; setOpts: (o: Opts) => void; bulk?: boolean }) {
@@ -97,32 +108,32 @@ function SingleMatch() {
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Who</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="LinkedIn URL or slug" hint="Best accuracy"><Input value={f.linkedin} onChange={set("linkedin")} placeholder="linkedin.com/in/janedoe" /></Field>
-              <Field label="Email" hint="Second-best accuracy"><Input value={f.email} onChange={set("email")} placeholder="jane@acme.com" /></Field>
-              <Field label="Full name">
-                <Input value={f.name} onChange={set("name")} placeholder="Jane Doe" />
+              <Field label="LinkedIn URL or slug" hint="Best accuracy">{(p) => <Input {...p} value={f.linkedin} onChange={set("linkedin")} placeholder="linkedin.com/in/janedoe" />}</Field>
+              <Field label="Email" hint="Second-best accuracy">{(p) => <Input {...p} value={f.email} onChange={set("email")} placeholder="jane@acme.com" />}</Field>
+              <div className="flex flex-col gap-1.5">
+                <Field label="Full name">{(p) => <Input {...p} value={f.name} onChange={set("name")} placeholder="Jane Doe" />}</Field>
                 <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground"><Checkbox checked={f.looseName} onCheckedChange={(c) => setF({ ...f, looseName: c === true })} />Allow partial / out-of-order matches</label>
-              </Field>
+              </div>
             </div>
           </div>
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Where they work</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Company domain"><Input value={f.companyDomain} onChange={set("companyDomain")} placeholder="acme.com" /></Field>
-              <Field label="Company name"><Input value={f.companyName} onChange={set("companyName")} placeholder="Acme" /></Field>
-              <Field label="Company LinkedIn (URL, slug or org ID)"><Input value={f.companyLinkedin} onChange={set("companyLinkedin")} placeholder="linkedin.com/company/acme" /></Field>
-              <Field label="Job title"><Input value={f.title} onChange={set("title")} placeholder="VP Sales" /></Field>
-              <Field label="LinkedIn headline (loose match)"><Input value={f.headline} onChange={set("headline")} placeholder="Building GTM at Acme" /></Field>
+              <Field label="Company domain">{(p) => <Input {...p} value={f.companyDomain} onChange={set("companyDomain")} placeholder="acme.com" />}</Field>
+              <Field label="Company name">{(p) => <Input {...p} value={f.companyName} onChange={set("companyName")} placeholder="Acme" />}</Field>
+              <Field label="Company LinkedIn (URL, slug or org ID)">{(p) => <Input {...p} value={f.companyLinkedin} onChange={set("companyLinkedin")} placeholder="linkedin.com/company/acme" />}</Field>
+              <Field label="Job title">{(p) => <Input {...p} value={f.title} onChange={set("title")} placeholder="VP Sales" />}</Field>
+              <Field label="LinkedIn headline (loose match)">{(p) => <Input {...p} value={f.headline} onChange={set("headline")} placeholder="Building GTM at Acme" />}</Field>
             </div>
           </div>
           <div>
             <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Other hints</p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-              <Field label="Country (ISO-3)"><Input value={f.country} onChange={set("country")} placeholder="USA" /></Field>
-              <Field label="State"><Input value={f.state} onChange={set("state")} placeholder="California" /></Field>
-              <Field label="City / locality"><Input value={f.locality} onChange={set("locality")} placeholder="San Francisco" /></Field>
-              <Field label="School"><Input value={f.school} onChange={set("school")} placeholder="Stanford University" /></Field>
-              <Field label="Max matches"><Input type="number" min={1} max={10} value={f.num} onChange={(e) => setF({ ...f, num: Math.min(10, Math.max(1, Number(e.target.value) || 1)) })} /></Field>
+              <Field label="Country (ISO-3)">{(p) => <Input {...p} value={f.country} onChange={set("country")} placeholder="USA" />}</Field>
+              <Field label="State">{(p) => <Input {...p} value={f.state} onChange={set("state")} placeholder="California" />}</Field>
+              <Field label="City / locality">{(p) => <Input {...p} value={f.locality} onChange={set("locality")} placeholder="San Francisco" />}</Field>
+              <Field label="School">{(p) => <Input {...p} value={f.school} onChange={set("school")} placeholder="Stanford University" />}</Field>
+              <Field label="Max matches">{(p) => <Input {...p} type="number" min={1} max={10} value={f.num} onChange={(e) => setF({ ...f, num: Math.min(10, Math.max(1, Number(e.target.value) || 1)) })} />}</Field>
             </div>
           </div>
           <OptionsRow opts={opts} setOpts={setOpts} />
@@ -224,7 +235,7 @@ function BulkMatch() {
       <Card>
         <CardContent className="space-y-4 pt-5">
           <Field label={`Paste CSV or TSV with a header row (up to ${BULK_MAX} people)`} hint="Columns are detected by name: name, title, company, domain, LinkedIn, email. Use whatever you have.">
-            <Textarea rows={7} className="font-mono text-xs" placeholder={"name,company,domain,title\nJane Doe,Acme,acme.com,VP Sales\nRaj Kumar,Globex,globex.com,CTO"} value={text} onChange={(e) => setText(e.target.value)} />
+            {(p) => <Textarea {...p} rows={7} className="font-mono text-xs" placeholder={"name,company,domain,title\nJane Doe,Acme,acme.com,VP Sales\nRaj Kumar,Globex,globex.com,CTO"} value={text} onChange={(e) => setText(e.target.value)} />}
           </Field>
           {parsed && (
             <div className="flex flex-wrap items-center gap-1.5 text-xs">

@@ -317,18 +317,18 @@ export default function TikTokPage() {
           ]}
         />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); submit(); }}>
-          {mode === "profile" && <div className="flex w-72 flex-col gap-1.5"><Label htmlFor="tiktok-handle" className="text-xs font-medium">Handle</Label><Input id="tiktok-handle" placeholder="nasa" value={handle} onChange={(e) => setHandle(e.target.value)} /></div>}
+          {mode === "profile" && <div className="flex w-72 flex-col gap-1.5"><Label htmlFor="handle" className="text-xs font-medium">Handle</Label><Input id="handle" placeholder="nasa" value={handle} onChange={(e) => setHandle(e.target.value)} /></div>}
           {mode === "search" && (
             <>
               <div className="flex flex-col gap-1.5">
                 <Label className="text-xs font-medium">Search</Label>
                 <ToggleButtonGroup<SearchKind> value={searchKind} onChange={setSearchKind} options={[{ value: "all", label: "Everything" }, { value: "keyword", label: "Videos", icon: Video }, { value: "hashtag", label: "Hashtag", icon: Hash }, { value: "users", label: "Users", icon: Users }]} />
               </div>
-              <div className="flex min-w-[16rem] flex-1 flex-col gap-1.5"><Label htmlFor="tiktok-query" className="text-xs font-medium">Query</Label><Input id="tiktok-query" placeholder={searchKind === "hashtag" ? "#booktok" : "product launch"} value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+              <div className="flex min-w-[16rem] flex-1 flex-col gap-1.5"><Label htmlFor="query" className="text-xs font-medium">Query</Label><Input id="query" placeholder={searchKind === "hashtag" ? "#booktok" : "product launch"} value={query} onChange={(e) => setQuery(e.target.value)} /></div>
             </>
           )}
-          {mode === "video" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="tiktok-video-url" className="text-xs font-medium">Video URL</Label><Input id="tiktok-video-url" placeholder="https://www.tiktok.com/@user/video/123…" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} /></div>}
-          {mode === "song" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="tiktok-sound-url" className="text-xs font-medium">Sound URL</Label><Input id="tiktok-sound-url" placeholder="https://www.tiktok.com/music/song-title-7439295283975702544" value={songUrl} onChange={(e) => setSongUrl(e.target.value)} /></div>}
+          {mode === "video" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="video-url" className="text-xs font-medium">Video URL</Label><Input id="video-url" placeholder="https://www.tiktok.com/@user/video/123…" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} /></div>}
+          {mode === "song" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="sound-url" className="text-xs font-medium">Sound URL</Label><Input id="sound-url" placeholder="https://www.tiktok.com/music/song-title-7439295283975702544" value={songUrl} onChange={(e) => setSongUrl(e.target.value)} /></div>}
           {mode === "trending" && <p className="pb-2 text-sm text-muted-foreground">What&apos;s trending on TikTok right now, plus the most-used sounds.</p>}
           <Button type="submit" disabled={pending}>{pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Music2 className="mr-2 h-4 w-4" />}{mode === "trending" ? "Load trending" : "Fetch"}</Button>
         </form>

@@ -166,16 +166,16 @@ export default function SingleEnrichmentPage() {
               <CardContent>
                 <form onSubmit={handleNameSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="single-person-name">Person Name</Label>
-                    <Input id="single-person-name"
+                    <Label htmlFor="person-name">Person Name</Label>
+                    <Input id="person-name"
                       placeholder="e.g. John Smith"
                       value={personName}
                       onChange={(e) => setPersonName(e.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="single-email-optional-improves-accura">Email (optional, improves accuracy)</Label>
-                    <Input id="single-email-optional-improves-accura"
+                    <Label htmlFor="email">Email (optional, improves accuracy)</Label>
+                    <Input id="email"
                       type="email"
                       placeholder="john@company.com"
                       value={personEmail}
@@ -257,8 +257,8 @@ export default function SingleEnrichmentPage() {
               <CardContent>
                 <form onSubmit={handleEmailSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="single-email-address">Email Address</Label>
-                    <Input id="single-email-address"
+                    <Label htmlFor="email-address">Email Address</Label>
+                    <Input id="email-address"
                       type="email"
                       placeholder="john@company.com"
                       value={emailInput}

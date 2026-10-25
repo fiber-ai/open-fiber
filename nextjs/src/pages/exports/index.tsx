@@ -353,8 +353,8 @@ export default function ExportsPage() {
           <Card>
             <CardContent className="pt-6">
               <div className="space-y-2">
-                <Label htmlFor="index-notification-email-optional">Notification Email (optional)</Label>
-                <Input id="index-notification-email-optional"
+                <Label htmlFor="notification-email">Notification Email (optional)</Label>
+                <Input id="notification-email"
                   type="email"
                   placeholder="you@company.com"
                   value={email}

@@ -190,8 +190,8 @@ function BulkExtract() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="google-maps-search-query">Search Query</Label>
-                <Input id="google-maps-search-query"
+                <Label htmlFor="search-query">Search Query</Label>
+                <Input id="search-query"
                   placeholder='e.g. "coffee shops", "real estate agents", "plumbers"'
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}

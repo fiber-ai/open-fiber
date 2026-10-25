@@ -53,8 +53,8 @@ function SettingsCard({ type, listId, list, onChanged }: { type: "company" | "pe
       <CardContent className="space-y-4 text-sm">
         {editing ? (
           <div className="flex flex-wrap items-end gap-2">
-            <div className="flex flex-1 flex-col gap-1"><Label htmlFor="listId-name" className="text-xs">Name</Label><Input id="listId-name" value={name} onChange={(e) => setName(e.target.value)} /></div>
-            <div className="flex flex-col gap-1"><Label htmlFor="listId-every-days" className="text-xs">Every (days)</Label><Input id="listId-every-days" type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(e.target.value)} className="w-20" /></div>
+            <div className="flex flex-1 flex-col gap-1"><Label htmlFor="name" className="text-xs">Name</Label><Input id="name" value={name} onChange={(e) => setName(e.target.value)} /></div>
+            <div className="flex flex-col gap-1"><Label htmlFor="every-days" className="text-xs">Every (days)</Label><Input id="every-days" type="number" min={1} max={90} value={interval} onChange={(e) => setInterval(e.target.value)} className="w-20" /></div>
             <Button size="icon" onClick={() => update.mutate({ type, listId, name: name.trim(), refreshIntervalDays: Number(interval) || undefined })} disabled={update.isPending}>{update.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}</Button>
             <Button size="icon" variant="ghost" onClick={() => setEditing(false)} aria-label="Cancel editing"><X className="h-4 w-4" /></Button>
           </div>
@@ -81,7 +81,7 @@ function SettingsCard({ type, listId, list, onChanged }: { type: "company" | "pe
           />
         </div>
         <div className="flex items-end gap-2">
-          <div className="flex flex-col gap-1"><Label htmlFor="listId-move-next-refresh-to" className="text-xs">Move next refresh to</Label><Input id="listId-move-next-refresh-to" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="h-8 w-52 text-xs" /></div>
+          <div className="flex flex-col gap-1"><Label htmlFor="next-refresh" className="text-xs">Move next refresh to</Label><Input id="next-refresh" type="datetime-local" value={date} onChange={(e) => setDate(e.target.value)} className="h-8 w-52 text-xs" /></div>
           <Button size="sm" variant="outline" disabled={!date || reschedule.isPending} onClick={() => reschedule.mutate({ type, listId, nextRefreshDate: new Date(date).toISOString() })}>
             {reschedule.isPending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <CalendarClock className="mr-1.5 h-3.5 w-3.5" />}Reschedule
           </Button>
@@ -148,7 +148,7 @@ export default function TrackerDetailPage() {
             <Card>
               <CardHeader className="pb-2"><CardTitle className="text-sm">Add {isCompany ? "companies" : "people"}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
-                <Textarea className="min-h-[80px] font-mono text-xs" placeholder={isCompany ? "stripe.com\nhttps://www.linkedin.com/company/microsoft" : "https://www.linkedin.com/in/williamhgates"} value={input} onChange={(e) => setInput(e.target.value)} />
+                <Textarea aria-label={isCompany ? "Companies to add" : "People to add"} className="min-h-[80px] font-mono text-xs" placeholder={isCompany ? "stripe.com\nhttps://www.linkedin.com/company/microsoft" : "https://www.linkedin.com/in/williamhgates"} value={input} onChange={(e) => setInput(e.target.value)} />
                 <Button size="sm" onClick={handleAdd} disabled={!input.trim() || addMut.isPending}>
                   {addMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}Add to list
                 </Button>

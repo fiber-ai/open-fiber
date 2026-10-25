@@ -94,8 +94,8 @@ export default function DepthChartPage() {
       <div className="border-b p-4">
         <div className="flex gap-3 items-end">
           <div className="flex-1 max-w-lg space-y-1.5">
-            <Label htmlFor="depth-chart-company-domain-linkedin-url-sl" className="text-xs font-medium">Company (domain, LinkedIn URL, slug, or org ID)</Label>
-            <Input id="depth-chart-company-domain-linkedin-url-sl" placeholder="e.g. anthropic.com or anthropic" value={value} onChange={(e) => setValue(e.target.value)} />
+            <Label htmlFor="company-domain-linkedin" className="text-xs font-medium">Company (domain, LinkedIn URL, slug, or org ID)</Label>
+            <Input id="company-domain-linkedin" placeholder="e.g. anthropic.com or anthropic" value={value} onChange={(e) => setValue(e.target.value)} />
           </div>
           <Button onClick={handleSubmit} disabled={!value.trim() || isRunning}>
             {isRunning ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}

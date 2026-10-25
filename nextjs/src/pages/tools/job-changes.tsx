@@ -223,7 +223,7 @@ export default function JobChangesPage() {
         </Button>
         {isRenaming ? (
           <div className="flex items-center gap-2">
-            <Input
+            <Input aria-label="List name"
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               className="h-8 w-48"

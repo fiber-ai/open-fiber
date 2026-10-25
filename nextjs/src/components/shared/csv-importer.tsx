@@ -308,7 +308,7 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
                       {col.required && <span className="text-destructive ml-0.5">*</span>}
                     </span>
                   </div>
-                  <select
+                  <select aria-label={`CSV column for ${col.label}`}
                     className="rounded-md border bg-card px-2 py-1 text-sm min-w-[180px]"
                     value={columnMap[col.key] ?? ""}
                     onChange={(e) =>

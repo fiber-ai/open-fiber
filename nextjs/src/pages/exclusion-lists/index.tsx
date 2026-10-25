@@ -73,7 +73,7 @@ export default function ExclusionListsPage() {
           <DialogContent>
             <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
               <DialogHeader><DialogTitle>Create {activeTab === "company" ? "Company" : "Prospect"} Exclusion List</DialogTitle></DialogHeader>
-              <div className="py-4"><Input placeholder="e.g. Existing Customers" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus /></div>
+              <div className="py-4"><Input aria-label="List name" placeholder="e.g. Existing Customers" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus /></div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={!newName.trim() || isCreatePending}>

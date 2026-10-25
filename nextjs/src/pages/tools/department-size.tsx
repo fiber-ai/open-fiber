@@ -72,8 +72,8 @@ export default function DepartmentSizePage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="department-size-company">Company</Label>
-                <Input id="department-size-company"
+                <Label htmlFor="company">Company</Label>
+                <Input id="company"
                   placeholder="e.g. stripe.com, LinkedIn company URL, slug, or org ID"
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}

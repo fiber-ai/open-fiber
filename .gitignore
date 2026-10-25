@@ -153,3 +153,6 @@ next-env.d.ts
 nextjs/.claude/settings.local.json
 nextjs/.impeccable/config.local.json
 nextjs/.impeccable/cache/
+# impeccable is installed per developer (npx impeccable install), not vendored
+nextjs/.claude/skills/impeccable/
+nextjs/.agents/

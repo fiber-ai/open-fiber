@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/router";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { FiberMark, Sidebar } from "./sidebar";
+import { Sidebar } from "./sidebar";
+import { BrandLogo } from "./brand-logo";
+import { brand } from "@/config/brand";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -12,22 +14,6 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const router = useRouter();
-
-  // Close the mobile drawer whenever the route changes.
-  useEffect(() => {
-    const close = () => setDrawerOpen(false);
-    router.events.on("routeChangeStart", close);
-    return () => router.events.off("routeChangeStart", close);
-  }, [router.events]);
-
-  // Escape closes the drawer.
-  useEffect(() => {
-    if (!drawerOpen) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawerOpen(false);
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [drawerOpen]);
 
   return (
     <div className="flex h-[100dvh] overflow-hidden">
@@ -36,40 +22,41 @@ export function AppLayout({ children }: AppLayoutProps) {
         <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
       </div>
 
-      {/* Mobile drawer */}
-      {drawerOpen && (
-        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true" aria-label="Navigation">
-          <div className="absolute inset-0 bg-black/30" onClick={() => setDrawerOpen(false)} />
-          <Sidebar
-            variant="drawer"
-            collapsed={false}
-            onToggle={() => setDrawerOpen(false)}
-            className="relative shadow-xl"
-          />
-        </div>
-      )}
+      {/* Mobile: top bar + navigation drawer. Radix Dialog handles the focus trap,
+          Escape, backdrop click, scroll lock and returning focus to the menu button. */}
+      <DialogPrimitive.Root open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 md:hidden">
+            <DialogPrimitive.Trigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10" aria-label="Open navigation">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </DialogPrimitive.Trigger>
+            <Link href="/" className="flex items-center gap-2 text-base font-semibold tracking-tight">
+              <BrandLogo />
+              {brand.name}
+            </Link>
+          </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Mobile top bar */}
-        <div className="flex h-14 shrink-0 items-center gap-2 border-b bg-card px-3 md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-10 w-10"
-            onClick={() => setDrawerOpen(true)}
-            aria-label="Open navigation"
-            aria-expanded={drawerOpen}
+          <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
+        </div>
+
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/30 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 md:hidden" />
+          <DialogPrimitive.Content
+            aria-describedby={undefined}
+            className="fixed inset-y-0 left-0 z-50 shadow-xl duration-200 focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left md:hidden"
           >
-            <Menu className="h-5 w-5" />
-          </Button>
-          <Link href="/" className="flex items-center gap-2 text-base font-semibold tracking-tight">
-            <FiberMark className="h-6 w-6" />
-            OpenFiber
-          </Link>
-        </div>
-
-        <main className="min-h-0 flex-1 overflow-y-auto">{children}</main>
-      </div>
+            <DialogPrimitive.Title className="sr-only">Navigation</DialogPrimitive.Title>
+            <Sidebar
+              variant="drawer"
+              collapsed={false}
+              onToggle={() => setDrawerOpen(false)}
+              onNavigate={() => setDrawerOpen(false)}
+            />
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </DialogPrimitive.Root>
     </div>
   );
 }

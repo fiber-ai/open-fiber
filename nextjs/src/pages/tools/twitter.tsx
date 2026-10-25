@@ -118,20 +118,20 @@ export default function TwitterPage() {
         <div className="flex gap-3 items-end">
           {(mode === "profile" || mode === "tweets") && (
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="twitter-twitter-handle" className="text-xs font-medium">Twitter Handle</Label>
-              <Input id="twitter-twitter-handle" placeholder="e.g. elonmusk" value={handle} onChange={(e) => setHandle(e.target.value)} />
+              <Label htmlFor="twitter-handle" className="text-xs font-medium">Twitter Handle</Label>
+              <Input id="twitter-handle" placeholder="e.g. elonmusk" value={handle} onChange={(e) => setHandle(e.target.value)} />
             </div>
           )}
           {mode === "search" && (
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="twitter-search-query" className="text-xs font-medium">Search Query</Label>
-              <Input id="twitter-search-query" placeholder='e.g. "hiring engineers"' value={query} onChange={(e) => setQuery(e.target.value)} />
+              <Label htmlFor="search-query" className="text-xs font-medium">Search Query</Label>
+              <Input id="search-query" placeholder='e.g. "hiring engineers"' value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
           )}
           {mode === "tweet-details" && (
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor="twitter-tweet-id" className="text-xs font-medium">Tweet ID</Label>
-              <Input id="twitter-tweet-id" placeholder="e.g. 1234567890123456789" value={tweetId} onChange={(e) => setTweetId(e.target.value)} />
+              <Label htmlFor="tweet-id" className="text-xs font-medium">Tweet ID</Label>
+              <Input id="tweet-id" placeholder="e.g. 1234567890123456789" value={tweetId} onChange={(e) => setTweetId(e.target.value)} />
             </div>
           )}
           <Button onClick={handleSubmit} disabled={isLoading}>

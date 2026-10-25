@@ -31,13 +31,13 @@ The only UI that is built directly on the official `@fiberai/sdk` and maintained
 
 - Sections: Search (companies, prospects, combined, AI, job postings, blue-collar, stealth), Enrichment (single, batch, bulk, LinkedIn live), Audiences, Exclusion lists, Saved searches, Trackers, Exports, Market data, ~25 lookup Tools, Account/usage.
 - Stack is fixed: Next.js pages router, TypeScript strict, tRPC + Zod, shadcn/ui (Radix), Tailwind, TanStack Query/Table, Lucide icons.
-- Must stay easy to restyle: forks swap the theme by editing CSS tokens, not by hunting through components.
+- Must stay easy to restyle: forks change `brand.css` and `config/brand.ts`, never individual components.
 
 ## Brand Commitments
 
-- Carries the Fiber AI brand (confirmed by the team): Fiber's Figma palette — purple scale centred on `#9D78F0`, lavender-tinted background `#FAF8FE`, border `#E8E8E8`, text `#1E1E1E`.
-- Fiber's product typeface is TWK Lausanne, a licensed commercial font that cannot ship in this open-source repo; OpenFiber uses an open-licence grotesk stand-in behind a `--font-sans` token.
-- All brand values live in tokens so forks can replace them in one place.
+- **Vanilla by default** (Neel, PR #20 review): OpenFiber is a starting point that customers drop into their own apps or build on, so the UI stays plain and neutral (stock shadcn/ui look). Don't over-style it.
+- A light Fiber touch is allowed *only* through the swappable brand layer: the accent colour, font and radius in `src/styles/brand.css`, and the name and logo in `src/config/brand.ts`. Today that's Fiber purple (`#6A48E3`) and the Fiber "F" mark.
+- Rebranding a fork must stay a two-file change. Components never hard-code brand colours, palette classes or logos.
 
 ## Evidence on Hand
 
@@ -49,7 +49,7 @@ The only UI that is built directly on the official `@fiberai/sdk` and maintained
 1. The code is part of the product: patterns should be clean enough to copy.
 2. One page per API capability; the UI mirrors the API faithfully.
 3. Task speed over decoration — this is an operating tool.
-4. Theme through tokens only, so restyling a fork is a one-file change.
+4. Plain first: neutral UI, brand only through the brand layer, so restyling a fork is a two-file change.
 
 ## Accessibility & Inclusion
 

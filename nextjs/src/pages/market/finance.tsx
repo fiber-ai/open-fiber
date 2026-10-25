@@ -96,8 +96,8 @@ export default function FinancePage() {
             <CardContent className="pt-6 space-y-4">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="space-y-1.5">
-                  <Label htmlFor="finance-instrument-type" className="text-xs">Instrument type</Label>
-                  <select id="finance-instrument-type"
+                  <Label htmlFor="instrument-type" className="text-xs">Instrument type</Label>
+                  <select id="instrument-type"
                     value={type}
                     onChange={(e) => setType(e.target.value as InstrumentType)}
                     className="block rounded-md border bg-card px-2 py-1.5 text-sm"
@@ -112,20 +112,20 @@ export default function FinancePage() {
 
                 {(type === "stockOrEtf" || type === "mutualFund") && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="finance-ticker" className="text-xs">Ticker</Label>
-                    <Input id="finance-ticker" className="w-28" placeholder="AAPL" value={ticker} onChange={(e) => setTicker(e.target.value)} />
+                    <Label htmlFor="ticker" className="text-xs">Ticker</Label>
+                    <Input id="ticker" className="w-28" placeholder="AAPL" value={ticker} onChange={(e) => setTicker(e.target.value)} />
                   </div>
                 )}
                 {type === "stockOrEtf" && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="finance-exchange" className="text-xs">Exchange</Label>
-                    <Input id="finance-exchange" className="w-28" placeholder="NASDAQ" value={exchange} onChange={(e) => setExchange(e.target.value)} />
+                    <Label htmlFor="exchange" className="text-xs">Exchange</Label>
+                    <Input id="exchange" className="w-28" placeholder="NASDAQ" value={exchange} onChange={(e) => setExchange(e.target.value)} />
                   </div>
                 )}
                 {type === "index" && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="finance-index" className="text-xs">Index</Label>
-                    <select id="finance-index"
+                    <Label htmlFor="market-index" className="text-xs">Index</Label>
+                    <select id="market-index"
                       value={index}
                       onChange={(e) => setIndex(e.target.value as typeof index)}
                       className="block rounded-md border bg-card px-2 py-1.5 text-sm"
@@ -137,25 +137,25 @@ export default function FinancePage() {
                 {type === "currencyPair" && (
                   <>
                     <div className="space-y-1.5">
-                      <Label htmlFor="finance-base" className="text-xs">Base</Label>
-                      <Input id="finance-base" className="w-20" placeholder="USD" value={base} onChange={(e) => setBase(e.target.value)} />
+                      <Label htmlFor="base" className="text-xs">Base</Label>
+                      <Input id="base" className="w-20" placeholder="USD" value={base} onChange={(e) => setBase(e.target.value)} />
                     </div>
                     <div className="space-y-1.5">
-                      <Label htmlFor="finance-quote" className="text-xs">Quote</Label>
-                      <Input id="finance-quote" className="w-20" placeholder="EUR" value={quoteCurrency} onChange={(e) => setQuoteCurrency(e.target.value)} />
+                      <Label htmlFor="quote" className="text-xs">Quote</Label>
+                      <Input id="quote" className="w-20" placeholder="EUR" value={quoteCurrency} onChange={(e) => setQuoteCurrency(e.target.value)} />
                     </div>
                   </>
                 )}
                 {type === "customSymbol" && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="finance-symbol" className="text-xs">Symbol</Label>
-                    <Input id="finance-symbol" className="w-40" placeholder="e.g. BTC-USD" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
+                    <Label htmlFor="symbol" className="text-xs">Symbol</Label>
+                    <Input id="symbol" className="w-40" placeholder="e.g. BTC-USD" value={symbol} onChange={(e) => setSymbol(e.target.value)} />
                   </div>
                 )}
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="finance-window" className="text-xs">Window</Label>
-                  <select id="finance-window"
+                  <Label htmlFor="window" className="text-xs">Window</Label>
+                  <select id="window"
                     value={window}
                     onChange={(e) => setWindow(e.target.value as typeof window)}
                     className="block rounded-md border bg-card px-2 py-1.5 text-sm"

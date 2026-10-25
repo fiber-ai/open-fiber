@@ -41,8 +41,8 @@ export default function EmailValidationPage() {
             <CardContent className="pt-6">
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email-validation-email-address">Email Address</Label>
-                  <Input id="email-validation-email-address"
+                  <Label htmlFor="email-address">Email Address</Label>
+                  <Input id="email-address"
                     type="email"
                     placeholder="john@company.com"
                     value={email}

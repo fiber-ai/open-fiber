@@ -100,9 +100,9 @@ export default function RankingsPage() {
             <Label className="text-xs font-medium">List</Label>
             <ToggleButtonGroup<List> value={list} onChange={(v) => { setList(v); setHigh((h) => Math.min(h, MAX_RANK[v])); }} options={[{ value: "fortune-500-usa", label: "Fortune 500" }, { value: "forbes-global-2000", label: "Forbes Global 2000" }]} />
           </div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="rankings-year" className="text-xs font-medium">Year</Label><Input id="rankings-year" type="number" placeholder="Latest" value={year} onChange={(e) => setYear(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="rankings-from-rank" className="text-xs font-medium">From rank</Label><Input id="rankings-from-rank" type="number" min={1} max={MAX_RANK[list]} value={low} onChange={(e) => setLow(Math.max(1, Number(e.target.value) || 1))} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="rankings-to-rank" className="text-xs font-medium">To rank</Label><Input id="rankings-to-rank" type="number" min={1} max={MAX_RANK[list]} value={high} onChange={(e) => setHigh(Math.min(MAX_RANK[list], Math.max(1, Number(e.target.value) || 1)))} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="year" className="text-xs font-medium">Year</Label><Input id="year" type="number" placeholder="Latest" value={year} onChange={(e) => setYear(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from-rank" className="text-xs font-medium">From rank</Label><Input id="from-rank" type="number" min={1} max={MAX_RANK[list]} value={low} onChange={(e) => setLow(Math.max(1, Number(e.target.value) || 1))} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="to-rank" className="text-xs font-medium">To rank</Label><Input id="to-rank" type="number" min={1} max={MAX_RANK[list]} value={high} onChange={(e) => setHigh(Math.min(MAX_RANK[list], Math.max(1, Number(e.target.value) || 1)))} className="w-24" /></div>
           <Button type="submit" disabled={m.isPending || count === 0}>
             {m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trophy className="mr-2 h-4 w-4" />}Get {count} companies · {count} cr
           </Button>

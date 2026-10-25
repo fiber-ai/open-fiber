@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,7 @@ export const REVEAL_VARIANTS = [
 export type RevealVariant = typeof REVEAL_VARIANTS[number]["id"];
 
 export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
+  const uid = useId();
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [variant, setVariant] = useState<RevealVariant>("standard");
   const [patience, setPatience] = useState<Patience | "">("");
@@ -88,8 +89,8 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
         </button>
         {showAdvanced && (
           <div className="space-y-1.5">
-            <Label htmlFor="enrichment-form-reveal-variant" className="text-xs font-medium">Reveal Variant</Label>
-            <select id="enrichment-form-reveal-variant"
+            <Label htmlFor={`${uid}-reveal-variant`} className="text-xs font-medium">Reveal Variant</Label>
+            <select id={`${uid}-reveal-variant`}
               value={variant}
               onChange={(e) => setVariant(e.target.value as RevealVariant)}
               className="w-full rounded-md border bg-card px-2 py-1.5 text-sm"
@@ -103,8 +104,8 @@ export function EnrichmentForm({ onSubmit, isLoading }: EnrichmentFormProps) {
             )}
             {variant !== "exhaustive" && (
               <>
-                <Label htmlFor="enrichment-form-email-validation-patience" className="text-xs font-medium">Email Validation Patience</Label>
-                <select id="enrichment-form-email-validation-patience"
+                <Label htmlFor={`${uid}-email-validation-patience`} className="text-xs font-medium">Email Validation Patience</Label>
+                <select id={`${uid}-email-validation-patience`}
                   value={patience}
                   onChange={(e) => setPatience(e.target.value as Patience | "")}
                   className="w-full rounded-md border bg-card px-2 py-1.5 text-sm"

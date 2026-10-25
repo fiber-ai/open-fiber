@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -10,15 +10,16 @@ interface AISearchInputProps {
 }
 
 export function AISearchInput({ onSearch, isLoading }: AISearchInputProps) {
+  const uid = useId();
   const [query, setQuery] = useState("");
 
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="ai-search-input-describe-what-you-apos-re-look" className="text-sm font-medium">
+        <Label htmlFor={`${uid}-query`} className="text-sm font-medium">
           Describe what you&apos;re looking for
         </Label>
-        <Textarea id="ai-search-input-describe-what-you-apos-re-look"
+        <Textarea id={`${uid}-query`}
           className="min-h-[120px]"
           placeholder={"e.g. Series A SaaS companies in the US with 50-200 employees that use React\nor: VP of Engineering at AI startups in San Francisco who went to Stanford"}
           value={query}

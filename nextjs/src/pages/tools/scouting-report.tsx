@@ -53,8 +53,8 @@ export default function ScoutingReportPage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="scouting-report-company">Company</Label>
-                <Input id="scouting-report-company"
+                <Label htmlFor="company">Company</Label>
+                <Input id="company"
                   placeholder="e.g. stripe.com, https://linkedin.com/company/stripe, or stripe"
                   value={value}
                   onChange={(e) => setValue(e.target.value)}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { Plus, Trash2, Loader2, Eye, FlaskConical, Crown, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,7 @@ function AddRuleDialog({ open, onOpenChange, entityType, rules, onAdd, adding }:
   open: boolean; onOpenChange: (o: boolean) => void; entityType: EntityType; rules: RuleDef[];
   onAdd: (config: Row, lookbackDays?: number) => void; adding: boolean;
 }) {
+  const uid = useId();
   const [picked, setPicked] = useState<RuleDef | null>(null);
   const [text, setText] = useState("");
   const [lookback, setLookback] = useState("");
@@ -103,14 +104,14 @@ function AddRuleDialog({ open, onOpenChange, entityType, rules, onAdd, adding }:
               </div>
               <SchemaHints schema={picked.config.schema} />
               <div className="space-y-1.5">
-                <Label htmlFor="rules-panel-config-json" className="text-xs font-medium">Config (JSON)</Label>
-                <Textarea id="rules-panel-config-json" rows={8} className="font-mono text-xs" value={text} onChange={(e) => setText(e.target.value)} />
+                <Label htmlFor={`${uid}-config-json`} className="text-xs font-medium">Config (JSON)</Label>
+                <Textarea id={`${uid}-config-json`} rows={8} className="font-mono text-xs" value={text} onChange={(e) => setText(e.target.value)} />
                 {!parsed.ok && <p className="text-xs text-destructive">{parsed.error}</p>}
               </div>
               {picked.supportsInitialSignals && (
                 <div className="flex items-center gap-2 text-xs">
-                  <Label className="text-xs">Backfill signals from the last</Label>
-                  <input type="number" min={1} max={365} placeholder="—" value={lookback} onChange={(e) => setLookback(e.target.value)} className="h-7 w-16 rounded-md border bg-card px-2" />
+                  <Label htmlFor={`${uid}-backfill`} className="text-xs">Backfill signals from the last</Label>
+                  <input id={`${uid}-backfill`} type="number" min={1} max={365} placeholder="—" value={lookback} onChange={(e) => setLookback(e.target.value)} className="h-7 w-16 rounded-md border bg-card px-2" />
                   <span className="text-muted-foreground">days (optional)</span>
                 </div>
               )}

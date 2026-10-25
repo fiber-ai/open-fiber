@@ -85,13 +85,13 @@ function EndpointDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="webhooks-endpoint-url" className="text-xs font-medium">Endpoint URL</Label>
-            <Input id="webhooks-endpoint-url" placeholder="https://api.example.com/webhooks/fiber" value={url} onChange={(e) => setUrl(e.target.value)} />
+            <Label htmlFor="endpoint-url" className="text-xs font-medium">Endpoint URL</Label>
+            <Input id="endpoint-url" placeholder="https://api.example.com/webhooks/fiber" value={url} onChange={(e) => setUrl(e.target.value)} />
             {url && !validUrl && <p className="text-xs text-destructive">Must be an https:// URL</p>}
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="webhooks-description-optional" className="text-xs font-medium">Description (optional)</Label>
-            <Input id="webhooks-description-optional" placeholder="Production CRM sync" value={description} onChange={(e) => setDescription(e.target.value)} />
+            <Label htmlFor="description" className="text-xs font-medium">Description (optional)</Label>
+            <Input id="description" placeholder="Production CRM sync" value={description} onChange={(e) => setDescription(e.target.value)} />
           </div>
           <div className="space-y-2">
             <Label className="text-xs font-medium">Events ({selected.size} selected)</Label>

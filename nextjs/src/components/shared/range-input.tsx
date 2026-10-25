@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -22,6 +23,7 @@ export function RangeInput({
   maxPlaceholder = "Max",
   formatPrefix,
 }: RangeInputProps) {
+  const uid = useId();
   const parseValue = (val: string): number | null => {
     if (!val) return null;
     const n = Number(val);
@@ -29,8 +31,8 @@ export function RangeInput({
   };
 
   return (
-    <div className="space-y-1.5">
-      <Label className="text-xs font-medium">{label}</Label>
+    <div className="space-y-1.5" role="group" aria-labelledby={`${uid}-label`}>
+      <Label id={`${uid}-label`} className="text-xs font-medium">{label}</Label>
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           {formatPrefix && (
@@ -40,6 +42,7 @@ export function RangeInput({
           )}
           <Input
             type="number"
+            aria-label={`${label}, minimum`}
             placeholder={minPlaceholder}
             value={min ?? ""}
             onChange={(e) => onMinChange(parseValue(e.target.value))}
@@ -55,6 +58,7 @@ export function RangeInput({
           )}
           <Input
             type="number"
+            aria-label={`${label}, maximum`}
             placeholder={maxPlaceholder}
             value={max ?? ""}
             onChange={(e) => onMaxChange(parseValue(e.target.value))}

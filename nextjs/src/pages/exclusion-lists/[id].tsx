@@ -140,9 +140,9 @@ export default function ExclusionListDetailPage() {
           <Card>
             <CardContent className="pt-6">
               <form onSubmit={handleAdd} className="space-y-3">
-                <Label>Add {isCompany ? "Companies" : "Prospects"}</Label>
+                <Label htmlFor="add-entries">Add {isCompany ? "Companies" : "Prospects"}</Label>
                 <div className="flex gap-2">
-                  <Input
+                  <Input id="add-entries"
                     placeholder={isCompany ? "Domains or LinkedIn URLs (comma-separated)" : "LinkedIn profile URLs (comma-separated)"}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { Hash, Loader2, Search, ExternalLink, Download, Lock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ const algoOf = (h: string) => (h.length === 64 ? "SHA-256" : h.length === 40 ? "
 interface Result { status: "found" | "not_found" | "rejected"; hashedEmail: string; originalEmail?: string; linkedinUrl?: string | null; linkedinUserID?: string | null; message?: string }
 
 export function HemLookup() {
+  const uid = useId();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"hashes" | "emails">("hashes");
   const [algo, setAlgo] = useState<Algo>("SHA-256");
@@ -73,8 +74,8 @@ export function HemLookup() {
         )}
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">{mode === "hashes" ? "SHA-256, SHA-1 or MD5 digests" : "Email addresses"} — one per line, up to {MAX}</Label>
-        <Textarea
+        <Label htmlFor={`${uid}-entries`} className="text-xs font-medium">{mode === "hashes" ? "SHA-256, SHA-1 or MD5 digests" : "Email addresses"} — one per line, up to {MAX}</Label>
+        <Textarea id={`${uid}-entries`}
           rows={7}
           className="font-mono text-xs"
           placeholder={mode === "hashes" ? "b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514" : "jane@acme.com\nraj@example.org"}

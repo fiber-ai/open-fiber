@@ -135,8 +135,8 @@ function PlaceDetail({ placeId, onClose }: { placeId: string; onClose: () => voi
         <div className="flex flex-wrap items-end justify-between gap-3">
           <h3 className="text-sm font-semibold">Reviews{totalReviews != null && <span className="font-normal text-muted-foreground"> · {totalReviews.toLocaleString()} total</span>}</h3>
           <div className="flex flex-wrap items-center gap-2">
-            <Input placeholder="Keyword, e.g. brunch" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && setAppliedKeyword(keyword.trim())} className="h-8 w-44 text-xs" />
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as ReviewSort)} className="h-8 rounded-md border bg-card px-2 text-xs">
+            <Input aria-label="Filter reviews by keyword" placeholder="Keyword, e.g. brunch" value={keyword} onChange={(e) => setKeyword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && setAppliedKeyword(keyword.trim())} className="h-8 w-44 text-xs" />
+            <select aria-label="Sort reviews" value={sortBy} onChange={(e) => setSortBy(e.target.value as ReviewSort)} className="h-8 rounded-md border bg-card px-2 text-xs">
               <option value="relevance">Most relevant</option>
               <option value="newestFirst">Newest</option>
               <option value="oldestFirst">Oldest</option>
@@ -225,11 +225,11 @@ export default function YelpPage() {
 
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (location.trim().length >= 2) run(false).catch(() => {}); }}>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="yelp-location" className="text-xs font-medium">Location</Label><Input id="yelp-location" placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="yelp-categories-comma-separated" className="text-xs font-medium">Categories (comma-separated)</Label><Input id="yelp-categories-comma-separated" placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="location" className="text-xs font-medium">Location</Label><Input id="location" placeholder="Mission District, San Francisco" value={location} onChange={(e) => setLocation(e.target.value)} className="w-72" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="categories-comma-separated" className="text-xs font-medium">Categories (comma-separated)</Label><Input id="categories-comma-separated" placeholder="coffee, bakeries" value={categories} onChange={(e) => setCategories(e.target.value)} className="w-56" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="yelp-sort" className="text-xs font-medium">Sort</Label>
-            <select id="yelp-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="sort" className="text-xs font-medium">Sort</Label>
+            <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="relevance">Relevance</option>
               <option value="highestRated">Highest rated</option>
               <option value="mostReviewed">Most reviewed</option>

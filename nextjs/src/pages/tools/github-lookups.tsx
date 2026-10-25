@@ -108,8 +108,8 @@ export default function GithubLookupsPage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label>{mode === "github-to-linkedin" ? "GitHub Usernames (one per line)" : "LinkedIn URLs (one per line)"}</Label>
-                <Textarea
+                <Label htmlFor="identifiers">{mode === "github-to-linkedin" ? "GitHub Usernames (one per line)" : "LinkedIn URLs (one per line)"}</Label>
+                <Textarea id="identifiers"
                   className="min-h-[100px]"
                   placeholder={mode === "github-to-linkedin" ? "torvalds\ngvanrossum\nmitsuhiko" : "https://www.linkedin.com/in/username"}
                   value={input}

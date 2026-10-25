@@ -412,13 +412,13 @@ export default function HotelsPage() {
           options={[{ value: "google", label: "Google Hotels" }, { value: "booking", label: "Booking.com" }]}
         />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (canSearch) run(false).catch(() => {}); }}>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-destination" className="text-xs font-medium">Destination</Label><Input id="hotels-destination" placeholder="Lisbon, Portugal" value={query} onChange={(e) => setQuery(e.target.value)} className="w-60" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-check-in" className="text-xs font-medium">Check-in</Label><Input id="hotels-check-in" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-check-out" className="text-xs font-medium">Check-out {nights > 0 && <span className="font-normal text-muted-foreground">· {nights} night{nights > 1 ? "s" : ""}</span>}</Label><Input id="hotels-check-out" type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-adults" className="text-xs font-medium">Adults</Label><Input id="hotels-adults" type="number" min={1} max={12} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))} className="w-20" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="destination" className="text-xs font-medium">Destination</Label><Input id="destination" placeholder="Lisbon, Portugal" value={query} onChange={(e) => setQuery(e.target.value)} className="w-60" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="check-in" className="text-xs font-medium">Check-in</Label><Input id="check-in" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="w-40" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="check-out" className="text-xs font-medium">Check-out {nights > 0 && <span className="font-normal text-muted-foreground">· {nights} night{nights > 1 ? "s" : ""}</span>}</Label><Input id="check-out" type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="w-40" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="adults" className="text-xs font-medium">Adults</Label><Input id="adults" type="number" min={1} max={12} value={adults} onChange={(e) => setAdults(Math.max(1, Number(e.target.value) || 1))} className="w-20" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="hotels-sort" className="text-xs font-medium">Sort</Label>
-            <select id="hotels-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="sort" className="text-xs font-medium">Sort</Label>
+            <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="relevance">Relevance</option>
               <option value="lowestPrice">Lowest price</option>
               <option value="highestRating">Highest rating</option>
@@ -426,7 +426,7 @@ export default function HotelsPage() {
             </select>
           </div>
           {source === "google" && (
-            <div className="flex flex-col gap-1.5"><Label htmlFor="hotels-max-night" className="text-xs font-medium">Max / night</Label><Input id="hotels-max-night" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-24" /></div>
+            <div className="flex flex-col gap-1.5"><Label htmlFor="max-night" className="text-xs font-medium">Max / night</Label><Input id="max-night" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-24" /></div>
           )}
           <Button type="submit" disabled={active.isPending || !canSearch}>
             {active.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Search

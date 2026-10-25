@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { ChevronDown, ChevronRight, Search, RotateCcw } from "lucide-react";
 import { stripEmpty } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,7 @@ function FilterSection({ title, children, defaultOpen = false }: FilterSectionPr
 interface ExclusionList { listID: string; name: string }
 
 export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormProps) {
+  const uid = useId();
   const [params, setParams] = useState<CompanySearchParams>({});
   const [selectedExclusionLists, setSelectedExclusionLists] = useState<string[]>([]);
 
@@ -134,8 +135,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Company Identity */}
         <FilterSection title="Company Identity" defaultOpen>
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-company-name" className="text-xs font-medium">Company Name</Label>
-            <Input id="company-search-form-company-name"
+            <Label htmlFor={`${uid}-company-name`} className="text-xs font-medium">Company Name</Label>
+            <Input id={`${uid}-company-name`}
               placeholder="Search by name..."
               value={params.nameLike?.anyOf?.[0] ?? ""}
               onChange={(e) => {
@@ -146,8 +147,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-domain" className="text-xs font-medium">Domain</Label>
-            <Input id="company-search-form-domain"
+            <Label htmlFor={`${uid}-domain`} className="text-xs font-medium">Domain</Label>
+            <Input id={`${uid}-domain`}
               placeholder="e.g. stripe.com"
               value={params.domains?.[0] ?? ""}
               onChange={(e) => {
@@ -162,8 +163,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Location */}
         <FilterSection title="Location">
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-country" className="text-xs font-medium">Country</Label>
-            <Input id="company-search-form-country"
+            <Label htmlFor={`${uid}-country`} className="text-xs font-medium">Country</Label>
+            <Input id={`${uid}-country`}
               placeholder="e.g. USA, GBR, DEU"
               value={countryInput}
               onChange={(e) => {
@@ -179,8 +180,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             <p className="text-xs text-muted-foreground">Comma-separated country codes</p>
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-state-region" className="text-xs font-medium">State / Region</Label>
-            <Input id="company-search-form-state-region"
+            <Label htmlFor={`${uid}-state-region`} className="text-xs font-medium">State / Region</Label>
+            <Input id={`${uid}-state-region`}
               placeholder="e.g. California, New York"
               value={stateInput}
               onChange={(e) => {
@@ -273,8 +274,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-keywords" className="text-xs font-medium">Keywords</Label>
-            <Input id="company-search-form-keywords"
+            <Label htmlFor={`${uid}-keywords`} className="text-xs font-medium">Keywords</Label>
+            <Input id={`${uid}-keywords`}
               placeholder="e.g. AI, machine learning, SaaS"
               value={keywordsInput}
               onChange={(e) => {
@@ -329,8 +330,8 @@ export function CompanySearchForm({ onSearch, isSearching }: CompanySearchFormPr
         {/* Technologies */}
         <FilterSection title="Tech Stack">
           <div className="space-y-1.5">
-            <Label htmlFor="company-search-form-technologies" className="text-xs font-medium">Technologies</Label>
-            <Input id="company-search-form-technologies"
+            <Label htmlFor={`${uid}-technologies`} className="text-xs font-medium">Technologies</Label>
+            <Input id={`${uid}-technologies`}
               placeholder="e.g. React, Python, AWS"
               value={techInput}
               onChange={(e) => {

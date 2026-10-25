@@ -230,25 +230,25 @@ function SearchTab() {
     <>
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="flights-from" className="text-xs font-medium">From</Label><Input id="flights-from" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="flights-to" className="text-xs font-medium">To</Label><Input id="flights-to" placeholder="JFK" value={to} onChange={(e) => setTo(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="flights-depart" className="text-xs font-medium">Depart</Label><Input id="flights-depart" type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-36" /></div>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="flights-return" className="text-xs font-medium">Return</Label><Input id="flights-return" type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-36" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from" className="text-xs font-medium">From</Label><Input id="from" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="to" className="text-xs font-medium">To</Label><Input id="to" placeholder="JFK" value={to} onChange={(e) => setTo(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="depart" className="text-xs font-medium">Depart</Label><Input id="depart" type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-36" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="return" className="text-xs font-medium">Return</Label><Input id="return" type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-36" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="flights-class" className="text-xs font-medium">Class</Label>
-            <select id="flights-class" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="class" className="text-xs font-medium">Class</Label>
+            <select id="class" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="economy">Economy</option><option value="premiumEconomy">Premium Economy</option><option value="business">Business</option><option value="first">First</option>
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="flights-stops" className="text-xs font-medium">Stops</Label>
-            <select id="flights-stops" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="stops" className="text-xs font-medium">Stops</Label>
+            <select id="stops" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="">Any</option><option value="0">Nonstop</option><option value="1">1 stop or fewer</option><option value="2">2 stops or fewer</option>
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="flights-sort" className="text-xs font-medium">Sort</Label>
-            <select id="flights-sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="sort" className="text-xs font-medium">Sort</Label>
+            <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="top">Top flights</option><option value="price">Price</option><option value="duration">Duration</option><option value="departureTime">Departure time</option><option value="emissions">Emissions</option>
             </select>
           </div>
@@ -309,21 +309,21 @@ function DealsTab() {
       <div className="space-y-3 border-b p-4">
         <ToggleButtonGroup<"freeText" | "filters"> value={mode} onChange={setMode} options={[{ value: "freeText", label: "Describe a trip" }, { value: "filters", label: "Filters" }]} />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); run(); }}>
-          <div className="flex flex-col gap-1.5"><Label htmlFor="flights-from-2" className="text-xs font-medium">From</Label><Input id="flights-from-2" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from-2" className="text-xs font-medium">From</Label><Input id="from-2" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
           {mode === "freeText" ? (
-            <div className="flex flex-col gap-1.5"><Label htmlFor="flights-what-kind-of-trip" className="text-xs font-medium">What kind of trip?</Label><Input id="flights-what-kind-of-trip" placeholder="Beach weekend in December under $400" value={freeText} onChange={(e) => setFreeText(e.target.value)} className="w-96" /></div>
+            <div className="flex flex-col gap-1.5"><Label htmlFor="trip-idea" className="text-xs font-medium">What kind of trip?</Label><Input id="trip-idea" placeholder="Beach weekend in December under $400" value={freeText} onChange={(e) => setFreeText(e.target.value)} className="w-96" /></div>
           ) : (
             <>
-              <div className="flex flex-col gap-1.5"><Label htmlFor="flights-max-price" className="text-xs font-medium">Max price</Label><Input id="flights-max-price" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-28" /></div>
+              <div className="flex flex-col gap-1.5"><Label htmlFor="max-price" className="text-xs font-medium">Max price</Label><Input id="max-price" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-28" /></div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="flights-stops-2" className="text-xs font-medium">Stops</Label>
-                <select id="flights-stops-2" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
+                <Label htmlFor="stops-2" className="text-xs font-medium">Stops</Label>
+                <select id="stops-2" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
                   <option value="">Any</option><option value="0">Nonstop</option><option value="1">1 stop or fewer</option>
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="flights-class-2" className="text-xs font-medium">Class</Label>
-                <select id="flights-class-2" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
+                <Label htmlFor="class-2" className="text-xs font-medium">Class</Label>
+                <select id="class-2" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
                   <option value="economy">Economy</option><option value="premiumEconomy">Premium Economy</option><option value="business">Business</option><option value="first">First</option>
                 </select>
               </div>

@@ -138,11 +138,14 @@ Open [http://localhost:3000](http://localhost:3000). If your API key is valid, y
 
 ## Theming & design system
 
-OpenFiber ships in Fiber AI's brand, but every colour, radius and font is a CSS variable in [`nextjs/src/styles/globals.css`](nextjs/src/styles/globals.css). To restyle a fork, edit that one block — components never use raw palette colours.
+OpenFiber looks deliberately plain (stock shadcn/ui) so it fits into your app. All the branding is in two files:
 
-- [`nextjs/DESIGN.md`](nextjs/DESIGN.md) — the design system: tokens, type scale, components, do's and don'ts
-- [`nextjs/PRODUCT.md`](nextjs/PRODUCT.md) — who OpenFiber is for and what it must stay true to
-- The [impeccable](https://impeccable.style) design skill is vendored in `nextjs/.claude/skills/impeccable`. From `nextjs/`, run `/impeccable audit` in Claude Code (or `./.claude/skills/impeccable/scripts/impeccable detect src/`) to check new UI against the system, and `/impeccable hooks on` to scan UI edits automatically.
+- [`nextjs/src/styles/brand.css`](nextjs/src/styles/brand.css): accent colour, focus-ring colour, font and corner radius
+- [`nextjs/src/config/brand.ts`](nextjs/src/config/brand.ts): product name and logo (drop your image in `nextjs/public/brand/`)
+
+It ships with Fiber purple and the Fiber logo. Change those two files to make it yours; components only use theme tokens, so nothing else needs touching.
+
+[`nextjs/DESIGN.md`](nextjs/DESIGN.md) describes the design system and [`nextjs/PRODUCT.md`](nextjs/PRODUCT.md) who the app is for. To audit UI changes with [impeccable](https://impeccable.style), run `npx impeccable install` in `nextjs/` (it isn't vendored in the repo), then `/impeccable audit` in your coding agent, or `npx impeccable detect src/`.
 
 ## Configuration
 

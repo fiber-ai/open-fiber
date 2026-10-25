@@ -45,12 +45,12 @@ export default function JobPostingSearchPage() {
       <div className="border-b p-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label htmlFor="job-postings-job-titles" className="text-xs font-medium">Job Titles</Label>
-            <Input id="job-postings-job-titles" placeholder="e.g. Software Engineer, Product Manager" value={titleFilter} onChange={(e) => setTitleFilter(e.target.value)} />
+            <Label htmlFor="job-titles" className="text-xs font-medium">Job Titles</Label>
+            <Input id="job-titles" placeholder="e.g. Software Engineer, Product Manager" value={titleFilter} onChange={(e) => setTitleFilter(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="job-postings-company-domains" className="text-xs font-medium">Company Domains</Label>
-            <Input id="job-postings-company-domains" placeholder="e.g. stripe.com, google.com" value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)} />
+            <Label htmlFor="company-domains" className="text-xs font-medium">Company Domains</Label>
+            <Input id="company-domains" placeholder="e.g. stripe.com, google.com" value={companyFilter} onChange={(e) => setCompanyFilter(e.target.value)} />
           </div>
         </div>
         <Button className="mt-3" onClick={handleSearch} disabled={searchMutation.isPending}>

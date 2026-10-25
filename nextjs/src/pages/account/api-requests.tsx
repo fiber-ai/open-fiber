@@ -202,23 +202,23 @@ export default function ApiRequestsPage() {
             />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="api-requests-route" className="text-xs font-medium">Route</Label>
-            <Input id="api-requests-route" placeholder="/v1/people-search" value={routePath} onChange={(e) => setRoutePath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-56 font-mono text-xs" />
+            <Label htmlFor="route" className="text-xs font-medium">Route</Label>
+            <Input id="route" placeholder="/v1/people-search" value={routePath} onChange={(e) => setRoutePath(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-56 font-mono text-xs" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="api-requests-method" className="text-xs font-medium">Method</Label>
-            <select id="api-requests-method" value={method} onChange={(e) => setMethod(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
+            <Label htmlFor="method" className="text-xs font-medium">Method</Label>
+            <select id="method" value={method} onChange={(e) => setMethod(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="">Any</option>
               {["GET", "POST", "PUT", "PATCH", "DELETE"].map((m) => <option key={m} value={m}>{m}</option>)}
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="api-requests-status" className="text-xs font-medium">Status</Label>
-            <Input id="api-requests-status" placeholder="429" inputMode="numeric" value={statusCode} onChange={(e) => setStatusCode(e.target.value.replace(/\D/g, "").slice(0, 3))} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-20" />
+            <Label htmlFor="status" className="text-xs font-medium">Status</Label>
+            <Input id="status" placeholder="429" inputMode="numeric" value={statusCode} onChange={(e) => setStatusCode(e.target.value.replace(/\D/g, "").slice(0, 3))} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-20" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="api-requests-error-code" className="text-xs font-medium">Error code</Label>
-            <Input id="api-requests-error-code" placeholder="INSUFFICIENT_CREDITS" value={errorCode} onChange={(e) => setErrorCode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-52 font-mono text-xs" />
+            <Label htmlFor="error-code" className="text-xs font-medium">Error code</Label>
+            <Input id="error-code" placeholder="INSUFFICIENT_CREDITS" value={errorCode} onChange={(e) => setErrorCode(e.target.value)} onKeyDown={(e) => e.key === "Enter" && apply()} className="w-52 font-mono text-xs" />
           </div>
           <Button onClick={apply} disabled={query.isFetching && !query.isFetchingNextPage}>
             {query.isFetching && !query.isFetchingNextPage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}
