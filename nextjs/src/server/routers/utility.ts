@@ -4,6 +4,7 @@ import {
   getIndustries, getTags, getNaicsCodes, getAccelerators,
   getSubdivisions,
   getOrgCredits, getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
+  type GetOrgCreditsResponse,
 } from "@fiberai/sdk";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
 
@@ -17,33 +18,19 @@ const creditsPerOperationSchema = z
   .nullable()
   .optional();
 
-// GET /v1/get-org-credits returns `output` as an array — one entry per active subscription
-// (backend commit d5363339b6, "New billing - v1"). Validated at runtime as a safety net
-// around the generated SDK types, then flattened into a single aggregate view below.
-const usagePeriodSchema = z.object({
-  organizationId: z.string(),
+// GET /v1/get-org-credits returns `output` as an array — one entry per active subscription.
+// The SDK's generated types describe this correctly, so we use them as-is and just flatten
+// the periods into a single aggregate view below.
+type UsagePeriod = GetOrgCreditsResponse["output"][number];
+
+// Per-subscription view of a usage period, as returned in getCredits' `periods`.
+// `creditsPerOperation` is pricing, not usage, and is already exposed at the top level.
+const usagePeriodSummarySchema = z.object({
   subscriptionId: z.string(),
   max: z.number(),
   used: z.number(),
   available: z.number(),
   usagePeriodResetsOn: z.string(),
-  creditsPerOperation: creditsPerOperationSchema,
-}).passthrough();
-
-const rawCreditsResponseSchema = z.object({
-  output: z.array(usagePeriodSchema),
-}).passthrough();
-
-type UsagePeriod = z.infer<typeof usagePeriodSchema>;
-
-// Per-subscription view of a usage period, as returned in getCredits' `periods`.
-// `creditsPerOperation` is pricing, not usage, and is already exposed at the top level.
-const usagePeriodSummarySchema = usagePeriodSchema.pick({
-  subscriptionId: true,
-  max: true,
-  used: true,
-  available: true,
-  usagePeriodResetsOn: true,
 });
 
 const creditsOutputSchema = z.object({
@@ -123,20 +110,17 @@ function aggregateUsagePeriods(periods: UsagePeriod[]) {
   };
 }
 
-async function fetchUsagePeriods(apiKey: string): Promise<UsagePeriod[]> {
-  const raw = rawCreditsResponseSchema.parse(
-    await callFiber(() => getOrgCredits({ query: { apiKey } }))
-  );
-  return raw.output;
-}
-
 export const utilityRouter = createTRPCRouter({
   getCredits: protectedProcedure
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
-      const raw = await fetchUsagePeriods(ctx.apiKey);
+      const { output: raw } = await callFiber(() =>
+        getOrgCredits({ query: { apiKey: ctx.apiKey } })
+      );
       const periods = raw
-        .map((p) => usagePeriodSummarySchema.parse(p))
+        .map(({ subscriptionId, max, used, available, usagePeriodResetsOn }) => ({
+          subscriptionId, max, used, available, usagePeriodResetsOn,
+        }))
         // ISO 8601 date strings sort chronologically as plain strings.
         .sort((a, b) => a.usagePeriodResetsOn.localeCompare(b.usagePeriodResetsOn));
       return { output: { ...aggregateUsagePeriods(raw), periods } };
