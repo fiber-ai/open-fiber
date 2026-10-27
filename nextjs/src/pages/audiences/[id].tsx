@@ -156,8 +156,8 @@ export default function AudienceDetailPage() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>List Name</Label>
-                  <Input placeholder="e.g. Exclude these companies" value={exclName} onChange={(e) => setExclName(e.target.value)} autoFocus />
+                  <Label htmlFor="list-name">List Name</Label>
+                  <Input id="list-name" placeholder="e.g. Exclude these companies" value={exclName} onChange={(e) => setExclName(e.target.value)} autoFocus />
                 </div>
                 <div className="space-y-2">
                   <Label>Type</Label>

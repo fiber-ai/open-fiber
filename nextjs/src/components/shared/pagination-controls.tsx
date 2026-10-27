@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -22,6 +23,7 @@ export function PaginationControls({
   onPageSizeChange,
   resultCount,
 }: PaginationControlsProps) {
+  const uid = useId();
   return (
     <div className="flex items-center justify-between border-t px-4 py-3">
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -31,11 +33,11 @@ export function PaginationControls({
       </div>
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Rows:</span>
-          <select
+          <label htmlFor={`${uid}-rows`} className="text-sm text-muted-foreground">Rows:</label>
+          <select id={`${uid}-rows`}
             value={pageSize}
             onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="rounded-md border bg-background px-2 py-1 text-sm"
+            className="rounded-md border bg-card px-2 py-1 text-sm"
           >
             {PAGE_SIZES.map((size) => (
               <option key={size} value={size}>
@@ -51,6 +53,7 @@ export function PaginationControls({
             className="h-8 w-8"
             disabled={!hasPrevPage}
             onClick={onPrev}
+            aria-label="Previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -60,6 +63,7 @@ export function PaginationControls({
             className="h-8 w-8"
             disabled={!hasNextPage}
             onClick={onNext}
+            aria-label="Next page"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>

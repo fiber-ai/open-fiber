@@ -175,12 +175,12 @@ export default function AccountPage() {
 
             {/* Low credit warning */}
             {output.available < output.max * 0.1 && output.max > 0 && (
-              <Card className="border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+              <Card className="border-warning/40 bg-warning-muted">
                 <CardContent className="pt-6 flex items-center gap-3">
-                  <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                  <AlertTriangle className="h-5 w-5 text-warning shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-amber-800 dark:text-amber-200">Credits running low</p>
-                    <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+                    <p className="text-sm font-medium text-warning">Credits running low</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       You have {formatNumber(output.available)} credits remaining ({Math.round((output.available / output.max) * 100)}% of plan).{" "}
                       <a href="https://fiber.ai/app/api" target="_blank" rel="noopener noreferrer" className="underline">
                         Add more credits
@@ -407,9 +407,9 @@ function ApiKeysSection() {
 
           <div className="flex flex-wrap items-end gap-3">
             <div className="space-y-1.5">
-              <Label className="text-xs">Credit limit</Label>
+              <Label htmlFor="key-credit-limit" className="text-xs">Credit limit</Label>
               <div className="flex gap-2">
-                <Input
+                <Input id="key-credit-limit"
                   className="w-32" type="number" min={0}
                   placeholder={key.maxCredits != null ? String(key.maxCredits) : "none"}
                   value={limitInput}
@@ -434,9 +434,9 @@ function ApiKeysSection() {
             </div>
 
             <div className="space-y-1.5">
-              <Label className="text-xs">Expiration</Label>
+              <Label htmlFor="key-expiration" className="text-xs">Expiration</Label>
               <div className="flex gap-2">
-                <Input
+                <Input id="key-expiration"
                   className="w-40" type="date"
                   value={expiresInput}
                   onChange={(e) => setExpiresInput(e.target.value)}

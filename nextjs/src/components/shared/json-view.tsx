@@ -17,12 +17,12 @@ function highlight(json: string) {
   while ((m = TOKEN.exec(json)) !== null) {
     if (m.index > last) parts.push(<Fragment key={i++}>{json.slice(last, m.index)}</Fragment>);
     const cls = m[1]
-      ? "text-sky-700 dark:text-sky-300"
+      ? "text-info"
       : m[2]
-        ? "text-emerald-700 dark:text-emerald-300"
+        ? "text-success"
         : m[3]
-          ? "text-amber-700 dark:text-amber-300"
-          : "text-fuchsia-700 dark:text-fuchsia-300";
+          ? "text-warning"
+          : "text-primary";
     parts.push(<span key={i++} className={cls}>{m[0]}</span>);
     last = m.index + m[0].length;
   }
@@ -34,7 +34,7 @@ export function JsonView({ value, className, maxHeight = "24rem" }: { value: unk
   const text = JSON.stringify(value, null, 2) ?? "undefined";
   return (
     <div className={cn("relative rounded-md border bg-muted/40", className)}>
-      <CopyButton value={text} className="absolute right-2 top-2 bg-background/80" />
+      <CopyButton value={text} className="absolute right-2 top-2 bg-card/80" />
       <pre className="overflow-auto p-3 pr-10 text-xs leading-relaxed font-mono" style={{ maxHeight }}>
         {highlight(text)}
       </pre>

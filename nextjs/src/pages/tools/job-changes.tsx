@@ -223,7 +223,7 @@ export default function JobChangesPage() {
         </Button>
         {isRenaming ? (
           <div className="flex items-center gap-2">
-            <Input
+            <Input aria-label="List name"
               value={renameValue}
               onChange={(e) => setRenameValue(e.target.value)}
               className="h-8 w-48"
@@ -238,6 +238,7 @@ export default function JobChangesPage() {
               size="icon"
               className="h-7 w-7"
               onClick={handleConfirmRename}
+              aria-label="Save name"
               disabled={updateMutation.isPending}
             >
               {updateMutation.isPending ? (
@@ -251,6 +252,7 @@ export default function JobChangesPage() {
               size="icon"
               className="h-7 w-7"
               onClick={() => setIsRenaming(false)}
+              aria-label="Cancel rename"
             >
               <X className="h-3.5 w-3.5" />
             </Button>
@@ -294,7 +296,7 @@ export default function JobChangesPage() {
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span>{formatNumber((detail.peopleCount as number) ?? 0)} people tracked</span>
             {people.some((p) => p.hasChanged) && (
-              <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+              <Badge variant="success">
                 {people.filter((p) => p.hasChanged).length} changed on this page
               </Badge>
             )}

@@ -31,12 +31,12 @@ export default function ScreenshotPage() {
       <div className="border-b p-4">
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[260px] space-y-1.5">
-            <Label className="text-xs font-medium">Page URL</Label>
-            <Input placeholder="https://example.com" value={url} onChange={(e) => setUrl(e.target.value)} />
+            <Label htmlFor="page-url" className="text-xs font-medium">Page URL</Label>
+            <Input id="page-url" placeholder="https://example.com" value={url} onChange={(e) => setUrl(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Format</Label>
-            <select value={format} onChange={(e) => setFormat(e.target.value as "desktop" | "mobile")} className="rounded-md border bg-background px-2 py-1.5 text-sm h-9">
+            <Label htmlFor="format" className="text-xs font-medium">Format</Label>
+            <select id="format" value={format} onChange={(e) => setFormat(e.target.value as "desktop" | "mobile")} className="rounded-md border bg-card px-2 py-1.5 text-sm h-9">
               <option value="desktop">Desktop</option>
               <option value="mobile">Mobile</option>
             </select>

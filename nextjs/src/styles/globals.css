@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+
+/*
+ * Neutral base theme (shadcn/ui defaults, lightly adjusted for contrast).
+ * Brand colour, font and radius come from brand.css — edit that file, not
+ * this one, to restyle OpenFiber. Components only use these tokens, never
+ * raw Tailwind palette colours, so a change here applies everywhere.
+ */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -10,20 +17,48 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
+
+    --primary: var(--brand-primary);
+    --primary-foreground: var(--brand-primary-foreground);
+    --brand: var(--brand-ring);
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
     --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
+    --muted-foreground: 0 0% 40%; /* ≥ 4.5:1 on muted/accent */
     --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+
+    /* status */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-muted: 0 86% 97%;
+    --destructive-muted-foreground: 0 74% 42%;
+    --success: 142 72% 29%;
+    --success-foreground: 0 0% 100%;
+    --success-muted: 145 81% 96%;
+    --warning: 26 90% 37%;
+    --warning-foreground: 0 0% 100%;
+    --warning-muted: 45 100% 96%;
+    --info: 224 76% 48%;
+    --info-foreground: 0 0% 100%;
+    --info-muted: 214 100% 97%;
+    --rating: 38 92% 50%;
+
+    /* categorical chart series (first one follows the brand) */
+    --chart-1: var(--brand-primary);
+    --chart-2: 199 89% 48%;
+    --chart-3: 38 92% 50%;
+    --chart-4: 160 84% 39%;
+    --chart-5: 0 84% 60%;
+    --chart-6: 330 81% 60%;
+    --chart-7: 173 80% 40%;
+    --chart-8: 239 84% 67%;
+    --chart-9: 84 81% 44%;
+    --chart-10: 25 95% 53%;
+
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --radius: 0.5rem;
+    --ring: var(--brand-ring);
   }
 
   .dark {
@@ -33,19 +68,34 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
+
+    --primary: var(--brand-primary-dark);
+    --primary-foreground: var(--brand-primary-foreground-dark);
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
     --muted: 0 0% 14.9%;
     --muted-foreground: 0 0% 63.9%;
     --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
+
+    --destructive: 0 84% 70%;
+    --destructive-foreground: 0 0% 9%;
+    --destructive-muted: 0 50% 15%;
+    --destructive-muted-foreground: 0 84% 70%;
+    --success: 142 69% 58%;
+    --success-foreground: 144 47% 8%;
+    --success-muted: 144 47% 11%;
+    --warning: 43 96% 56%;
+    --warning-foreground: 39 70% 8%;
+    --warning-muted: 39 70% 11%;
+    --info: 212 96% 78%;
+    --info-foreground: 220 60% 10%;
+    --info-muted: 220 60% 16%;
+    --rating: 43 96% 56%;
+    --chart-1: var(--brand-primary-dark);
+
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
   }
 }
 
@@ -53,7 +103,40 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  .dark {
+    color-scheme: dark;
+  }
   body {
     @apply bg-background text-foreground;
+    caret-color: hsl(var(--primary));
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  ::selection {
+    background: hsl(var(--brand) / 0.25);
+    color: hsl(var(--foreground));
+  }
+  /* numbers in data line up */
+  table,
+  [data-tabular] {
+    font-variant-numeric: tabular-nums;
+  }
+  /* browser surfaces carry the theme too */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--border)) transparent;
+  }
+  :focus-visible {
+    outline-color: hsl(var(--ring));
   }
 }

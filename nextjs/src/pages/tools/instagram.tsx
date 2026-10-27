@@ -57,8 +57,8 @@ export default function InstagramPage() {
       <div className="border-b p-4">
         <div className="flex gap-3 items-end">
           <div className="flex-1 max-w-sm space-y-1.5">
-            <Label className="text-xs font-medium">Instagram Handle</Label>
-            <Input placeholder="e.g. nasa" value={handle} onChange={(e) => setHandle(e.target.value)} />
+            <Label htmlFor="instagram-handle" className="text-xs font-medium">Instagram Handle</Label>
+            <Input id="instagram-handle" placeholder="e.g. nasa" value={handle} onChange={(e) => setHandle(e.target.value)} />
           </div>
           <Button onClick={handleSubmit} disabled={!handle.trim() || isLoading}>
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Instagram className="mr-2 h-4 w-4" />}

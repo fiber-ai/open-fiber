@@ -105,13 +105,13 @@ const columns: ColumnDef<ProspectRow, unknown>[] = [
         const badges: React.ReactNode[] = [];
         if (row.original.open_to_work)
           badges.push(
-            <Badge key="otw" variant="default" className="text-xs bg-green-600">
+            <Badge key="otw" variant="success" className="text-xs">
               Open to Work
             </Badge>
           );
         if (row.original.is_hiring)
           badges.push(
-            <Badge key="hiring" variant="default" className="text-xs bg-blue-600">
+            <Badge key="hiring" variant="info" className="text-xs">
               Hiring
             </Badge>
           );

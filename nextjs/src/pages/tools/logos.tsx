@@ -67,7 +67,7 @@ function CompanyLogos({ backdrop }: { backdrop: Backdrop }) {
         <CardContent className="space-y-3 pt-5">
           <Label className="text-xs font-medium">Quick lookup: any domain, LinkedIn URL, slug or org ID</Label>
           <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); if (quick.trim()) single.mutate({ identifier: quick.trim() }); }}>
-            <Input placeholder="stripe.com" value={quick} onChange={(e) => setQuick(e.target.value)} className="max-w-md" />
+            <Input aria-label="Domain, LinkedIn URL, slug or org ID" placeholder="stripe.com" value={quick} onChange={(e) => setQuick(e.target.value)} className="max-w-md" />
             <Button type="submit" variant="outline" disabled={single.isPending || !quick.trim()}>{single.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Find</Button>
           </form>
           {single.isError && <p className="text-sm text-destructive">{single.error.message}</p>}
@@ -83,7 +83,7 @@ function CompanyLogos({ backdrop }: { backdrop: Backdrop }) {
             <Label className="text-xs font-medium">Bulk (up to 10,000)</Label>
             <ToggleButtonGroup options={(Object.keys(LABELS) as IdType[]).map((t) => ({ value: t, label: LABELS[t] }))} value={type} onChange={(v) => setType(v as IdType)} />
           </div>
-          <Textarea className="min-h-[120px] font-mono text-xs" placeholder={type === "domains" ? "stripe.com\nmicrosoft.com" : type === "linkedinUrls" ? "https://www.linkedin.com/company/stripe" : "1035\n1441"} value={input} onChange={(e) => setInput(e.target.value)} />
+          <Textarea aria-label={`Bulk ${LABELS[type]}, one per line`} className="min-h-[120px] font-mono text-xs" placeholder={type === "domains" ? "stripe.com\nmicrosoft.com" : type === "linkedinUrls" ? "https://www.linkedin.com/company/stripe" : "1035\n1441"} value={input} onChange={(e) => setInput(e.target.value)} />
           <Button onClick={() => { const v = lines(input); if (v.length) bulk.mutate({ type, values: v }); }} disabled={!input.trim() || bulk.isPending}>
             {bulk.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ImageIcon className="mr-2 h-4 w-4" />}Fetch {lines(input).length || ""} logos
           </Button>
@@ -115,8 +115,8 @@ function ProfilePictures({ backdrop }: { backdrop: Backdrop }) {
     <div className="space-y-6">
       <Card>
         <CardContent className="space-y-4 pt-5">
-          <Label className="text-xs font-medium">LinkedIn profile URLs, one per line (up to 10,000)</Label>
-          <Textarea className="min-h-[140px] font-mono text-xs" placeholder={"https://www.linkedin.com/in/janedoe\nhttps://www.linkedin.com/in/rajkumar"} value={input} onChange={(e) => setInput(e.target.value)} />
+          <Label htmlFor="linkedin-profile-urls" className="text-xs font-medium">LinkedIn profile URLs, one per line (up to 10,000)</Label>
+          <Textarea id="linkedin-profile-urls" className="min-h-[140px] font-mono text-xs" placeholder={"https://www.linkedin.com/in/janedoe\nhttps://www.linkedin.com/in/rajkumar"} value={input} onChange={(e) => setInput(e.target.value)} />
           <Button onClick={() => { const v = lines(input); if (v.length) m.mutate({ linkedinUrls: v }); }} disabled={!input.trim() || m.isPending}>
             {m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserCircle2 className="mr-2 h-4 w-4" />}Fetch {lines(input).length || ""} photos
           </Button>

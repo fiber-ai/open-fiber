@@ -44,7 +44,7 @@ function MetricBars({ companies, metric }: { companies: Co[]; metric: Metric }) 
           <div key={c.rank} className="grid grid-cols-[11rem_1fr_5rem] items-center gap-2 text-xs">
             <span className="truncate"><span className="mr-1 tabular-nums text-muted-foreground">#{c.rank}</span>{c.name}</span>
             <span className="relative h-3.5">
-              <span className={cn("absolute top-0 h-3.5 rounded-sm", v < 0 ? "bg-red-400" : "bg-primary/80")} style={hasNeg ? (v < 0 ? { right: "50%", width: `${w}%` } : { left: "50%", width: `${w}%` }) : { left: 0, width: `${w}%` }} />
+              <span className={cn("absolute top-0 h-3.5 rounded-sm", v < 0 ? "bg-destructive" : "bg-primary/80")} style={hasNeg ? (v < 0 ? { right: "50%", width: `${w}%` } : { left: "50%", width: `${w}%` }) : { left: 0, width: `${w}%` }} />
             </span>
             <span className="text-right tabular-nums">{METRICS[metric].fmt(v)}</span>
           </div>
@@ -100,9 +100,9 @@ export default function RankingsPage() {
             <Label className="text-xs font-medium">List</Label>
             <ToggleButtonGroup<List> value={list} onChange={(v) => { setList(v); setHigh((h) => Math.min(h, MAX_RANK[v])); }} options={[{ value: "fortune-500-usa", label: "Fortune 500" }, { value: "forbes-global-2000", label: "Forbes Global 2000" }]} />
           </div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Year</Label><Input type="number" placeholder="Latest" value={year} onChange={(e) => setYear(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">From rank</Label><Input type="number" min={1} max={MAX_RANK[list]} value={low} onChange={(e) => setLow(Math.max(1, Number(e.target.value) || 1))} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">To rank</Label><Input type="number" min={1} max={MAX_RANK[list]} value={high} onChange={(e) => setHigh(Math.min(MAX_RANK[list], Math.max(1, Number(e.target.value) || 1)))} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="year" className="text-xs font-medium">Year</Label><Input id="year" type="number" placeholder="Latest" value={year} onChange={(e) => setYear(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from-rank" className="text-xs font-medium">From rank</Label><Input id="from-rank" type="number" min={1} max={MAX_RANK[list]} value={low} onChange={(e) => setLow(Math.max(1, Number(e.target.value) || 1))} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="to-rank" className="text-xs font-medium">To rank</Label><Input id="to-rank" type="number" min={1} max={MAX_RANK[list]} value={high} onChange={(e) => setHigh(Math.min(MAX_RANK[list], Math.max(1, Number(e.target.value) || 1)))} className="w-24" /></div>
           <Button type="submit" disabled={m.isPending || count === 0}>
             {m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trophy className="mr-2 h-4 w-4" />}Get {count} companies · {count} cr
           </Button>
@@ -157,7 +157,7 @@ export default function RankingsPage() {
                           </td>
                           <td className="px-3 py-2 text-xs text-muted-foreground">{[c.headquarters, c.countryCode].filter(Boolean).join(", ")}</td>
                           <td className="px-3 py-2 text-right tabular-nums">{usd(c.revenueUsd)}</td>
-                          <td className={cn("px-3 py-2 text-right tabular-nums", (c.profitsUsd ?? 0) < 0 && "text-red-600 dark:text-red-400")}>{usd(c.profitsUsd)}</td>
+                          <td className={cn("px-3 py-2 text-right tabular-nums", (c.profitsUsd ?? 0) < 0 && "text-destructive")}>{usd(c.profitsUsd)}</td>
                           <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">{mg == null ? "—" : `${(mg * 100).toFixed(1)}%`}</td>
                           <td className="px-3 py-2 text-right tabular-nums">{usd(c.marketCapUsd)}</td>
                           <td className="px-3 py-2 text-right tabular-nums">{c.employeeCount?.toLocaleString() ?? "—"}</td>

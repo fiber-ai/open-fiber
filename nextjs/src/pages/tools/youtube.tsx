@@ -66,20 +66,20 @@ export default function YouTubePage() {
         <div className="flex gap-3 items-end">
           {mode === "search" && (
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium">Search Query</Label>
-              <Input placeholder='e.g. "SaaS product demo"' value={query} onChange={(e) => setQuery(e.target.value)} />
+              <Label htmlFor="search-query" className="text-xs font-medium">Search Query</Label>
+              <Input id="search-query" placeholder='e.g. "SaaS product demo"' value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
           )}
           {mode === "video" && (
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium">Video URL or ID</Label>
-              <Input placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ or just the ID" value={videoId} onChange={(e) => setVideoId(e.target.value)} />
+              <Label htmlFor="video-url-id" className="text-xs font-medium">Video URL or ID</Label>
+              <Input id="video-url-id" placeholder="https://youtube.com/watch?v=dQw4w9WgXcQ or just the ID" value={videoId} onChange={(e) => setVideoId(e.target.value)} />
             </div>
           )}
           {mode === "channel" && (
             <div className="flex-1 space-y-1.5">
-              <Label className="text-xs font-medium">Channel URL, ID, or Handle</Label>
-              <Input placeholder="e.g. @mkbhd or UCBcRF18a7Qf58cCRy5xuWwQ" value={channelId} onChange={(e) => setChannelId(e.target.value)} />
+              <Label htmlFor="channel-url-id" className="text-xs font-medium">Channel URL, ID, or Handle</Label>
+              <Input id="channel-url-id" placeholder="e.g. @mkbhd or UCBcRF18a7Qf58cCRy5xuWwQ" value={channelId} onChange={(e) => setChannelId(e.target.value)} />
             </div>
           )}
           <Button onClick={handleSubmit} disabled={isLoading}>

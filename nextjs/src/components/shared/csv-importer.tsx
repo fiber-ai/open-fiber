@@ -269,6 +269,7 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
         type="file"
         accept=".csv,.txt"
         className="hidden"
+        aria-label="Upload CSV file"
         onChange={handleFileInput}
       />
 
@@ -286,7 +287,7 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
                 <Badge variant="secondary">{csvRows.length} rows</Badge>
                 <Badge variant="outline">{csvHeaders.length} columns</Badge>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClear}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleClear} aria-label="Remove file">
                 <X className="h-4 w-4" />
               </Button>
             </CardContent>
@@ -307,8 +308,8 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
                       {col.required && <span className="text-destructive ml-0.5">*</span>}
                     </span>
                   </div>
-                  <select
-                    className="rounded-md border bg-background px-2 py-1 text-sm min-w-[180px]"
+                  <select aria-label={`CSV column for ${col.label}`}
+                    className="rounded-md border bg-card px-2 py-1 text-sm min-w-[180px]"
                     value={columnMap[col.key] ?? ""}
                     onChange={(e) =>
                       setColumnMap((prev) => ({
@@ -381,7 +382,7 @@ export function CsvImporter<T extends z.ZodType<Record<string, unknown>>>({
             <div className="space-y-3">
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5 text-sm">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 text-success" />
                   <span>{validationResult.validRows.length} valid</span>
                 </div>
                 {validationResult.invalidRows.length > 0 && (

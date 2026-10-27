@@ -140,9 +140,9 @@ export default function ExclusionListDetailPage() {
           <Card>
             <CardContent className="pt-6">
               <form onSubmit={handleAdd} className="space-y-3">
-                <Label>Add {isCompany ? "Companies" : "Prospects"}</Label>
+                <Label htmlFor="add-entries">Add {isCompany ? "Companies" : "Prospects"}</Label>
                 <div className="flex gap-2">
-                  <Input
+                  <Input id="add-entries"
                     placeholder={isCompany ? "Domains or LinkedIn URLs (comma-separated)" : "LinkedIn profile URLs (comma-separated)"}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -236,6 +236,7 @@ export default function ExclusionListDetailPage() {
                           size="icon"
                           className="h-7 w-7 text-muted-foreground hover:text-destructive"
                           onClick={() => handleRemove(item)}
+                          aria-label="Remove from list"
                           disabled={isRemovePending}
                         >
                           <Trash2 className="h-3.5 w-3.5" />

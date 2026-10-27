@@ -23,7 +23,7 @@ function EmailLookup() {
   return (
     <div className="space-y-6">
       <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (email.trim()) m.mutate({ email: email.trim(), lite }); }}>
-        <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Email address</Label><Input type="email" placeholder="jane@acme.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-80" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="email-address" className="text-xs font-medium">Email address</Label><Input id="email-address" type="email" placeholder="jane@acme.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-80" /></div>
         <div className="flex flex-col gap-1.5">
           <Label className="text-xs font-medium">Depth</Label>
           <ToggleButtonGroup<"std" | "lite"> className="h-10" value={lite ? "lite" : "std"} onChange={(v) => setLite(v === "lite")} options={[{ value: "std", label: "Standard · 2 cr" }, { value: "lite", label: "Lite · 1 cr" }]} />
@@ -46,7 +46,7 @@ function PhoneLookup() {
   return (
     <div className="space-y-6">
       <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); if (phone.trim()) m.mutate({ phoneNumber: phone.trim() }); }}>
-        <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Phone number (with country code)</Label><Input placeholder="+1 415 555 0134" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-64" /></div>
+        <div className="flex flex-col gap-1.5"><Label htmlFor="phone-number" className="text-xs font-medium">Phone number (with country code)</Label><Input id="phone-number" placeholder="+1 415 555 0134" value={phone} onChange={(e) => setPhone(e.target.value)} className="w-64" /></div>
         <Button type="submit" disabled={m.isPending || phone.trim().length < 6}>{m.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}Look up · 3 cr</Button>
       </form>
       {m.isError && <ErrorDisplay message={m.error.message} />}

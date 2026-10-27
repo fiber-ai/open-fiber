@@ -11,7 +11,7 @@ export function StarRating({ value, max = 5, className, size = "h-3.5 w-3.5" }: 
           <span key={i} className={cn("relative inline-block", size)}>
             <Star className={cn("absolute inset-0 text-muted-foreground/30", size)} />
             <span className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
-              <Star className={cn("fill-amber-400 text-amber-400", size)} />
+              <Star className={cn("fill-rating text-rating", size)} />
             </span>
           </span>
         );
@@ -39,9 +39,9 @@ export function RatingHistogram({
             className={cn("flex w-full items-center gap-2 text-xs", onToggle && "hover:opacity-80", !on && "opacity-40")}
           >
             <span className="w-3 text-right tabular-nums">{s}</span>
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <Star className="h-3 w-3 fill-rating text-rating" />
             <span className="h-1.5 flex-1 rounded-full bg-muted">
-              <span className="block h-1.5 rounded-full bg-amber-400" style={{ width: `${(n / max) * 100}%` }} />
+              <span className="block h-1.5 rounded-full bg-rating" style={{ width: `${(n / max) * 100}%` }} />
             </span>
             <span className="w-6 text-right tabular-nums text-muted-foreground">{n}</span>
           </button>

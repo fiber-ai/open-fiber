@@ -99,7 +99,7 @@ export default function LinkedInPostsPage() {
               <Label className="text-xs font-medium">
                 {mode === "company" ? "LinkedIn Company URL or Slug" : "LinkedIn Profile URL or Slug"}
               </Label>
-              <Input
+              <Input aria-label={mode === "company" ? "LinkedIn company URL or slug" : "LinkedIn profile URL or slug"}
                 placeholder={mode === "company" ? "https://www.linkedin.com/company/name" : "https://www.linkedin.com/in/username"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
@@ -109,12 +109,12 @@ export default function LinkedInPostsPage() {
           {mode === "keywords" && (
             <>
               <div className="flex-1 space-y-1.5">
-                <Label className="text-xs font-medium">Keywords</Label>
-                <Input placeholder="e.g. AI, hiring, product launch" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
+                <Label htmlFor="keywords" className="text-xs font-medium">Keywords</Label>
+                <Input id="keywords" placeholder="e.g. AI, hiring, product launch" value={keywords} onChange={(e) => setKeywords(e.target.value)} />
               </div>
               <div className="w-40 space-y-1.5">
-                <Label className="text-xs font-medium">Recency</Label>
-                <select className="w-full rounded-md border bg-background px-2 py-2 text-sm" value={recency} onChange={(e) => setRecency(e.target.value)}>
+                <Label htmlFor="recency" className="text-xs font-medium">Recency</Label>
+                <select id="recency" className="w-full rounded-md border bg-card px-2 py-2 text-sm" value={recency} onChange={(e) => setRecency(e.target.value)}>
                   <option value="Day">Past Day</option>
                   <option value="Week">Past Week</option>
                   <option value="Month">Past Month</option>

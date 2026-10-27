@@ -87,13 +87,13 @@ export default function CompanySearchPage() {
   const hasSearched = searchMutation.isSuccess || searchMutation.isError;
 
   return (
-    <div className="flex h-full">
+    <div className="flex flex-col md:h-full md:flex-row">
       {/* Filter Sidebar */}
-      <div className="w-80 shrink-0 border-r bg-card">
+      <div className="w-full shrink-0 border-b bg-card md:w-80 md:border-b-0 md:border-r">
         <div className="flex h-14 items-center border-b px-4">
           <h2 className="text-sm font-semibold">Filters</h2>
         </div>
-        <div className="h-[calc(100vh-3.5rem)]">
+        <div className="h-[60dvh] md:h-[calc(100dvh-3.5rem)]">
           <CompanySearchForm
             onSearch={handleSearch}
             isSearching={searchMutation.isPending}
@@ -102,10 +102,10 @@ export default function CompanySearchPage() {
       </div>
 
       {/* Results */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col md:overflow-hidden">
         <Header title="Company Search" description="Search companies with 40+ filters" />
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 md:overflow-y-auto">
           {!hasSearched && (
             <EmptyState
               icon={Search}

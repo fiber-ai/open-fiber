@@ -6,5 +6,5 @@
  */
 export function RedditLogo({ className }: { className?: string }) {
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src="/reddit-logo.png" alt="Reddit" className={className} />;
+  return <img src="/reddit-logo.png" alt="" aria-hidden="true" className={className} />;
 }

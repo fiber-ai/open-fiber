@@ -54,12 +54,12 @@ export default function StealthPage() {
         />
         <div className="flex flex-wrap gap-3 items-end">
           <div className="flex-1 min-w-[220px] space-y-1.5">
-            <Label className="text-xs font-medium">Job Titles (optional)</Label>
-            <Input placeholder="e.g. Founder, CEO" value={jobTitles} onChange={(e) => setJobTitles(e.target.value)} />
+            <Label htmlFor="job-titles" className="text-xs font-medium">Job Titles (optional)</Label>
+            <Input id="job-titles" placeholder="e.g. Founder, CEO" value={jobTitles} onChange={(e) => setJobTitles(e.target.value)} />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs font-medium">Countries (optional)</Label>
-            <Input placeholder="e.g. USA, GBR" value={countries} onChange={(e) => setCountries(e.target.value)} className="w-40" />
+            <Label htmlFor="countries" className="text-xs font-medium">Countries (optional)</Label>
+            <Input id="countries" placeholder="e.g. USA, GBR" value={countries} onChange={(e) => setCountries(e.target.value)} className="w-40" />
           </div>
           <Button onClick={handleSearch} disabled={search.isPending}>
             {search.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Search className="mr-2 h-4 w-4" />}

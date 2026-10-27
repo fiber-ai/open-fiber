@@ -83,7 +83,7 @@ function VideoGrid({ videos, onOpen }: { videos: Row[]; onOpen: (url: string) =>
                 <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{compact(num(v, "viewCount"))}</span>
                 {num(v, "durationSeconds") != null && <span>{dur(num(v, "durationSeconds"))}</span>}
               </div>
-              {eng != null && eng >= 10 && <span className="absolute left-2 top-2 rounded bg-rose-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">{eng.toFixed(0)}% eng.</span>}
+              {eng != null && eng >= 10 && <span className="absolute left-2 top-2 rounded bg-destructive px-1.5 py-0.5 text-[10px] font-semibold text-white">{eng.toFixed(0)}% eng.</span>}
             </div>
             <p className="mt-1.5 line-clamp-2 text-xs">{str(v, "caption") ?? "(no caption)"}</p>
             <p className="mt-0.5 flex gap-2 text-[11px] text-muted-foreground">
@@ -109,7 +109,7 @@ function UserList({ users, onOpen }: { users: Row[]; onOpen: (handle: string) =>
                 ? <img src={str(u, "profileImageUrl")} alt="" className="h-10 w-10 rounded-full object-cover" loading="lazy" />
                 : <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted"><User className="h-4 w-4 text-muted-foreground" /></div>}
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1 truncate text-sm font-medium">@{str(u, "handle") ?? "unknown"}{u.isVerified === true && <BadgeCheck className="h-3.5 w-3.5 text-sky-500" />}</p>
+                <p className="flex items-center gap-1 truncate text-sm font-medium">@{str(u, "handle") ?? "unknown"}{u.isVerified === true && <BadgeCheck className="h-3.5 w-3.5 text-info" />}</p>
                 <p className="truncate text-xs text-muted-foreground">{str(u, "displayName")}{num(u, "followerCount") != null && ` · ${compact(num(u, "followerCount"))} followers`}</p>
               </div>
             </CardContent>
@@ -133,7 +133,7 @@ function ViewsChart({ videos }: { videos: Row[] }) {
         <div className="flex h-28 items-end gap-1">
           {vs.map((v, i) => {
             const n = num(v, "viewCount")!;
-            return <div key={i} className={cn("flex-1 rounded-t", n > median * 3 ? "bg-rose-500" : "bg-primary/70")} style={{ height: `${Math.max(2, (n / max) * 100)}%` }} title={`${compact(n)} views · ${str(v, "caption")?.slice(0, 60) ?? ""}`} />;
+            return <div key={i} className={cn("flex-1 rounded-t", n > median * 3 ? "bg-destructive" : "bg-primary/70")} style={{ height: `${Math.max(2, (n / max) * 100)}%` }} title={`${compact(n)} views · ${str(v, "caption")?.slice(0, 60) ?? ""}`} />;
           })}
         </div>
         <p className="mt-1 text-[11px] text-muted-foreground">Oldest → newest. Red bars are over 3× the median.</p>
@@ -162,7 +162,7 @@ function Comments({ videoUrl }: { videoUrl: string }) {
           const rc = num(c, "replyCount") ?? 0;
           return (
             <div key={id ?? i} className="space-y-1 border-b pb-2 last:border-0">
-              <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground">@{str(user, "handle") ?? "user"}{user?.isVerified === true && <BadgeCheck className="h-3 w-3 text-sky-500" />}</p>
+              <p className="flex items-center gap-1 text-xs font-medium text-muted-foreground">@{str(user, "handle") ?? "user"}{user?.isVerified === true && <BadgeCheck className="h-3 w-3 text-info" />}</p>
               <p className="text-sm">{str(c, "text")}</p>
               <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
                 <span className="flex items-center gap-0.5"><Heart className="h-3 w-3" />{compact(num(c, "likeCount"))}</span>
@@ -317,18 +317,18 @@ export default function TikTokPage() {
           ]}
         />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); submit(); }}>
-          {mode === "profile" && <div className="flex w-72 flex-col gap-1.5"><Label className="text-xs font-medium">Handle</Label><Input placeholder="nasa" value={handle} onChange={(e) => setHandle(e.target.value)} /></div>}
+          {mode === "profile" && <div className="flex w-72 flex-col gap-1.5"><Label htmlFor="handle" className="text-xs font-medium">Handle</Label><Input id="handle" placeholder="nasa" value={handle} onChange={(e) => setHandle(e.target.value)} /></div>}
           {mode === "search" && (
             <>
               <div className="flex flex-col gap-1.5">
                 <Label className="text-xs font-medium">Search</Label>
                 <ToggleButtonGroup<SearchKind> value={searchKind} onChange={setSearchKind} options={[{ value: "all", label: "Everything" }, { value: "keyword", label: "Videos", icon: Video }, { value: "hashtag", label: "Hashtag", icon: Hash }, { value: "users", label: "Users", icon: Users }]} />
               </div>
-              <div className="flex min-w-[16rem] flex-1 flex-col gap-1.5"><Label className="text-xs font-medium">Query</Label><Input placeholder={searchKind === "hashtag" ? "#booktok" : "product launch"} value={query} onChange={(e) => setQuery(e.target.value)} /></div>
+              <div className="flex min-w-[16rem] flex-1 flex-col gap-1.5"><Label htmlFor="query" className="text-xs font-medium">Query</Label><Input id="query" placeholder={searchKind === "hashtag" ? "#booktok" : "product launch"} value={query} onChange={(e) => setQuery(e.target.value)} /></div>
             </>
           )}
-          {mode === "video" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label className="text-xs font-medium">Video URL</Label><Input placeholder="https://www.tiktok.com/@user/video/123…" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} /></div>}
-          {mode === "song" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label className="text-xs font-medium">Sound URL</Label><Input placeholder="https://www.tiktok.com/music/song-title-7439295283975702544" value={songUrl} onChange={(e) => setSongUrl(e.target.value)} /></div>}
+          {mode === "video" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="video-url" className="text-xs font-medium">Video URL</Label><Input id="video-url" placeholder="https://www.tiktok.com/@user/video/123…" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} /></div>}
+          {mode === "song" && <div className="flex min-w-[20rem] flex-1 flex-col gap-1.5"><Label htmlFor="sound-url" className="text-xs font-medium">Sound URL</Label><Input id="sound-url" placeholder="https://www.tiktok.com/music/song-title-7439295283975702544" value={songUrl} onChange={(e) => setSongUrl(e.target.value)} /></div>}
           {mode === "trending" && <p className="pb-2 text-sm text-muted-foreground">What&apos;s trending on TikTok right now, plus the most-used sounds.</p>}
           <Button type="submit" disabled={pending}>{pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Music2 className="mr-2 h-4 w-4" />}{mode === "trending" ? "Load trending" : "Fetch"}</Button>
         </form>
@@ -344,7 +344,7 @@ export default function TikTokPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {str(p, "profileImageUrl", "avatarUrl") && <img src={str(p, "profileImageUrl", "avatarUrl")} alt="" className="h-16 w-16 rounded-full object-cover" />}
                   <div className="min-w-0 flex-1">
-                    <a href={`https://www.tiktok.com/@${str(p, "handle") ?? handle}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 font-semibold hover:underline">@{str(p, "handle") ?? handle}{p.isVerified === true && <BadgeCheck className="h-4 w-4 text-sky-500" />}<ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /></a>
+                    <a href={`https://www.tiktok.com/@${str(p, "handle") ?? handle}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 font-semibold hover:underline">@{str(p, "handle") ?? handle}{p.isVerified === true && <BadgeCheck className="h-4 w-4 text-info" />}<ExternalLink className="h-3.5 w-3.5 text-muted-foreground" /></a>
                     {str(p, "nickname", "displayName") && <p className="text-sm">{str(p, "nickname", "displayName")}</p>}
                     {str(p, "signature", "bio") && <p className="whitespace-pre-wrap text-sm text-muted-foreground">{str(p, "signature", "bio")}</p>}
                   </div>
@@ -411,7 +411,7 @@ export default function TikTokPage() {
           <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1fr_18rem]">
             <section className="space-y-3">
               {trending.error && <ErrorDisplay message={trending.error.message} />}
-              {trending.items.length > 0 && <h2 className="flex items-center gap-1.5 text-sm font-semibold"><Flame className="h-4 w-4 text-rose-500" />Trending now</h2>}
+              {trending.items.length > 0 && <h2 className="flex items-center gap-1.5 text-sm font-semibold"><Flame className="h-4 w-4 text-destructive" />Trending now</h2>}
               <VideoGrid videos={trending.items} onOpen={goVideo} />
               <MoreButton show={trending.hasMore} pending={trending.pending} onClick={trending.more} />
               {!trending.loaded && !trending.pending && <EmptyState icon={Flame} title="Trending feed" description="Load the current trending feed and the most popular sounds." />}

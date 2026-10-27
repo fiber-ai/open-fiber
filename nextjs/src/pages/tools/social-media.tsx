@@ -59,8 +59,8 @@ export default function SocialMediaPage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label>LinkedIn URLs (one per line)</Label>
-                <Textarea
+                <Label htmlFor="linkedin-urls">LinkedIn URLs (one per line)</Label>
+                <Textarea id="linkedin-urls"
                   className="min-h-[120px] font-mono text-xs"
                   placeholder={"https://www.linkedin.com/in/person-1\nhttps://www.linkedin.com/in/person-2"}
                   value={input}

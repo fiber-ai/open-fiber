@@ -73,7 +73,7 @@ export default function ExclusionListsPage() {
           <DialogContent>
             <form onSubmit={(e) => { e.preventDefault(); handleCreate(); }}>
               <DialogHeader><DialogTitle>Create {activeTab === "company" ? "Company" : "Prospect"} Exclusion List</DialogTitle></DialogHeader>
-              <div className="py-4"><Input placeholder="e.g. Existing Customers" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus /></div>
+              <div className="py-4"><Input aria-label="List name" placeholder="e.g. Existing Customers" value={newName} onChange={(e) => setNewName(e.target.value)} autoFocus /></div>
               <DialogFooter>
                 <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
                 <Button type="submit" disabled={!newName.trim() || isCreatePending}>
@@ -111,7 +111,7 @@ export default function ExclusionListsPage() {
                   <Link href={`/exclusion-lists/${list.id}?type=${activeTab}`} className="text-sm font-medium hover:underline">{list.name}</Link>
                   <ConfirmDialog
                     trigger={
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" aria-label={`Delete ${list.name}`}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     }

@@ -71,8 +71,8 @@ export default function DomainLookupPage() {
           <Card>
             <CardContent className="pt-6 space-y-4">
               <div className="space-y-2">
-                <Label>Company Names (one per line)</Label>
-                <Textarea
+                <Label htmlFor="company-names">Company Names (one per line)</Label>
+                <Textarea id="company-names"
                   className="min-h-[100px]"
                   placeholder={"OpenAI\nAnthropic\nStripe"}
                   value={companyNames}
@@ -80,8 +80,8 @@ export default function DomainLookupPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label>Context (optional)</Label>
-                <Input
+                <Label htmlFor="context">Context (optional)</Label>
+                <Input id="context"
                   placeholder='e.g. "YC startups", "British freight brokers"'
                   value={context}
                   onChange={(e) => setContext(e.target.value)}

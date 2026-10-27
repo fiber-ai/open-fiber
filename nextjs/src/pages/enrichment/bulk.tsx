@@ -81,12 +81,12 @@ export default function BulkEnrichPage() {
               />
 
               <div className="space-y-2">
-                <Label>
+                <Label htmlFor="identifiers">
                   {mode === "profile"
                     ? "LinkedIn Profile URLs or slugs (one per line)"
                     : "LinkedIn Company URLs, slugs, or org IDs (one per line)"}
                 </Label>
-                <Textarea
+                <Textarea id="identifiers"
                   className="min-h-[140px] font-mono text-xs"
                   placeholder={
                     mode === "profile"

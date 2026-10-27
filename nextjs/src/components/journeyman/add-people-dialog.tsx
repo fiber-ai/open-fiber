@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useId } from "react";
 import { UserPlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ interface AddPeopleDialogProps {
 }
 
 export function AddPeopleDialog({ onSubmit, isLoading }: AddPeopleDialogProps) {
+  const uid = useId();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
 
@@ -43,8 +44,8 @@ export function AddPeopleDialog({ onSubmit, isLoading }: AddPeopleDialogProps) {
             <DialogTitle>Add People to Track</DialogTitle>
           </DialogHeader>
           <div className="py-4 space-y-2">
-            <Label>LinkedIn URLs (one per line)</Label>
-            <Textarea
+            <Label htmlFor={`${uid}-linkedin-urls`}>LinkedIn URLs (one per line)</Label>
+            <Textarea id={`${uid}-linkedin-urls`}
               className="min-h-[160px] font-mono text-xs"
               placeholder={"https://www.linkedin.com/in/person-1\nhttps://www.linkedin.com/in/person-2\nhttps://www.linkedin.com/in/person-3"}
               value={input}

@@ -7,6 +7,7 @@ import {
   Calendar,
   Tag,
   Languages,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,7 @@ export function ProspectDetailSheet({ prospect, onClose }: ProspectDetailSheetPr
     : prospect.locality ?? null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l bg-background shadow-xl">
+    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l bg-card shadow-xl">
       {/* Header */}
       <div className="flex items-start justify-between p-6">
         <div className="flex items-center gap-3">
@@ -66,8 +67,8 @@ export function ProspectDetailSheet({ prospect, onClose }: ProspectDetailSheetPr
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          ✕
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close details">
+          <X className="h-4 w-4" />
         </Button>
       </div>
 
@@ -116,10 +117,10 @@ export function ProspectDetailSheet({ prospect, onClose }: ProspectDetailSheetPr
         {/* Status Badges */}
         <div className="flex flex-wrap gap-1">
           {prospect.open_to_work && (
-            <Badge className="bg-green-600 text-xs">Open to Work</Badge>
+            <Badge variant="success" className="text-xs">Open to Work</Badge>
           )}
           {prospect.is_hiring && (
-            <Badge className="bg-blue-600 text-xs">Hiring</Badge>
+            <Badge variant="info" className="text-xs">Hiring</Badge>
           )}
         </div>
 

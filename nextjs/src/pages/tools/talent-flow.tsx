@@ -103,8 +103,8 @@ function RivalsResults({ out, fallbackName }: { out: Row; fallbackName: string }
   return (
     <div className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-3">
-        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Joined {name}</p><p className="text-2xl font-semibold tabular-nums text-emerald-600 dark:text-emerald-400">{joiners.toLocaleString()}</p></CardContent></Card>
-        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Left {name}</p><p className="text-2xl font-semibold tabular-nums text-red-600 dark:text-red-400">{leavers.toLocaleString()}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Joined {name}</p><p className="text-2xl font-semibold tabular-nums text-success">{joiners.toLocaleString()}</p></CardContent></Card>
+        <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Left {name}</p><p className="text-2xl font-semibold tabular-nums text-destructive">{leavers.toLocaleString()}</p></CardContent></Card>
         <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground">Net talent</p><p className="text-2xl font-semibold tabular-nums">{net > 0 ? "+" : ""}{net.toLocaleString()}</p></CardContent></Card>
       </div>
       {rivals.length > 0 && (
@@ -153,8 +153,8 @@ export default function TalentFlowPage() {
             <CardContent className="space-y-4 pt-6">
               <div className="flex flex-wrap items-end gap-3">
                 <div className="flex min-w-[18rem] flex-1 flex-col gap-1.5">
-                  <Label className="text-xs font-medium">Company</Label>
-                  <Input placeholder="stripe.com, LinkedIn company URL, slug, or org ID" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} />
+                  <Label htmlFor="company" className="text-xs font-medium">Company</Label>
+                  <Input id="company" placeholder="stripe.com, LinkedIn company URL, slug, or org ID" value={company} onChange={(e) => setCompany(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }} />
                 </div>
                 {mode === "flow" ? (
                   <div className="flex flex-col gap-1.5">
@@ -163,12 +163,12 @@ export default function TalentFlowPage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-1.5">
-                    <Label className="text-xs font-medium">Rivals per side</Label>
-                    <Input type="number" min={1} max={50} value={perSide} onChange={(e) => setPerSide(Math.min(50, Math.max(1, Number(e.target.value) || 10)))} className="w-24" />
+                    <Label htmlFor="rivals-per-side" className="text-xs font-medium">Rivals per side</Label>
+                    <Input id="rivals-per-side" type="number" min={1} max={50} value={perSide} onChange={(e) => setPerSide(Math.min(50, Math.max(1, Number(e.target.value) || 10)))} className="w-24" />
                   </div>
                 )}
-                <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">After (optional)</Label><Input type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" /></div>
-                <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Before (optional)</Label><Input type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" /></div>
+                <div className="flex flex-col gap-1.5"><Label htmlFor="after" className="text-xs font-medium">After (optional)</Label><Input id="after" type="date" value={after} onChange={(e) => setAfter(e.target.value)} className="w-40" /></div>
+                <div className="flex flex-col gap-1.5"><Label htmlFor="before" className="text-xs font-medium">Before (optional)</Label><Input id="before" type="date" value={before} onChange={(e) => setBefore(e.target.value)} className="w-40" /></div>
                 <Button onClick={handleSubmit} disabled={!company.trim() || active.isPending}>
                   {active.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ArrowRightLeft className="mr-2 h-4 w-4" />}Analyze · 5 cr
                 </Button>

@@ -118,12 +118,12 @@ export default function UrlRepairPage() {
               {inputMode === "paste" && (
               <>
                 <div className="space-y-2">
-                  <Label>
+                  <Label htmlFor="identifiers">
                     {mode === "profile"
                       ? "LinkedIn Profile URNs, URLs, or slugs (one per line)"
                       : "LinkedIn Company slugs, org IDs, or URLs (one per line)"}
                   </Label>
-                  <Textarea
+                  <Textarea id="identifiers"
                     className="min-h-[120px] font-mono text-xs"
                     placeholder={
                       mode === "profile"

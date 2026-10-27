@@ -148,3 +148,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 next-env.d.ts
+
+# Per-developer Claude Code settings (impeccable hook manifest lives here)
+nextjs/.claude/settings.local.json
+nextjs/.impeccable/config.local.json
+nextjs/.impeccable/cache/
+# impeccable is installed per developer (npx impeccable install), not vendored
+nextjs/.claude/skills/impeccable/
+nextjs/.agents/

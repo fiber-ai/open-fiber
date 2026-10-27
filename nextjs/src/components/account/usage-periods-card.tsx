@@ -79,7 +79,7 @@ export function UsagePeriodsCard({ periods }: { periods: UsagePeriod[] }) {
                       </div>
                       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className={`h-full transition-all duration-500 ${pct >= 90 ? "bg-amber-500" : "bg-primary"}`}
+                          className={`h-full transition-all duration-500 ${pct >= 90 ? "bg-warning" : "bg-primary"}`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>

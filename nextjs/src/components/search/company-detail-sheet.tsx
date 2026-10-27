@@ -7,6 +7,7 @@ import {
   Briefcase,
   Calendar,
   Tag,
+  X,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,7 @@ export function CompanyDetailSheet({ company, onClose }: CompanyDetailSheetProps
     : null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l bg-background shadow-xl">
+    <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l bg-card shadow-xl">
       {/* Header */}
       <div className="flex items-start justify-between p-6">
         <div className="flex items-center gap-3">
@@ -80,8 +81,8 @@ export function CompanyDetailSheet({ company, onClose }: CompanyDetailSheetProps
             )}
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          ✕
+        <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close details">
+          <X className="h-4 w-4" />
         </Button>
       </div>
 

@@ -59,7 +59,7 @@ function Insights({ data, cur }: { data: PriceInsights; cur: string }) {
   const W = 320, H = 64;
   const min = Math.min(...hist.map((h) => h.price)), max = Math.max(...hist.map((h) => h.price));
   const path = hist.map((h, i) => `${i === 0 ? "M" : "L"}${(i / Math.max(1, hist.length - 1)) * W},${H - 4 - ((h.price - min) / Math.max(1, max - min)) * (H - 8)}`).join(" ");
-  const tone = data.priceLevel === "low" ? "text-emerald-600 dark:text-emerald-400" : data.priceLevel === "high" ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400";
+  const tone = data.priceLevel === "low" ? "text-success" : data.priceLevel === "high" ? "text-destructive" : "text-warning";
   return (
     <Card>
       <CardContent className="grid gap-4 pt-5 md:grid-cols-2">
@@ -70,7 +70,7 @@ function Insights({ data, cur }: { data: PriceInsights; cur: string }) {
           </p>
           {lo != null && hi != null && now != null && (
             <div>
-              <div className="relative h-2 rounded-full bg-gradient-to-r from-emerald-400 via-amber-300 to-red-400">
+              <div className="relative h-2 rounded-full bg-gradient-to-r from-success via-warning/60 to-destructive">
                 <span className="absolute -top-1 h-4 w-1 rounded bg-foreground" style={{ left: `${Math.min(100, Math.max(0, ((now - lo) / Math.max(1, hi - lo)) * 100))}%` }} />
               </div>
               <div className="mt-1 flex justify-between text-[11px] text-muted-foreground"><span>{money(lo, cur)}</span><span>typical range</span><span>{money(hi, cur)}</span></div>
@@ -81,8 +81,8 @@ function Insights({ data, cur }: { data: PriceInsights; cur: string }) {
           <div>
             <p className="mb-1 text-xs text-muted-foreground">Lowest price over the last {hist.length} days</p>
             <svg viewBox={`0 0 ${W} ${H}`} className="h-16 w-full" preserveAspectRatio="none">
-              <path d={`${path} L${W},${H} L0,${H} Z`} className="fill-sky-500/10" />
-              <path d={path} className="fill-none stroke-sky-500" strokeWidth={2} vectorEffect="non-scaling-stroke" />
+              <path d={`${path} L${W},${H} L0,${H} Z`} className="fill-info/10" />
+              <path d={path} className="fill-none stroke-info" strokeWidth={2} vectorEffect="non-scaling-stroke" />
             </svg>
             <div className="flex justify-between text-[11px] text-muted-foreground"><span>{fmtDay(hist[0].snapshotDate)}</span><span>{money(min, cur)}–{money(max, cur)}</span><span>{fmtDay(hist[hist.length - 1].snapshotDate)}</span></div>
           </div>
@@ -107,7 +107,7 @@ function BookingOptions({ token, trip, cur }: { token: string; trip: TripQuery; 
         const conditions = (o.fareConditions ?? []) as string[];
         const bags = (o.baggageDetails ?? []) as string[];
         return (
-          <div key={i} className={cn("rounded-md border p-2.5", i === 0 && "border-emerald-500/60 bg-emerald-500/5")}>
+          <div key={i} className={cn("rounded-md border p-2.5", i === 0 && "border-success/60 bg-success/5")}>
             <div className="flex items-center gap-2">
               <span className="flex-1 text-sm font-medium">{o.providerName as string}</span>
               {typeof o.fareType === "string" && <Badge variant="outline" className="text-[10px]">{o.fareType}</Badge>}
@@ -155,7 +155,7 @@ function FlightCard({ f, cur, trip, best }: { f: Flight; cur: string; trip: Trip
             <p className="truncate text-muted-foreground">{f.layovers.map((l) => `${fmtDuration(l.durationMinutes)} ${l.iataCode ?? ""}`).join(", ")}</p>
           </div>
           {co2 != null && (
-            <span className={cn("hidden items-center gap-1 text-xs md:flex", co2 < 0 ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground")}>
+            <span className={cn("hidden items-center gap-1 text-xs md:flex", co2 < 0 ? "text-success" : "text-muted-foreground")}>
               <Leaf className="h-3 w-3" />{co2 > 0 ? "+" : ""}{co2}%
             </span>
           )}
@@ -174,7 +174,7 @@ function FlightCard({ f, cur, trip, best }: { f: Flight; cur: string; trip: Trip
                       {fmtDuration(s.durationMinutes)} · {s.airlineName} {s.flightNumber} · {s.travelClass}
                       {s.aircraftModel && ` · ${s.aircraftModel}`}{s.legroom && ` · ${s.legroom} legroom`}
                       {s.isOvernight && <span className="ml-1 inline-flex items-center gap-0.5"><Moon className="h-3 w-3" />overnight</span>}
-                      {s.isOftenDelayed && <span className="ml-1 inline-flex items-center gap-0.5 text-amber-600"><AlertTriangle className="h-3 w-3" />often delayed 30+ min</span>}
+                      {s.isOftenDelayed && <span className="ml-1 inline-flex items-center gap-0.5 text-warning"><AlertTriangle className="h-3 w-3" />often delayed 30+ min</span>}
                     </p>
                     <p className="text-sm"><span className="font-medium tabular-nums" suppressHydrationWarning>{fmtTime(s.arrivalAirport.localDateTime)}</span> · {s.arrivalAirport.name} ({s.arrivalAirport.iataCode})</p>
                   </div>
@@ -230,25 +230,25 @@ function SearchTab() {
     <>
       <div className="border-b p-4">
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); handleSearch(); }}>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">From</Label><Input placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">To</Label><Input placeholder="JFK" value={to} onChange={(e) => setTo(e.target.value)} className="w-24" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Depart</Label><Input type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-36" /></div>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Return</Label><Input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-36" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from" className="text-xs font-medium">From</Label><Input id="from" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="to" className="text-xs font-medium">To</Label><Input id="to" placeholder="JFK" value={to} onChange={(e) => setTo(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="depart" className="text-xs font-medium">Depart</Label><Input id="depart" type="date" value={departureDate} onChange={(e) => setDepartureDate(e.target.value)} className="w-36" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="return" className="text-xs font-medium">Return</Label><Input id="return" type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} className="w-36" /></div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Class</Label>
-            <select value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="class" className="text-xs font-medium">Class</Label>
+            <select id="class" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="economy">Economy</option><option value="premiumEconomy">Premium Economy</option><option value="business">Business</option><option value="first">First</option>
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Stops</Label>
-            <select value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="stops" className="text-xs font-medium">Stops</Label>
+            <select id="stops" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="">Any</option><option value="0">Nonstop</option><option value="1">1 stop or fewer</option><option value="2">2 stops or fewer</option>
             </select>
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label className="text-xs font-medium">Sort</Label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-background px-2 text-sm">
+            <Label htmlFor="sort" className="text-xs font-medium">Sort</Label>
+            <select id="sort" value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)} className="h-10 rounded-md border bg-card px-2 text-sm">
               <option value="top">Top flights</option><option value="price">Price</option><option value="duration">Duration</option><option value="departureTime">Departure time</option><option value="emissions">Emissions</option>
             </select>
           </div>
@@ -309,21 +309,21 @@ function DealsTab() {
       <div className="space-y-3 border-b p-4">
         <ToggleButtonGroup<"freeText" | "filters"> value={mode} onChange={setMode} options={[{ value: "freeText", label: "Describe a trip" }, { value: "filters", label: "Filters" }]} />
         <form className="flex flex-wrap items-end gap-3" onSubmit={(e) => { e.preventDefault(); run(); }}>
-          <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">From</Label><Input placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
+          <div className="flex flex-col gap-1.5"><Label htmlFor="from-2" className="text-xs font-medium">From</Label><Input id="from-2" placeholder="SFO" value={from} onChange={(e) => setFrom(e.target.value)} className="w-24" /></div>
           {mode === "freeText" ? (
-            <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">What kind of trip?</Label><Input placeholder="Beach weekend in December under $400" value={freeText} onChange={(e) => setFreeText(e.target.value)} className="w-96" /></div>
+            <div className="flex flex-col gap-1.5"><Label htmlFor="trip-idea" className="text-xs font-medium">What kind of trip?</Label><Input id="trip-idea" placeholder="Beach weekend in December under $400" value={freeText} onChange={(e) => setFreeText(e.target.value)} className="w-96" /></div>
           ) : (
             <>
-              <div className="flex flex-col gap-1.5"><Label className="text-xs font-medium">Max price</Label><Input type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-28" /></div>
+              <div className="flex flex-col gap-1.5"><Label htmlFor="max-price" className="text-xs font-medium">Max price</Label><Input id="max-price" type="number" min={0} placeholder="Any" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-28" /></div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-xs font-medium">Stops</Label>
-                <select value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-background px-2 text-sm">
+                <Label htmlFor="stops-2" className="text-xs font-medium">Stops</Label>
+                <select id="stops-2" value={maxStops} onChange={(e) => setMaxStops(e.target.value)} className="h-10 rounded-md border bg-card px-2 text-sm">
                   <option value="">Any</option><option value="0">Nonstop</option><option value="1">1 stop or fewer</option>
                 </select>
               </div>
               <div className="flex flex-col gap-1.5">
-                <Label className="text-xs font-medium">Class</Label>
-                <select value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-background px-2 text-sm">
+                <Label htmlFor="class-2" className="text-xs font-medium">Class</Label>
+                <select id="class-2" value={travelClass} onChange={(e) => setTravelClass(e.target.value as TravelClass)} className="h-10 rounded-md border bg-card px-2 text-sm">
                   <option value="economy">Economy</option><option value="premiumEconomy">Premium Economy</option><option value="business">Business</option><option value="first">First</option>
                 </select>
               </div>
@@ -349,7 +349,7 @@ function DealsTab() {
                 <div className="relative h-36 bg-muted">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {d.destination.thumbnailUrl ? <img src={d.destination.thumbnailUrl} alt="" className="h-full w-full object-cover" loading="lazy" /> : <div className="flex h-full items-center justify-center"><Plane className="h-8 w-8 text-muted-foreground/50" /></div>}
-                  {pct != null && pct > 0 && <Badge className="absolute left-2 top-2 bg-emerald-600 hover:bg-emerald-600"><TrendingDown className="mr-1 h-3 w-3" />{pct}% below typical</Badge>}
+                  {pct != null && pct > 0 && <Badge className="absolute left-2 top-2 bg-success hover:bg-success"><TrendingDown className="mr-1 h-3 w-3" />{pct}% below typical</Badge>}
                 </div>
                 <CardHeader className="pb-1 pt-3">
                   <CardTitle className="flex items-baseline justify-between gap-2 text-base">
@@ -365,7 +365,7 @@ function DealsTab() {
                   <p>{[d.airlineName, d.stopCount === 0 ? "Nonstop" : d.stopCount != null ? `${d.stopCount} stop${d.stopCount > 1 ? "s" : ""}` : null, fmtDuration(d.durationMinutes)].filter(Boolean).join(" · ")}</p>
                   {d.typicalPrice != null && (
                     <div className="pt-1">
-                      <div className="h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-emerald-500" style={{ width: `${Math.min(100, (d.price / d.typicalPrice) * 100)}%` }} /></div>
+                      <div className="h-1.5 rounded-full bg-muted"><div className="h-1.5 rounded-full bg-success" style={{ width: `${Math.min(100, (d.price / d.typicalPrice) * 100)}%` }} /></div>
                       <p className="mt-0.5 text-[11px]">vs typical {money(d.typicalPrice, cur)}{d.savingsAmount ? ` · save ${money(d.savingsAmount, cur)}` : ""}</p>
                     </div>
                   )}

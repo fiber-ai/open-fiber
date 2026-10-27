@@ -105,7 +105,7 @@ export function MultiSelect({
       {open && (
         <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
           <div className="p-2">
-            <input
+            <input aria-label="Search options"
               type="text"
               className="w-full rounded-sm border px-2 py-1 text-sm outline-none focus:ring-1 focus:ring-ring"
               placeholder="Search..."

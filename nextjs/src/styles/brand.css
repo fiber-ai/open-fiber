@@ -1,0 +1,28 @@
+/*
+ * ─── Brand ──────────────────────────────────────────────────────────────────
+ * This is the ONE file to edit when you make OpenFiber your own.
+ *
+ * The rest of the UI is a plain, neutral shadcn/ui theme (see globals.css).
+ * Only the values below carry brand identity: the accent used for primary
+ * buttons, links, focus rings and the active nav item, plus the font and
+ * corner radius. The logo and product name live in src/config/brand.ts.
+ *
+ * Colours are HSL triplets ("H S% L%"), the format shadcn/ui expects.
+ * Keep --brand-primary dark enough for white text (≥ 4.5:1).
+ */
+:root {
+  /* Fiber purple (#6A48E3). Swap for your own accent. */
+  --brand-primary: 253 73.5% 58.6%;
+  --brand-primary-foreground: 0 0% 100%;
+  /* Focus ring / selection tint (Fiber lilac #9D78F0). */
+  --brand-ring: 258 80% 70.6%;
+
+  /* Dark-mode variants of the accent. */
+  --brand-primary-dark: 260 88% 74%;
+  --brand-primary-foreground-dark: 255 48% 11%;
+
+  /* Type and shape. System font stack: no web font to load. */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
+  --radius: 0.5rem;
+}

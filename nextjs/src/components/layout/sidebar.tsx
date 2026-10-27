@@ -46,11 +46,14 @@ import {
   Webhook,
   History,
   Utensils,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CreditBadge } from "./credit-badge";
+import { BrandLogo } from "./brand-logo";
+import { brand } from "@/config/brand";
 import { XLogo } from "@/components/icons/x-logo";
 import { RedditLogo } from "@/components/icons/reddit-logo";
 
@@ -168,60 +171,100 @@ const navGroups: NavGroup[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  /** Called when a nav link is chosen (the mobile drawer closes itself). */
+  onNavigate?: () => void;
+  /** Rendered inside the mobile drawer: always expanded, toggle closes the drawer. */
+  variant?: "rail" | "drawer";
+  className?: string;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+const allHrefs = navGroups.flatMap((g) => g.items.map((i) => i.href));
+
+/**
+ * The one nav href that owns the current URL: the longest href that equals the
+ * path or is a parent segment of it. Uses the real URL (asPath), not the route
+ * pattern, so /trackers/companies/abc highlights Company Trackers, and
+ * /account/webhooks highlights Webhooks but not Usage & Credits (/account).
+ */
+export function activeNavHref(asPath: string): string | undefined {
+  const path = asPath.split(/[?#]/)[0].replace(/\/$/, "") || "/";
+  return allHrefs
+    .filter((href) => path === href || path.startsWith(`${href}/`))
+    .sort((a, b) => b.length - a.length)[0];
+}
+
+export function Sidebar({ collapsed: collapsedProp, onToggle, onNavigate, variant = "rail", className }: SidebarProps) {
   const router = useRouter();
+  const activeHref = activeNavHref(router.asPath);
+  const isDrawer = variant === "drawer";
+  const collapsed = isDrawer ? false : collapsedProp;
 
   return (
     <aside
       className={cn(
-        "flex h-screen flex-col border-r bg-card transition-all duration-200",
-        collapsed ? "w-16" : "w-64"
+        "flex h-full flex-col border-r bg-card transition-[width] duration-200 ease-out",
+        isDrawer ? "w-72" : collapsed ? "w-16" : "w-64",
+        className
       )}
     >
-      <div className="flex h-14 items-center justify-between px-4">
+      <div className={cn("flex h-14 shrink-0 items-center px-3", collapsed ? "justify-center" : "justify-between")}>
         {!collapsed && (
-          <Link href="/" className="text-lg font-semibold tracking-tight">
-            OpenFiber
+          <Link
+            href="/"
+            className="flex items-center gap-2 rounded-md px-1 text-base font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <BrandLogo />
+            {brand.name}
           </Link>
         )}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
+          className="h-8 w-8 text-muted-foreground"
           onClick={onToggle}
+          aria-label={isDrawer ? "Close navigation" : collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-expanded={isDrawer ? undefined : !collapsed}
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {isDrawer ? (
+            <X className="h-4 w-4" />
+          ) : collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
         </Button>
       </div>
 
       <Separator />
 
-      <nav className="flex-1 overflow-y-auto px-2 py-2">
+      <nav aria-label="Main" className="flex-1 overflow-y-auto px-2 py-3">
         {navGroups.map((group) => (
-          <div key={group.label} className="mb-3">
+          <div key={group.label} className="mb-4 last:mb-0">
             {!collapsed && (
-              <p className="mb-1 px-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              <p className="mb-1 px-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-muted-foreground">
                 {group.label}
               </p>
             )}
             {group.items.map((item) => {
-              const isActive = router.pathname === item.href;
+              const isActive = item.href === activeHref;
               const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                  onClick={onNavigate}
+                  aria-label={collapsed ? item.label : undefined}
                   className={cn(
-                    "flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors",
+                    "flex items-center gap-3 rounded-md px-2 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    collapsed && "justify-center",
                     isActive
-                      ? "bg-accent text-accent-foreground font-medium"
+                      ? "bg-accent font-medium text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                   title={collapsed ? item.label : undefined}
                 >
-                  <Icon className="h-4 w-4 shrink-0" />
+                  <Icon className={cn("h-4 w-4 shrink-0", isActive && "text-primary")} />
                   {!collapsed && <span>{item.label}</span>}
                 </Link>
               );

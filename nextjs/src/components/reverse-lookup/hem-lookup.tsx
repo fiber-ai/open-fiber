@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useId } from "react";
 import { Hash, Loader2, Search, ExternalLink, Download, Lock } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -26,6 +26,7 @@ const algoOf = (h: string) => (h.length === 64 ? "SHA-256" : h.length === 40 ? "
 interface Result { status: "found" | "not_found" | "rejected"; hashedEmail: string; originalEmail?: string; linkedinUrl?: string | null; linkedinUserID?: string | null; message?: string }
 
 export function HemLookup() {
+  const uid = useId();
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<"hashes" | "emails">("hashes");
   const [algo, setAlgo] = useState<Algo>("SHA-256");
@@ -73,8 +74,8 @@ export function HemLookup() {
         )}
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">{mode === "hashes" ? "SHA-256, SHA-1 or MD5 digests" : "Email addresses"} — one per line, up to {MAX}</Label>
-        <Textarea
+        <Label htmlFor={`${uid}-entries`} className="text-xs font-medium">{mode === "hashes" ? "SHA-256, SHA-1 or MD5 digests" : "Email addresses"} — one per line, up to {MAX}</Label>
+        <Textarea id={`${uid}-entries`}
           rows={7}
           className="font-mono text-xs"
           placeholder={mode === "hashes" ? "b4c9a289323b21a01c3e940f150eb9b8c542587f1abfd8f0e1cc1ffc5e475514" : "jane@acme.com\nraj@example.org"}
@@ -82,8 +83,8 @@ export function HemLookup() {
           onChange={(e) => setInput(e.target.value)}
         />
         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-          <span>{lines.length} unique{lines.length > MAX && <span className="text-amber-600"> · only the first {MAX} will be sent</span>}</span>
-          {invalid.length > 0 && <span className="text-amber-600">{invalid.length} don&apos;t look like {mode === "hashes" ? "hex digests" : "emails"}{mode === "hashes" && " (they'll come back as rejected)"}</span>}
+          <span>{lines.length} unique{lines.length > MAX && <span className="text-warning"> · only the first {MAX} will be sent</span>}</span>
+          {invalid.length > 0 && <span className="text-warning">{invalid.length} don&apos;t look like {mode === "hashes" ? "hex digests" : "emails"}{mode === "hashes" && " (they'll come back as rejected)"}</span>}
           {mode === "emails" && <span className="flex items-center gap-1"><Lock className="h-3 w-3" />Hashed in your browser. Plain emails are never sent.</span>}
         </div>
       </div>
@@ -98,14 +99,14 @@ export function HemLookup() {
             <CardContent className="flex flex-wrap items-center gap-6 pt-5">
               <div className="flex-1 min-w-[16rem]">
                 <div className="flex h-3 overflow-hidden rounded-full bg-muted">
-                  <div className="bg-emerald-500" style={{ width: `${(counts.found / results.length) * 100}%` }} />
+                  <div className="bg-success" style={{ width: `${(counts.found / results.length) * 100}%` }} />
                   <div className="bg-muted-foreground/30" style={{ width: `${(counts.not_found / results.length) * 100}%` }} />
-                  <div className="bg-red-400" style={{ width: `${(counts.rejected / results.length) * 100}%` }} />
+                  <div className="bg-destructive" style={{ width: `${(counts.rejected / results.length) * 100}%` }} />
                 </div>
                 <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" />{counts.found} found</span>
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-success" />{counts.found} found</span>
                   <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-muted-foreground/30" />{counts.not_found} not found</span>
-                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-red-400" />{counts.rejected} rejected</span>
+                  <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-destructive" />{counts.rejected} rejected</span>
                 </div>
               </div>
               <p className="text-2xl font-semibold tabular-nums">{Math.round((counts.found / results.length) * 100)}%<span className="ml-1 text-sm font-normal text-muted-foreground">match rate</span></p>
@@ -128,7 +129,7 @@ export function HemLookup() {
                       </span>
                     </td>
                     <td className="px-3 py-2">
-                      <Badge variant="outline" className={cn("text-[10px]", r.status === "found" && "border-emerald-500/50 text-emerald-700 dark:text-emerald-400", r.status === "rejected" && "border-red-400/50 text-red-600")}>{r.status.replace("_", " ")}</Badge>
+                      <Badge variant="outline" className={cn("text-[10px]", r.status === "found" && "border-success/50 text-success", r.status === "rejected" && "border-destructive/50 text-destructive")}>{r.status.replace("_", " ")}</Badge>
                     </td>
                     <td className="px-3 py-2">
                       {r.originalEmail ? <span className="flex items-center gap-1 font-mono text-xs">{r.originalEmail}<CopyButton value={r.originalEmail} /></span> : <span className="text-xs text-muted-foreground">{r.message ?? "—"}</span>}

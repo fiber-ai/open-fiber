@@ -1,0 +1,24 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "src/pages/enrichment/kitchen-sink.tsx"
+        ],
+        "createdAt": "2026-10-23T14:13:22.382Z",
+        "reason": "Claude (FIB-20648 audit): segmented toggle's raised active pill inside the form card, not a nested card"
+      }
+    ]
+  }
+}

@@ -136,6 +136,17 @@ Open [http://localhost:3000](http://localhost:3000). If your API key is valid, y
 - **Usage dashboard** — Monitor credit balance and operation-level usage
 - **Address Book** — Unified view of all contacts across audiences and lookups
 
+## Theming & design system
+
+OpenFiber looks deliberately plain (stock shadcn/ui) so it fits into your app. All the branding is in two files:
+
+- [`nextjs/src/styles/brand.css`](nextjs/src/styles/brand.css): accent colour, focus-ring colour, font and corner radius
+- [`nextjs/src/config/brand.ts`](nextjs/src/config/brand.ts): product name and logo (drop your image in `nextjs/public/brand/`)
+
+It ships with Fiber purple and the Fiber logo. Change those two files to make it yours; components only use theme tokens, so nothing else needs touching.
+
+[`nextjs/DESIGN.md`](nextjs/DESIGN.md) describes the design system and [`nextjs/PRODUCT.md`](nextjs/PRODUCT.md) who the app is for. To audit UI changes with [impeccable](https://impeccable.style), run `npx impeccable install` in `nextjs/` (it isn't vendored in the repo), then `/impeccable audit` in your coding agent, or `npx impeccable detect src/`.
+
 ## Configuration
 
 The only required configuration is your Fiber API key:

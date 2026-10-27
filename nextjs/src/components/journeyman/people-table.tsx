@@ -95,7 +95,7 @@ export function PeopleTable({
         const p = row.original;
         if (p.hasChanged) {
           return (
-            <Badge variant="default" className="bg-green-600 hover:bg-green-700">
+            <Badge variant="success">
               Changed
             </Badge>
           );
@@ -143,6 +143,7 @@ export function PeopleTable({
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                aria-label="Remove person"
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(row.original.id ?? row.original.linkedinUrl ?? "");
