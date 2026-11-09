@@ -4,8 +4,23 @@ import {
   getIndustries, getTags, getNaicsCodes, getAccelerators,
   getSubdivisions,
   getOrgCredits, getAutoTopupSettings, updateAutoTopupSettings, buyCredits, getRateLimits,
+  type GetOrgCreditsResponse,
 } from "@fiberai/sdk";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedProcedure, callFiber } from "../trpc";
+
+// We trust the SDK's generated types for these responses, but a cheap runtime check keeps a
+// clear error in the logs if the API shape ever drifts again (as it did in FIB-18656),
+// instead of a confusing `x.map is not a function` further down.
+function expectArray<T>(value: T[], endpoint: string): T[] {
+  if (!Array.isArray(value)) {
+    throw new TRPCError({
+      code: "INTERNAL_SERVER_ERROR",
+      message: `Unexpected response shape from ${endpoint}: expected an array, got ${typeof value}`,
+    });
+  }
+  return value;
+}
 
 const operationLevelSchema = z.object({
   limit: z.number().nullable().optional(),
@@ -17,33 +32,22 @@ const creditsPerOperationSchema = z
   .nullable()
   .optional();
 
-// GET /v1/get-org-credits returns `output` as an array — one entry per active subscription
-// (backend commit d5363339b6, "New billing - v1"). Validated at runtime as a safety net
-// around the generated SDK types, then flattened into a single aggregate view below.
-const usagePeriodSchema = z.object({
-  organizationId: z.string(),
+// GET /v1/get-org-credits returns `output` as an array — one entry per active subscription.
+// The SDK's generated types describe this correctly, so we use them as-is and just flatten
+// the periods into a single aggregate view below.
+type UsagePeriod = GetOrgCreditsResponse["output"][number];
+
+// Per-subscription view of a usage period, as returned in getCredits' `periods`.
+// `creditsPerOperation` is pricing, not usage, and is already exposed at the top level.
+// Note: this and the other `.output()` schemas in this file are intentionally OpenFiber's
+// own tRPC contract with the frontend, not a mirror of the Fiber API response (that is
+// typed by the SDK). Don't swap them for the API shape.
+const usagePeriodSummarySchema = z.object({
   subscriptionId: z.string(),
   max: z.number(),
   used: z.number(),
   available: z.number(),
   usagePeriodResetsOn: z.string(),
-  creditsPerOperation: creditsPerOperationSchema,
-}).passthrough();
-
-const rawCreditsResponseSchema = z.object({
-  output: z.array(usagePeriodSchema),
-}).passthrough();
-
-type UsagePeriod = z.infer<typeof usagePeriodSchema>;
-
-// Per-subscription view of a usage period, as returned in getCredits' `periods`.
-// `creditsPerOperation` is pricing, not usage, and is already exposed at the top level.
-const usagePeriodSummarySchema = usagePeriodSchema.pick({
-  subscriptionId: true,
-  max: true,
-  used: true,
-  available: true,
-  usagePeriodResetsOn: true,
 });
 
 const creditsOutputSchema = z.object({
@@ -62,9 +66,9 @@ const creditsOutputSchema = z.object({
 type CreditsPerOperation = NonNullable<z.infer<typeof creditsPerOperationSchema>>;
 
 // GET /v1/auto-topup/settings returns `output.settings` as an array — one entry per active
-// subscription, same shape change as get-org-credits. We show the org's primary auto top-up
+// subscription (typed correctly by the SDK). We show the org's primary auto top-up
 // configuration: the first configured subscription, or the first subscription if none are
-// configured yet.
+// configured yet. This schema is the getAutoTopUp tRPC output contract.
 const autoTopUpSettingSchema = z.discriminatedUnion("configured", [
   z.object({
     configured: z.literal(true),
@@ -81,12 +85,7 @@ const autoTopUpSettingSchema = z.discriminatedUnion("configured", [
   }).passthrough(),
 ]);
 
-const autoTopUpResponseSchema = z.object({
-  output: z.object({
-    settings: z.array(autoTopUpSettingSchema),
-  }).passthrough(),
-}).passthrough();
-
+// Expects `periods` already sorted by usagePeriodResetsOn, soonest first.
 function aggregateUsagePeriods(periods: UsagePeriod[]) {
   if (periods.length === 0) {
     return {
@@ -117,29 +116,27 @@ function aggregateUsagePeriods(periods: UsagePeriod[]) {
     max: periods.reduce((sum, p) => sum + p.max, 0),
     used: periods.reduce((sum, p) => sum + p.used, 0),
     available: periods.reduce((sum, p) => sum + p.available, 0),
-    // ISO 8601 date strings sort chronologically as plain strings.
-    usagePeriodResetsOn: [...periods].map((p) => p.usagePeriodResetsOn).sort()[0],
+    usagePeriodResetsOn: periods[0].usagePeriodResetsOn,
     creditsPerOperation,
   };
-}
-
-async function fetchUsagePeriods(apiKey: string): Promise<UsagePeriod[]> {
-  const raw = rawCreditsResponseSchema.parse(
-    await callFiber(() => getOrgCredits({ query: { apiKey } }))
-  );
-  return raw.output;
 }
 
 export const utilityRouter = createTRPCRouter({
   getCredits: protectedProcedure
     .output(creditsOutputSchema)
     .query(async ({ ctx }) => {
-      const raw = await fetchUsagePeriods(ctx.apiKey);
-      const periods = raw
-        .map((p) => usagePeriodSummarySchema.parse(p))
-        // ISO 8601 date strings sort chronologically as plain strings.
+      const { output } = await callFiber(() =>
+        getOrgCredits({ query: { apiKey: ctx.apiKey } })
+      );
+      // ISO 8601 date strings sort chronologically as plain strings.
+      const sorted = [...expectArray(output, "/v1/get-org-credits")]
         .sort((a, b) => a.usagePeriodResetsOn.localeCompare(b.usagePeriodResetsOn));
-      return { output: { ...aggregateUsagePeriods(raw), periods } };
+      const periods = sorted.map(
+        ({ subscriptionId, max, used, available, usagePeriodResetsOn }) => ({
+          subscriptionId, max, used, available, usagePeriodResetsOn,
+        })
+      );
+      return { output: { ...aggregateUsagePeriods(sorted), periods } };
     }),
 
   getRegions: protectedProcedure.query(async ({ ctx }) => {
@@ -182,11 +179,11 @@ export const utilityRouter = createTRPCRouter({
   getAutoTopUp: protectedProcedure
     .output(z.object({ output: autoTopUpSettingSchema.nullable() }).passthrough())
     .query(async ({ ctx }) => {
-      const raw = autoTopUpResponseSchema.parse(
-        await callFiber(() => getAutoTopupSettings({ query: { apiKey: ctx.apiKey } }))
+      const { output } = await callFiber(() =>
+        getAutoTopupSettings({ query: { apiKey: ctx.apiKey } })
       );
-      const selected =
-        raw.output.settings.find((s) => s.configured) ?? raw.output.settings[0] ?? null;
+      const settings = expectArray(output.settings, "/v1/auto-topup/settings");
+      const selected = settings.find((s) => s.configured) ?? settings[0] ?? null;
       return { output: selected };
     }),
 
